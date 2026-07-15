@@ -4,4 +4,4 @@
 | :--- | :--- | :--- |
 | Do Dac Loc_s4178227 | *"Blog"* | •  |
 | Nguyen Huu Khoi_s4162137|"Shopping Cart" | |
-||||
+| Nguyen Anh Khoi_s4216408|"Review and Rating"||
