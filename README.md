@@ -3,4 +3,5 @@
 | Team member names_ID | Modules | Files & Folders |
 | :--- | :--- | :--- |
 | Do Dac Loc_s4178227 | *"Blog"* | •  |
-| | | |
+| Nguyen Huu Khoi_s4162137|"Shopping Cart" | |
+||||
