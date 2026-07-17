@@ -3,6 +3,6 @@
 | Team member names_ID | Modules | Files & Folders |
 | :--- | :--- | :--- |
 | Do Dac Loc_s4178227 | *"Blog"* | •  |
-| Nguyen Huu Khoi_s4162137|"Shopping Cart" | |
+| Nguyen Huu Khoi_s4162137|"Shopping Cart and User Account Management" | |
 | Nguyen Anh Khoi_s4216408|"Review and Rating"||
 | Duong Quang Tam_s4197086|"Discussion forum and Wishlist"|
