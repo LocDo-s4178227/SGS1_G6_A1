@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication - Service Marketplace</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .auth-container {
+            display: flex;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .auth-box {
+            margin: auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .auth-header h1 {
+            color: #333;
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .auth-header p {
+            color: #666;
+            margin: 10px 0 0 0;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .password-strength {
+            margin-top: 5px;
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            width: 0;
+            transition: all 0.3s;
+        }
+
+        .strength-weak { background: #ff4757; width: 33%; }
+        .strength-medium { background: #ffa502; width: 66%; }
+        .strength-strong { background: #2ed573; width: 100%; }
+
+        .password-hint {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .form-group input.error {
+            border-color: #ff4757;
+        }
+
+        .error-message {
+            color: #ff4757;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .toggle-form {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .toggle-form a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .toggle-form a:hover {
+            text-decoration: underline;
+        }
+
+        .alert {
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 480px) {
+            .auth-box {
+                padding: 30px 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .forgotten-password {
+            text-align: right;
+            margin-top: -10px;
+            margin-bottom: 20px;
+        }
+
+        .forgotten-password a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .forgotten-password a:hover {
+            text-decoration: underline;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #667eea;
+            font-size: 14px;
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        #resetForm, #forgotForm {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-box">
+            <!-- Login Form -->
+            <div id="loginForm">
+                <div class="auth-header">
+                    <h1>Welcome Back</h1>
+                    <p>Service Marketplace</p>
+                </div>
+
+                <div class="alert alert-info" id="loginAlert"></div>
+
+                <form id="loginSubmit">
+                    <div class="form-group">
+                        <label for="loginUsername">Username</label>
+                        <input type="text" id="loginUsername" required placeholder="Enter your username">
+                        <div class="error-message" id="loginUsernameError"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" required placeholder="Enter your password">
+                        <div class="error-message" id="loginPasswordError"></div>
+                    </div>
+
+                    <div class="forgotten-password">
+                        <a id="forgotPasswordLink">Forgot password?</a>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Sign In</button>
+                    <div class="loading" id="loginLoading">Signing in...</div>
+                </form>
+
+                <div class="toggle-form">
+                    Don't have an account? <a id="toRegisterLink">Create one</a>
+                </div>
+            </div>
+
+            <!-- Registration Form -->
+            <div id="registerForm" style="display: none;">
+                <div class="auth-header">
+                    <h1>Get Started</h1>
+                    <p>Create your account</p>
+                </div>
+
+                <div class="alert alert-info" id="registerAlert"></div>
+
+                <form id="registerSubmit">
+                    <div class="form-group">
+                        <label for="regUsername">Username</label>
+                        <input type="text" id="regUsername" required placeholder="3-20 characters" minlength="3" maxlength="20">
+                        <div class="error-message" id="regUsernameError"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regEmail">Email</label>
+                        <input type="email" id="regEmail" required placeholder="your@email.com">
+                        <div class="error-message" id="regEmailError"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regPassword">Password</label>
+                        <input type="password" id="regPassword" required placeholder="Min 8 chars" minlength="8">
+                        <div class="password-strength">
+                            <div class="password-strength-bar" id="strengthBar"></div>
+                        </div>
+                        <div class="password-hint">Must include uppercase, lowercase, number, and special character</div>
+                        <div class="error-message" id="regPasswordError"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regConfirmPassword">Confirm Password</label>
+                        <input type="password" id="regConfirmPassword" required placeholder="Re-enter password">
+                        <div class="error-message" id="regConfirmPasswordError"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regRole">User Type</label>
+                        <select id="regRole" required>
+                            <option value="">Select user type</option>
+                            <option value="user">Customer</option>
+                            <option value="professional">Professional</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Create Account</button>
+                    <div class="loading" id="registerLoading">Creating account...</div>
+                </form>
+
+                <div class="toggle-form">
+                    Already have an account? <a id="toLoginLink">Sign in</a>
+                </div>
+            </div>
+
+            <!-- Forgot Password Form -->
+            <div id="forgotForm">
+                <div class="auth-header">
+                    <h1>Reset Password</h1>
+                    <p>We'll help you recover your account</p>
+                </div>
+
+                <div class="alert alert-info" id="forgotAlert"></div>
+
+                <form id="forgotSubmit">
+                    <div class="form-group">
+                        <label for="forgotEmail">Email Address</label>
+                        <input type="email" id="forgotEmail" required placeholder="your@email.com">
+                        <div class="error-message" id="forgotEmailError"></div>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Send Reset Link</button>
+                    <div class="loading" id="forgotLoading">Sending...</div>
+                </form>
+
+                <div class="toggle-form">
+                    Back to <a id="backToLoginFromForgot">Sign In</a>
+                </div>
+            </div>
+
+            <!-- Reset Password Form -->
+            <div id="resetForm">
+                <div class="auth-header">
+                    <h1>Create New Password</h1>
+                    <p>Enter a strong new password</p>
+                </div>
+
+                <div class="alert alert-info" id="resetAlert"></div>
+
+                <form id="resetSubmit">
+                    <div class="form-group">
+                        <label for="resetPassword">New Password</label>
+                        <input type="password" id="resetPassword" required placeholder="Min 8 chars" minlength="8">
+                        <div class="password-strength">
+                            <div class="password-strength-bar" id="resetStrengthBar"></div>
+                        </div>
+                        <div class="password-hint">Must include uppercase, lowercase, number, and special character</div>
+                        <div class="error-message" id="resetPasswordError"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="resetConfirmPassword">Confirm Password</label>
+                        <input type="password" id="resetConfirmPassword" required placeholder="Re-enter password">
+                        <div class="error-message" id="resetConfirmPasswordError"></div>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Reset Password</button>
+                    <div class="loading" id="resetLoading">Resetting...</div>
+                </form>
+
+                <div class="toggle-form">
+                    Back to <a id="backToLoginFromReset">Sign In</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        // Form Toggle Functions
+        function showLoginForm() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('forgotForm').style.display = 'none';
+            document.getElementById('resetForm').style.display = 'none';
+            clearAlerts();
+        }
+
+        function showRegisterForm() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+            document.getElementById('forgotForm').style.display = 'none';
+            document.getElementById('resetForm').style.display = 'none';
+            clearAlerts();
+        }
+
+        function showForgotForm() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('forgotForm').style.display = 'block';
+            document.getElementById('resetForm').style.display = 'none';
+            clearAlerts();
+        }
+
+        function showResetForm() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('forgotForm').style.display = 'none';
+            document.getElementById('resetForm').style.display = 'block';
+            clearAlerts();
+        }
+
+        // Clear all alerts
+        function clearAlerts() {
+            document.querySelectorAll('.alert').forEach(alert => {
+                alert.classList.remove('show');
+                alert.textContent = '';
+            });
+        }
+
+        // Show alert
+        function showAlert(elementId, message, type = 'info') {
+            const alert = document.getElementById(elementId);
+            alert.textContent = message;
+            alert.className = `alert show alert-${type}`;
+        }
+
+        // Show error
+        function showError(elementId, message) {
+            const error = document.getElementById(elementId);
+            error.textContent = message;
+            error.classList.add('show');
+        }
+
+        // Clear error
+        function clearError(elementId) {
+            const error = document.getElementById(elementId);
+            error.classList.remove('show');
+            error.textContent = '';
+        }
+
+        // Password strength checker
+        function checkPasswordStrength(password, barId = 'strengthBar') {
+            const bar = document.getElementById(barId);
+            let strength = 0;
+
+            if (password.length >= 8) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[a-z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+            bar.className = 'password-strength-bar';
+            if (strength < 2) bar.classList.add('strength-weak');
+            else if (strength < 4) bar.classList.add('strength-medium');
+            else bar.classList.add('strength-strong');
+        }
+
+        // Event Listeners for Form Toggle
+        document.getElementById('toRegisterLink').addEventListener('click', showRegisterForm);
+        document.getElementById('toLoginLink').addEventListener('click', showLoginForm);
+        document.getElementById('forgotPasswordLink').addEventListener('click', showForgotForm);
+        document.getElementById('backToLoginFromForgot').addEventListener('click', showLoginForm);
+        document.getElementById('backToLoginFromReset').addEventListener('click', showLoginForm);
+
+        // Password strength on type
+        document.getElementById('regPassword').addEventListener('input', (e) => {
+            checkPasswordStrength(e.target.value, 'strengthBar');
+        });
+
+        document.getElementById('resetPassword').addEventListener('input', (e) => {
+            checkPasswordStrength(e.target.value, 'resetStrengthBar');
+        });
+
+        // Login Handler
+        document.getElementById('loginSubmit').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearAlerts();
+
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!username || !password) {
+                showAlert('loginAlert', 'Please fill in all fields', 'info');
+                return;
+            }
+
+            const loginBtn = e.target.querySelector('.submit-btn');
+            loginBtn.disabled = true;
+            document.getElementById('loginLoading').style.display = 'block';
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    localStorage.setItem('userId', data.user._id);
+                    localStorage.setItem('username', data.user.username);
+                    localStorage.setItem('userRole', data.user.role);
+                    showAlert('loginAlert', 'Login successful! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/profile.html';
+                    }, 1000);
+                } else {
+                    showAlert('loginAlert', data.message || 'Login failed', 'error');
+                }
+            } catch (error) {
+                showAlert('loginAlert', 'Network error. Please check backend connection.', 'error');
+                console.error('Login error:', error);
+            } finally {
+                loginBtn.disabled = false;
+                document.getElementById('loginLoading').style.display = 'none';
+            }
+        });
+
+        // Registration Handler
+        document.getElementById('registerSubmit').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearAlerts();
+
+            const username = document.getElementById('regUsername').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+            const role = document.getElementById('regRole').value;
+
+            // Validation
+            let hasErrors = false;
+
+            if (username.length < 3) {
+                showError('regUsernameError', 'Username must be at least 3 characters');
+                hasErrors = true;
+            }
+
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showError('regEmailError', 'Please enter a valid email');
+                hasErrors = true;
+            }
+
+            if (!/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9])/.test(password)) {
+                showError('regPasswordError', 'Password must include uppercase, lowercase, number, and special character');
+                hasErrors = true;
+            }
+
+            if (password !== confirmPassword) {
+                showError('regConfirmPasswordError', 'Passwords do not match');
+                hasErrors = true;
+            }
+
+            if (!role) {
+                showAlert('registerAlert', 'Please select a user type', 'info');
+                hasErrors = true;
+            }
+
+            if (hasErrors) return;
+
+            const registerBtn = e.target.querySelector('.submit-btn');
+            registerBtn.disabled = true;
+            document.getElementById('registerLoading').style.display = 'block';
+
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password, role })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert('registerAlert', 'Account created successfully! Redirecting to login...', 'success');
+                    setTimeout(showLoginForm, 2000);
+                } else {
+                    showAlert('registerAlert', data.message || 'Registration failed', 'error');
+                }
+            } catch (error) {
+                showAlert('registerAlert', 'Network error. Please check backend connection.', 'error');
+                console.error('Registration error:', error);
+            } finally {
+                registerBtn.disabled = false;
+                document.getElementById('registerLoading').style.display = 'none';
+            }
+        });
+
+        // Forgot Password Handler
+        document.getElementById('forgotSubmit').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearAlerts();
+
+            const email = document.getElementById('forgotEmail').value.trim();
+
+            if (!email) {
+                showAlert('forgotAlert', 'Please enter your email', 'info');
+                return;
+            }
+
+            const forgotBtn = e.target.querySelector('.submit-btn');
+            forgotBtn.disabled = true;
+            document.getElementById('forgotLoading').style.display = 'block';
+
+            try {
+                const response = await fetch('/api/auth/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert('forgotAlert', `Reset token sent! Token: ${data.resetToken}`, 'success');
+                    setTimeout(() => {
+                        localStorage.setItem('resetToken', data.resetToken);
+                        showResetForm();
+                    }, 2000);
+                } else {
+                    showAlert('forgotAlert', data.message || 'Failed to send reset email', 'error');
+                }
+            } catch (error) {
+                showAlert('forgotAlert', 'Network error. Please check backend connection.', 'error');
+                console.error('Forgot password error:', error);
+            } finally {
+                forgotBtn.disabled = false;
+                document.getElementById('forgotLoading').style.display = 'none';
+            }
+        });
+
+        // Reset Password Handler
+        document.getElementById('resetSubmit').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearAlerts();
+
+            const newPassword = document.getElementById('resetPassword').value;
+            const confirmPassword = document.getElementById('resetConfirmPassword').value;
+            const token = localStorage.getItem('resetToken');
+
+            // Validation
+            let hasErrors = false;
+
+            if (!/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9])/.test(newPassword)) {
+                showError('resetPasswordError', 'Password must include uppercase, lowercase, number, and special character');
+                hasErrors = true;
+            }
+
+            if (newPassword !== confirmPassword) {
+                showError('resetConfirmPasswordError', 'Passwords do not match');
+                hasErrors = true;
+            }
+
+            if (hasErrors) return;
+
+            const resetBtn = e.target.querySelector('.submit-btn');
+            resetBtn.disabled = true;
+            document.getElementById('resetLoading').style.display = 'block';
+
+            try {
+                const response = await fetch('/api/auth/reset-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token, newPassword })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert('resetAlert', 'Password reset successfully! Redirecting to login...', 'success');
+                    localStorage.removeItem('resetToken');
+                    setTimeout(showLoginForm, 2000);
+                } else {
+                    showAlert('resetAlert', data.message || 'Failed to reset password', 'error');
+                }
+            } catch (error) {
+                showAlert('resetAlert', 'Network error. Please check backend connection.', 'error');
+                console.error('Reset password error:', error);
+            } finally {
+                resetBtn.disabled = false;
+                document.getElementById('resetLoading').style.display = 'none';
+            }
+        });
+
+        // Check if user is already logged in
+        window.addEventListener('load', () => {
+            if (localStorage.getItem('userId')) {
+                window.location.href = '/profile.html';
+            }
+        });
+    </script>
+</body>
+</html>

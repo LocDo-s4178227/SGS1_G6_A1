@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Reply - Marketplace</title>
+    <link rel="stylesheet" href="css/discussion_forum.css">
+</head>
+<body>
+    <header>
+        <h1 id="main-heading">Custom Makers Request Board</h1>
+        <nav id="main-nav">
+            <a href="../shopping_cart/products.html">← Market</a>
+            <a href="thread-detail.html">Cancel</a>
+            <a href="forum.html">Browse</a>
+            <a href="wishlist.html">My Wishlist</a>
+            <a href="../shopping_cart/cart.html">🛒 Cart</a>
+        </nav>
+    </header>
+
+    <main class="container-sm">
+        <div class="card">
+            <h2>Edit Your Reply</h2>
+            <p class="meta-info mb-1">Editing your offer on: <strong>Need a custom ergonomic wooden desk</strong></p>
+
+            <form action="thread-detail.html" method="POST" class="mt-1">
+                <div class="form-group">
+                    <label for="edit-reply-content">Reply Content</label>
+                    <textarea id="edit-reply-content" name="reply_content" rows="4" required>Hi Alex, I'm an industrial design student and have access to the workshop. I can definitely build this using solid oak. Would you be open to a digital 3D mockup first?</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-reply-image">Attach / Replace Image (Optional)</label>
+                    <input type="file" id="edit-reply-image" name="reply_image" accept="image/*">
+                </div>
+
+                <button type="submit" class="btn">Save Reply Changes</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Review items moved from wishlist before checkout." />
+  <title>Wishlist Cart</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <style>
+    .cart-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 2px solid #77b3f8;
+      border-radius: 8px;
+      overflow: hidden;
+      background: white;
+      box-shadow: 0 2px 8px rgba(119, 179, 248, 0.12);
+    }
+
+    .cart-table thead {
+      background: linear-gradient(135deg, #f0f4f8 0%, #e8f0f8 100%);
+      border-bottom: 2px solid #77b3f8;
+    }
+
+    .cart-table th {
+      padding: 16px;
+      text-align: left;
+      font-weight: 700;
+      color: #1a3a52;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .cart-table tbody tr {
+      border-bottom: 1px solid #e8f0f8;
+      transition: background-color 0.2s ease;
+    }
+
+    .cart-table tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    .cart-table tbody tr:hover {
+      background-color: #fafbfc;
+    }
+
+    .cart-table td {
+      padding: 18px 16px;
+      color: #333;
+      font-size: 14px;
+    }
+
+    .cart-table td strong {
+      font-weight: 700;
+      color: #1a3a52;
+    }
+
+    .cart-table a {
+      color: #77b3f8;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s ease;
+    }
+
+    .cart-table a:hover {
+      color: #4a8fdb;
+      text-decoration: underline;
+    }
+
+    .cart-summary {
+      background: linear-gradient(135deg, #f5f9ff 0%, #eef6ff 100%);
+      border: 2px solid #77b3f8;
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(119, 179, 248, 0.12);
+      height: fit-content;
+    }
+
+    .cart-summary h3 {
+      margin-top: 0;
+      color: #1a3a52;
+      font-size: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(119, 179, 248, 0.2);
+      font-size: 14px;
+      color: #333;
+    }
+
+    .summary-row:last-child {
+      border-bottom: none;
+    }
+
+    .summary-row span:first-child {
+      font-weight: 500;
+      color: #666;
+    }
+
+    .summary-row span:last-child {
+      font-weight: 600;
+      color: #1a3a52;
+    }
+
+    .summary-row.total {
+      padding: 16px 0;
+      margin-top: 8px;
+      border-top: 2px solid #77b3f8;
+      font-size: 16px;
+      font-weight: 700;
+      color: #2e7d32;
+    }
+
+    .summary-row.total span:last-child {
+      color: #2e7d32;
+      font-size: 18px;
+    }
+
+    .btn-secondary, .btn-primary {
+      width: 100%;
+      border-radius: 6px;
+      font-weight: 600;
+      padding: 12px 16px;
+      transition: all 0.2s ease;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-container">
+      <div class="logo">🛒 Wishlist Cart</div>
+      <nav>
+        <a href="products.html">Market</a>
+        <a href="../discuss_forum/forum.html">Forum Board</a>
+        <a href="../discuss_forum/wishlist.html">Wishlist</a>
+        <a href="cart.html">Cart <span class="cart-badge">(2)</span></a>
+        <a href="checkout.html">Checkout</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="page-header">
+      <h1>Wishlist Cart</h1>
+      <p>These are items you moved from wishlist for final purchase confirmation.</p>
+    </section>
+
+    <div style="display:grid; grid-template-columns:1fr 340px; gap:28px; margin-bottom:var(--spacing-xl);">
+      <section style="overflow-x:auto;">
+        <table class="cart-table">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Source Thread</th>
+              <th>Agreed Price</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="cartTableBody">
+            <!-- Dynamically populated from localStorage -->
+          </tbody>
+        </table>
+
+        <div style="margin-top:var(--spacing-lg); text-align:center;">
+          <a href="../discuss_forum/wishlist.html" class="btn btn-secondary">← Back to Wishlist</a>
+        </div>
+      </section>
+
+      <aside class="cart-summary">
+        <h3 style="margin-bottom:var(--spacing-lg);">Order Summary</h3>
+        <div class="summary-row"><span id="subtotalLabel">Subtotal (0 items)</span><span id="subtotalValue">$0.00</span></div>
+        <div class="summary-row"><span>Service Fee</span><span id="serviceFee">$0.00</span></div>
+        <div class="summary-row"><span>Tax (10%)</span><span id="taxValue">$0.00</span></div>
+        <div class="summary-row total"><span>Total</span><span id="totalValue">$0.00</span></div>
+
+        <a href="checkout.html" class="btn btn-primary" style="display:block; text-align:center; margin-top:var(--spacing-md);">
+          Proceed to Checkout
+        </a>
+      </aside>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Custom Makers Marketplace</p>
+  </footer>
+
+  <script>
+    /**
+     * Load cart items from localStorage and display them
+     */
+    function loadCartItems() {
+      try {
+        // Load items from forumCart (items added from discussion forum)
+        let forumCart = JSON.parse(localStorage.getItem('forumCart') || '[]');
+
+        // Default static items (can be removed/replaced)
+        const defaultItems = [
+          { id: 'desk-001', title: 'Custom Ergonomic Wooden Desk', threadId: 'desk-001', price: 420.00, maker: 'MakerJohn', status: 'Accepted Offer' },
+          { id: 'shelf-003', title: 'Walnut Wall-Mounted Shelves', threadId: 'shelf-003', price: 380.00, maker: 'CraftPro', status: 'Accepted Offer' }
+        ];
+
+        // Merge forum items with defaults (forum items take priority)
+        let allItems = [...defaultItems];
+        forumCart.forEach(forumItem => {
+          const existingIndex = allItems.findIndex(item => item.threadId === forumItem.threadId);
+          if (existingIndex >= 0) {
+            allItems[existingIndex] = forumItem;
+          } else {
+            allItems.push(forumItem);
+          }
+        });
+
+        // Render table
+        const tbody = document.getElementById('cartTableBody');
+        tbody.innerHTML = allItems.map(item => `
+          <tr>
+            <td><strong>${item.title}</strong></td>
+            <td><a href="../discuss_forum/thread-detail.html?threadId=${item.threadId}">${item.threadId}</a></td>
+            <td>$${item.price.toFixed(2)}</td>
+            <td>${item.status}</td>
+            <td><button class="btn btn-link btn-small" onclick="removeItemFromCart('${item.threadId}')">Remove</button></td>
+          </tr>
+        `).join('');
+
+        // Update summary
+        updateOrderSummary(allItems);
+
+        // Update cart badge
+        updateCartBadge(allItems.length);
+      } catch (error) {
+        console.error('Error loading cart items:', error);
+        document.getElementById('cartTableBody').innerHTML = '<tr><td colspan="5" style="text-align:center; color:#666;">Error loading cart items.</td></tr>';
+      }
+    }
+
+    /**
+     * Update the order summary totals
+     */
+    function updateOrderSummary(items) {
+      const subtotal = items.reduce((sum, item) => sum + (item.price || 0), 0);
+      const serviceFee = Math.max(items.length * 10, 0);
+      const tax = (subtotal + serviceFee) * 0.10;
+      const total = subtotal + serviceFee + tax;
+
+      document.getElementById('subtotalLabel').textContent = `Subtotal (${items.length} item${items.length !== 1 ? 's' : ''})`;
+      document.getElementById('subtotalValue').textContent = `$${subtotal.toFixed(2)}`;
+      document.getElementById('serviceFee').textContent = `$${serviceFee.toFixed(2)}`;
+      document.getElementById('taxValue').textContent = `$${tax.toFixed(2)}`;
+      document.getElementById('totalValue').textContent = `$${total.toFixed(2)}`;
+    }
+
+    /**
+     * Update cart badge in navigation
+     */
+    function updateCartBadge(count) {
+      const badge = document.querySelector('.cart-badge');
+      if (badge) {
+        badge.textContent = `(${count})`;
+      }
+    }
+
+    /**
+     * Remove item from cart
+     */
+    function removeItemFromCart(threadId) {
+      if (confirm('Remove this item from cart?')) {
+        try {
+          let forumCart = JSON.parse(localStorage.getItem('forumCart') || '[]');
+          forumCart = forumCart.filter(item => item.threadId !== threadId);
+          localStorage.setItem('forumCart', JSON.stringify(forumCart));
+          loadCartItems(); // Reload display
+        } catch (error) {
+          console.error('Error removing item:', error);
+          alert('Error removing item from cart.');
+        }
+      }
+    }
+
+    // Load items when page loads
+    document.addEventListener('DOMContentLoaded', loadCartItems);
+  </script>
+</body>
+</html>

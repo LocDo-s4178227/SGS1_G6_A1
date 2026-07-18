@@ -1,0 +1,72 @@
+/* ============================================================
+   discussion_forum.css
+   Styles specific to the Discussion Forum module.
+   Shared design tokens and base rules live in shared.css.
+   ============================================================ */
+@import url("shared.css");
+
+/* Two-column browse layout: filter sidebar + thread list */
+.container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 2rem;
+}
+
+.container-md {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.current-image-preview {
+    display: block;
+    width: 140px;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 0.5rem;
+}
+
+.post-image {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    margin-top: 1rem;
+}
+
+.thread-card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.thread-thumb {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.reply-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+/* Small screens: collapse the sidebar + thread-list grid into a
+   single column so the filter panel doesn't get squeezed. */
+@media (max-width: 700px) {
+    .container {
+        grid-template-columns: 1fr;
+    }
+}

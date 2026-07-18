@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post a Request - Marketplace</title>
+    <link rel="stylesheet" href="css/discussion_forum.css">
+</head>
+<body>
+    <header>
+        <h1 id="main-heading">Custom Makers Request Board</h1>
+        <nav id="main-nav">
+            <a href="../shopping_cart/products.html">← Market</a>
+            <a href="forum.html">Cancel &amp; Back</a>
+            <a href="wishlist.html">My Wishlist</a>
+            <a href="../shopping_cart/cart.html">🛒 Cart</a>
+            <a href="create-thread.html" aria-current="page">Post Request</a>
+        </nav>
+    </header>
+
+    <main class="container-sm">
+        <div class="card">
+            <h2>Post a New Request</h2>
+            <p class="meta-info mb-1">Describe what you need made, designed, or found.</p>
+            
+            <form action="forum.html" method="POST">
+                <div class="form-group">
+                    <label for="req-title">Request Title</label>
+                    <input type="text" id="req-title" name="title" required placeholder="e.g., Custom Leather Wallet Design">
+                </div>
+                
+                <div class="form-group">
+                    <label for="req-content">Description & Requirements</label>
+                    <textarea id="req-content" name="content" rows="6" required placeholder="Provide details about dimensions, materials, budget expectations..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="req-image">Attach Reference Image</label>
+                    <input type="file" id="req-image" name="image" accept="image/*">
+                </div>
+                
+                <button type="submit" class="btn">Publish Request</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

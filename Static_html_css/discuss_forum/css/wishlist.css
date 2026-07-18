@@ -1,0 +1,57 @@
+/* ============================================================
+   wishlist.css
+   Styles specific to the Wishlist module.
+   Shared design tokens and base rules live in shared.css.
+   ============================================================ */
+@import url("shared.css");
+
+:root {
+    --success-color: #28a745;
+    --success-hover: #218838;
+}
+
+.btn-success {
+    background-color: var(--success-color);
+}
+
+.btn-success:hover {
+    background-color: var(--success-hover);
+}
+
+/* Wishlist item layout */
+.wishlist-item {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.wishlist-img {
+    width: 140px;
+    height: 140px;
+    background-color: var(--border-color);
+    object-fit: cover;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.wishlist-content {
+    flex: 1;
+}
+
+.wishlist-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 150px;
+}
+
+@media (max-width: 600px) {
+    .wishlist-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .wishlist-actions {
+        width: 100%;
+    }
+}

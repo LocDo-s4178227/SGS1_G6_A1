@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Wishlist - Custom Marketplace</title>
+    <link rel="stylesheet" href="css/wishlist.css">
+    <style>
+      .wishlist-actions button {
+        cursor: pointer;
+        font-weight: 600;
+      }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 id="main-heading">Custom Makers Request Board</h1>
+        <nav id="main-nav">
+            <a href="../shopping_cart/products.html">← Market</a>
+            <a href="forum.html">Browse Board</a>
+            <a href="wishlist.html" aria-current="page">My Wishlist</a>
+            <a href="../shopping_cart/cart.html">🛒 Cart</a>
+            <a href="create-thread.html">Post Request</a>
+        </nav>
+    </header>
+
+    <main class="container-md">
+        <div class="card mb-2">
+            <h2>My Saved Wishlist Items</h2>
+            <p class="meta-info">View and manage the custom requests and products you are interested in.</p>
+        </div>
+
+        <div class="wishlist-list">
+            <!-- Wishlist Item 1 -->
+            <article class="card wishlist-item">
+                <!-- Item Image -->
+                <img class="wishlist-img" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNDAwIj4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iIzhCNUUzNCIvPgogIDx0ZXh0IHg9IjIwMCIgeT0iMjEwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjgiIGZpbGw9IiNmZmZmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkNvcm5lciBEZXNrPC90ZXh0Pgo8L3N2Zz4=" alt="Solid oak L-shaped corner desk, unfinished, requested by Alex">
+                
+                <!-- Item Details & Stats -->
+                <div class="wishlist-content">
+                    <a href="thread-detail.html" class="card-title">Need a custom ergonomic wooden desk</a>
+                    <p class="mt-1 mb-1">Solid oak L-shaped desk (160cm x 120cm) for home office setup.</p>
+                    
+                    <div class="meta-info">
+                        <strong>Wishlist Stats:</strong><br>
+                        • 14 users added to wishlist<br>
+                        • 5 times moved to cart<br>
+                        • 2 times bought
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="wishlist-actions">
+                    <button class="btn btn-sm" style="width: 100%;" onclick="moveItemToCart('Need a custom ergonomic wooden desk', 'desk-001', 420.00)">Move to Cart</button>
+                    <button class="btn btn-success btn-sm" style="width: 100%;" onclick="alert('Mark as purchased coming soon!')">Mark as Purchased</button>
+                    <button class="btn btn-danger btn-sm" style="width: 100%;" onclick="return confirm('Remove this product from your wishlist?') && alert('Item removed from wishlist.')">Remove</button>
+                </div>
+            </article>
+
+            <!-- Wishlist Item 2 -->
+            <article class="card wishlist-item">
+                <!-- Item Image -->
+                <img class="wishlist-img" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNDAwIj4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iIzNDM0MzQyIvPgogIDx0ZXh0IHg9IjIwMCIgeT0iMjEwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjIiIGZpbGw9IiNmZmZmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPk1lY2hhbmljYWwgS2V5Ym9hcmQ8L3RleHQ+Cjwvc3ZnPg==" alt="Matte black 60% mechanical keyboard case, resin printed">
+                
+                <!-- Item Details & Stats -->
+                <div class="wishlist-content">
+                    <span class="card-title card-title-static">3D Printed Mechanical Keyboard Case</span>
+                    <p class="mt-1 mb-1">Matte black resin print for a 60% mechanical keyboard PCB.</p>
+                    
+                    <div class="meta-info">
+                        <strong>Wishlist Stats:</strong><br>
+                        • 8 users added to wishlist<br>
+                        • 3 times moved to cart<br>
+                        • 1 time bought
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="wishlist-actions">
+                    <button class="btn btn-sm" style="width: 100%;" onclick="moveItemToCart('3D Printed Mechanical Keyboard Case', 'keyboard-002', 180.00)">Move to Cart</button>
+                    <button class="btn btn-success btn-sm" style="width: 100%;" onclick="alert('Mark as purchased coming soon!')">Mark as Purchased</button>
+                    <button class="btn btn-danger btn-sm" style="width: 100%;" onclick="return confirm('Remove this product from your wishlist?') && alert('Item removed from wishlist.')">Remove</button>
+                </div>
+            </article>
+        </div>
+    </main>
+
+    <script>
+      /**
+       * Move wishlist item to cart
+       */
+      function moveItemToCart(title, threadId, price) {
+        try {
+          let forumCart = JSON.parse(localStorage.getItem('forumCart') || '[]');
+
+          const cartItem = {
+            id: threadId,
+            title: title,
+            threadId: threadId,
+            price: price,
+            status: 'Accepted Offer',
+            movedAt: new Date().toISOString()
+          };
+
+          const existingIndex = forumCart.findIndex(item => item.threadId === threadId);
+          if (existingIndex >= 0) {
+            if (confirm(`"${title}" is already in your cart. Do you want to update it?`)) {
+              forumCart[existingIndex] = cartItem;
+            } else {
+              return;
+            }
+          } else {
+            forumCart.push(cartItem);
+          }
+
+          localStorage.setItem('forumCart', JSON.stringify(forumCart));
+          alert(`✓ "${title}" has been added to your cart.\n\nRedirecting to cart...`);
+          
+          setTimeout(() => {
+            window.location.href = '../shopping_cart/cart.html';
+          }, 500);
+        } catch (error) {
+          console.error('Error adding to cart:', error);
+          alert('Error adding item to cart. Please try again.');
+        }
+      }
+    </script>
+</body>
+</html>

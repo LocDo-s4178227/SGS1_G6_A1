@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Profile</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <style>
+    nav {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 1rem 2rem;
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+      color: white;
+      font-weight: 500;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    nav a:hover {
+      opacity: 0.8;
+    }
+
+    .nav-right {
+      margin-left: auto;
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .profile-avatar-large {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 3rem;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .profile-header-info h1 {
+      margin: 0;
+      font-size: 2rem;
+      color: #333;
+    }
+
+    .profile-header-info p {
+      margin: 0.3rem 0 0 0;
+      color: #666;
+      font-size: 1rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    .tab-btn {
+      padding: 0.8rem 1.5rem;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      font-weight: 600;
+      color: #666;
+      transition: all 0.2s;
+      font-size: 1rem;
+    }
+
+    .tab-btn.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+
+    .tab-btn:hover {
+      color: #667eea;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .section {
+      background: white;
+      border-radius: 8px;
+      padding: 2rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      color: #333;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #333;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 600px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .btn {
+      padding: 0.8rem 2rem;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 1rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      flex: 1;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: #e0e0e0;
+      color: #333;
+      flex: 1;
+    }
+
+    .btn-secondary:hover {
+      background: #bbb;
+    }
+
+    .btn-danger {
+      background: #f44336;
+      color: white;
+      flex: 1;
+    }
+
+    .btn-danger:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
+    }
+
+    .btn-warning {
+      background: #ff9800;
+      color: white;
+      flex: 1;
+    }
+
+    .btn-warning:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4);
+    }
+
+    .info-box {
+      background: #e3f2fd;
+      border-left: 4px solid #667eea;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+    }
+
+    .info-box.warning {
+      background: #fff3e0;
+      border-left-color: #ff9800;
+    }
+
+    .info-box.danger {
+      background: #ffebee;
+      border-left-color: #f44336;
+    }
+
+    .info-text {
+      color: #333;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .success-message,
+    .error-message {
+      padding: 1rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+    }
+
+    .success-message {
+      background: #e8f5e9;
+      color: #2e7d32;
+      border-left: 4px solid #4caf50;
+    }
+
+    .error-message {
+      background: #ffebee;
+      color: #c62828;
+      border-left: 4px solid #f44336;
+    }
+
+    .loading {
+      text-align: center;
+      color: #999;
+      padding: 3rem;
+    }
+
+    .danger-zone {
+      border: 2px solid #f44336;
+      padding: 2rem;
+      border-radius: 8px;
+      background: #ffebee;
+    }
+
+    .danger-zone-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #c62828;
+      margin-bottom: 1rem;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 8px;
+      padding: 2rem;
+      max-width: 400px;
+      width: 90%;
+    }
+
+    .modal-header {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      color: #333;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .modal-buttons button {
+      flex: 1;
+      padding: 0.8rem;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="request-board.html">Browse Requests</a>
+    <a href="my-requests.html">My Posts</a>
+    <a href="my-proposals.html">My Proposals</a>
+    <a href="messaging-hub.html">Messages</a>
+    <div class="nav-right">
+      <a href="profile.html">Profile</a>
+      <a href="auth.html" onclick="logout()">Logout</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header" id="profileHeader">
+      <div class="profile-avatar-large" id="avatarLarge">?</div>
+      <div class="profile-header-info">
+        <h1 id="profileName">Loading...</h1>
+        <p id="profileEmail">user@example.com</p>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('profile')">Profile</button>
+      <button class="tab-btn" onclick="switchTab('security')">Security</button>
+      <button class="tab-btn" onclick="switchTab('account')">Account</button>
+    </div>
+
+    <!-- Profile Tab -->
+    <div class="tab-content active" id="profile">
+      <div class="section">
+        <div class="section-title">Personal Information</div>
+        <div id="profileMessage"></div>
+
+        <form id="profileForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label>First Name</label>
+              <input type="text" id="firstName" required />
+            </div>
+            <div class="form-group">
+              <label>Last Name</label>
+              <input type="text" id="lastName" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Username</label>
+            <input type="text" id="username" disabled style="background: #f5f5f5;" />
+            <small style="color: #999;">Username cannot be changed</small>
+          </div>
+
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="email" required />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Phone</label>
+              <input type="tel" id="phone" placeholder="+1 (555) 000-0000" />
+            </div>
+            <div class="form-group">
+              <label>Location</label>
+              <input type="text" id="location" placeholder="City, State" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Bio / Description</label>
+            <textarea id="description" placeholder="Tell customers about yourself..."></textarea>
+            <small style="color: #999;">Max 500 characters</small>
+          </div>
+
+          <div class="form-group">
+            <label>Profile Picture URL</label>
+            <input type="url" id="profilePicture" placeholder="https://example.com/picture.jpg" />
+          </div>
+
+          <div class="button-group">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <button type="button" class="btn btn-secondary" onclick="resetProfileForm()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Security Tab -->
+    <div class="tab-content" id="security">
+      <div class="section">
+        <div class="section-title">Change Password</div>
+
+        <div class="info-box">
+          <div class="info-text">Use a strong password with at least 6 characters including letters, numbers, and symbols.</div>
+        </div>
+
+        <div id="passwordMessage"></div>
+
+        <form id="passwordForm">
+          <div class="form-group">
+            <label>Current Password</label>
+            <input type="password" id="currentPassword" required />
+          </div>
+
+          <div class="form-group">
+            <label>New Password</label>
+            <input type="password" id="newPassword" minlength="6" required />
+          </div>
+
+          <div class="form-group">
+            <label>Confirm New Password</label>
+            <input type="password" id="confirmPassword" minlength="6" required />
+          </div>
+
+          <div class="button-group">
+            <button type="submit" class="btn btn-primary">Update Password</button>
+            <button type="button" class="btn btn-secondary" onclick="resetPasswordForm()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Account Tab -->
+    <div class="tab-content" id="account">
+      <div class="section">
+        <div class="section-title">Account Settings</div>
+
+        <h3 style="color: #666; margin-top: 1.5rem; margin-bottom: 1rem;">Notifications</h3>
+        <div class="form-group">
+          <input type="checkbox" id="emailNotifications" checked />
+          <label for="emailNotifications" style="display: inline; margin-left: 0.5rem;">Email Notifications</label>
+        </div>
+
+        <div class="form-group">
+          <input type="checkbox" id="messageNotifications" checked />
+          <label for="messageNotifications" style="display: inline; margin-left: 0.5rem;">Message Notifications</label>
+        </div>
+
+        <div class="form-group">
+          <input type="checkbox" id="newRequestNotifications" checked />
+          <label for="newRequestNotifications" style="display: inline; margin-left: 0.5rem;">New Request Notifications</label>
+        </div>
+
+        <button class="btn btn-primary" onclick="saveNotificationPreferences()" style="width: 100%; margin-top: 1rem;">Save Notification Settings</button>
+      </div>
+
+      <div class="section danger-zone">
+        <div class="danger-zone-title">⚠️ Danger Zone</div>
+
+        <h3 style="color: #c62828; margin-top: 1rem;">Deactivate Account</h3>
+        <p style="color: #666; margin-bottom: 1rem;">Temporarily deactivate your account. You can reactivate it anytime.</p>
+        <button class="btn btn-warning" onclick="confirmDeactivate()">Deactivate Account</button>
+
+        <hr style="margin: 2rem 0; border: none; border-top: 1px solid #f44336;" />
+
+        <h3 style="color: #c62828;">Permanently Delete Account</h3>
+        <p style="color: #666; margin-bottom: 1rem;">Once you delete your account, there is no going back. Please be certain.</p>
+        <button class="btn btn-danger" onclick="confirmDelete()">Delete Account Permanently</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deactivate Modal -->
+  <div class="modal" id="deactivateModal">
+    <div class="modal-content">
+      <div class="modal-header">Deactivate Account?</div>
+      <p style="color: #666; margin-bottom: 1rem;">
+        Your account will be deactivated. You can log back in and reactivate it anytime.
+      </p>
+      <div class="modal-buttons">
+        <button class="btn btn-warning" onclick="deactivateAccount()">Deactivate</button>
+        <button class="btn btn-secondary" onclick="closeModal('deactivateModal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Modal -->
+  <div class="modal" id="deleteModal">
+    <div class="modal-content">
+      <div class="modal-header">Delete Account Permanently?</div>
+      <p style="color: #666; margin-bottom: 1rem; font-weight: 600;">This action cannot be undone.</p>
+      <p style="color: #666; margin-bottom: 1rem;">
+        Please type your email to confirm account deletion:
+      </p>
+      <div class="form-group">
+        <input type="email" id="deleteConfirmEmail" placeholder="Enter your email" />
+      </div>
+      <div class="modal-buttons">
+        <button class="btn btn-danger" onclick="deleteAccount()">Delete Permanently</button>
+        <button class="btn btn-secondary" onclick="closeModal('deleteModal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script>
+    let currentUser = null;
+
+    // Initialize
+    (async () => {
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      if (!user.id) {
+        window.location.href = "auth.html";
+        return;
+      }
+
+      await loadUserProfile(user.id);
+    })();
+
+    async function loadUserProfile(userId) {
+      try {
+        const user = await getUserProfile(userId);
+        currentUser = user;
+
+        // Update header
+        const initials = user.firstName.charAt(0) + user.lastName.charAt(0);
+        document.getElementById("avatarLarge").textContent = initials;
+        document.getElementById("profileName").textContent = `${user.firstName} ${user.lastName}`;
+        document.getElementById("profileEmail").textContent = user.email;
+
+        // Fill profile form
+        document.getElementById("firstName").value = user.firstName;
+        document.getElementById("lastName").value = user.lastName;
+        document.getElementById("username").value = user.username;
+        document.getElementById("email").value = user.email;
+        document.getElementById("phone").value = user.phone || "";
+        document.getElementById("location").value = user.location || "";
+        document.getElementById("description").value = user.description || "";
+        document.getElementById("profilePicture").value = user.profilePicture || "";
+
+        // Fill notification preferences
+        document.getElementById("emailNotifications").checked = user.preferences?.emailNotifications ?? true;
+        document.getElementById("messageNotifications").checked = user.preferences?.messageNotifications ?? true;
+        document.getElementById("newRequestNotifications").checked = user.preferences?.newRequestNotifications ?? true;
+      } catch (error) {
+        console.error("Error loading profile:", error);
+        showMessage("profileMessage", "Failed to load profile", "error");
+      }
+    }
+
+    function switchTab(tab) {
+      // Hide all tabs
+      document.querySelectorAll(".tab-content").forEach((el) => {
+        el.classList.remove("active");
+      });
+      document.querySelectorAll(".tab-btn").forEach((btn) => {
+        btn.classList.remove("active");
+      });
+
+      // Show selected tab
+      document.getElementById(tab).classList.add("active");
+      event.currentTarget.classList.add("active");
+    }
+
+    // Profile Form
+    document.getElementById("profileForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const profileData = {
+        firstName: document.getElementById("firstName").value,
+        lastName: document.getElementById("lastName").value,
+        email: document.getElementById("email").value,
+        phone: document.getElementById("phone").value,
+        location: document.getElementById("location").value,
+        description: document.getElementById("description").value,
+        profilePicture: document.getElementById("profilePicture").value,
+      };
+
+      try {
+        await updateUserProfile(currentUser._id, profileData);
+        showMessage("profileMessage", "Profile updated successfully!", "success");
+        await loadUserProfile(currentUser._id);
+      } catch (error) {
+        showMessage("profileMessage", error.message, "error");
+      }
+    });
+
+    function resetProfileForm() {
+      loadUserProfile(currentUser._id);
+    }
+
+    // Password Form
+    document.getElementById("passwordForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const newPassword = document.getElementById("newPassword").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+
+      if (newPassword !== confirmPassword) {
+        showMessage("passwordMessage", "Passwords do not match", "error");
+        return;
+      }
+
+      try {
+        await apiCall("/api/auth/change-password", {
+          method: "POST",
+          body: JSON.stringify({
+            userId: currentUser._id,
+            currentPassword: document.getElementById("currentPassword").value,
+            newPassword: newPassword,
+          }),
+        });
+
+        showMessage("passwordMessage", "Password changed successfully!", "success");
+        resetPasswordForm();
+      } catch (error) {
+        showMessage("passwordMessage", error.message, "error");
+      }
+    });
+
+    function resetPasswordForm() {
+      document.getElementById("passwordForm").reset();
+    }
+
+    // Notification preferences
+    async function saveNotificationPreferences() {
+      try {
+        await updateUserProfile(currentUser._id, {
+          preferences: {
+            emailNotifications: document.getElementById("emailNotifications").checked,
+            messageNotifications: document.getElementById("messageNotifications").checked,
+            newRequestNotifications: document.getElementById("newRequestNotifications").checked,
+          },
+        });
+        showNotification("Notification preferences updated!", "success");
+      } catch (error) {
+        showNotification("Failed to save preferences", "error");
+      }
+    }
+
+    // Account management
+    function confirmDeactivate() {
+      document.getElementById("deactivateModal").classList.add("active");
+    }
+
+    async function deactivateAccount() {
+      try {
+        await apiCall(`/api/auth/user/${currentUser._id}/deactivate`, {
+          method: "PUT",
+        });
+
+        showNotification("Account deactivated. You can reactivate it anytime by logging in.", "success");
+        setTimeout(() => {
+          logout();
+        }, 2000);
+      } catch (error) {
+        showNotification(error.message, "error");
+      }
+    }
+
+    function confirmDelete() {
+      document.getElementById("deleteModal").classList.add("active");
+    }
+
+    async function deleteAccount() {
+      const email = document.getElementById("deleteConfirmEmail").value;
+
+      if (email !== currentUser.email) {
+        showNotification("Email does not match", "error");
+        return;
+      }
+
+      // Prompt for password confirmation
+      const password = prompt("Enter your password to confirm deletion:");
+      if (!password) return;
+
+      try {
+        await apiCall(`/api/auth/user/${currentUser._id}`, {
+          method: "DELETE",
+          body: JSON.stringify({ password }),
+        });
+
+        showNotification("Account deleted permanently.", "success");
+        setTimeout(() => {
+          logout();
+        }, 2000);
+      } catch (error) {
+        showNotification(error.message, "error");
+      }
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove("active");
+    }
+
+    function showMessage(elementId, message, type) {
+      const el = document.getElementById(elementId);
+      const className = type === "success" ? "success-message" : "error-message";
+      el.innerHTML = `<div class="${className}">${escapeHtml(message)}</div>`;
+
+      if (type === "success") {
+        setTimeout(() => {
+          el.innerHTML = "";
+        }, 5000);
+      }
+    }
+
+    function escapeHtml(text) {
+      const map = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;",
+      };
+      return text.replace(/[&<>"']/g, (m) => map[m]);
+    }
+
+    function logout() {
+      localStorage.removeItem("user");
+      window.location.href = "auth.html";
+    }
+  </script>
+</body>
+</html>

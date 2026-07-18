@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout - Wishlist Cart</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <header>
+    <div class="header-container">
+      <div class="logo">💳 Checkout</div>
+      <nav>
+        <a href="products.html">Market</a>
+        <a href="../discuss_forum/forum.html">Forum Board</a>
+        <a href="../discuss_forum/wishlist.html">Wishlist</a>
+        <a href="cart.html">Cart</a>
+        <a href="checkout.html">Checkout</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="page-header">
+      <h1>Secure Checkout</h1>
+      <p>Complete payment for accepted wishlist/forum items.</p>
+    </section>
+
+    <div class="checkout-container">
+      <form id="checkoutForm" style="display:flex; flex-direction:column; gap:var(--spacing-lg);">
+        <section class="checkout-section">
+          <h2>Delivery Information</h2>
+          <div class="form-group">
+            <label for="fullName">Full Name *</label>
+            <input id="fullName" type="text" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Email *</label>
+            <input id="email" type="email" required>
+          </div>
+          <div class="form-group">
+            <label for="address">Address *</label>
+            <input id="address" type="text" required>
+          </div>
+        </section>
+
+        <section class="checkout-section">
+          <h2>Payment Details</h2>
+          <div class="form-group">
+            <label for="cardholderName">Cardholder Name *</label>
+            <input id="cardholderName" type="text" required>
+          </div>
+          <div class="form-group">
+            <label for="cardNumber">Card Number *</label>
+            <input id="cardNumber" type="text" maxlength="19" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="expiryDate">Expiry *</label>
+              <input id="expiryDate" type="text" maxlength="5" placeholder="MM/YY" required>
+            </div>
+            <div class="form-group">
+              <label for="cvv">CVV *</label>
+              <input id="cvv" type="text" maxlength="4" required>
+            </div>
+          </div>
+        </section>
+
+        <section class="checkout-section">
+          <input type="checkbox" id="terms" required>
+          <label for="terms" style="display:inline; font-weight:normal;">
+            I agree to Terms of Service and Privacy Policy
+          </label>
+        </section>
+
+        <div style="display:flex; gap:var(--spacing-md);">
+          <a href="cart.html" class="btn btn-secondary" style="flex:1; text-align:center;">← Back to Cart</a>
+          <button class="btn btn-primary" style="flex:1;" type="submit">Place Order ($902.00)</button>
+        </div>
+      </form>
+
+      <aside class="checkout-section" style="height:fit-content; position:sticky; top:100px;">
+        <h2>Order Summary</h2>
+        <div class="summary-row"><span>Custom Ergonomic Desk</span><span>$420.00</span></div>
+        <div class="summary-row"><span>Walnut Shelves</span><span>$380.00</span></div>
+        <div class="summary-row"><span>Service Fee</span><span>$20.00</span></div>
+        <div class="summary-row"><span>Tax</span><span>$82.00</span></div>
+        <div class="summary-row total"><span>Total</span><span>$902.00</span></div>
+      </aside>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Custom Makers Marketplace</p>
+  </footer>
+
+  <script>
+    document.getElementById('checkoutForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      if (!document.getElementById('terms').checked) {
+        alert('Please agree to terms first.');
+        return;
+      }
+      alert('Processing payment...');
+      setTimeout(() => window.location.href = 'order-confirmation.html', 900);
+    });
+
+    document.getElementById('cardNumber').addEventListener('input', function(e){
+      let value = e.target.value.replace(/\s/g, '');
+      e.target.value = value.replace(/(\d{4})/g, '$1 ').trim();
+    });
+
+    document.getElementById('expiryDate').addEventListener('input', function(e){
+      let v = e.target.value.replace(/\D/g, '');
+      if (v.length >= 2) v = v.slice(0,2) + '/' + v.slice(2,4);
+      e.target.value = v;
+    });
+  </script>
+</body>
+</html>

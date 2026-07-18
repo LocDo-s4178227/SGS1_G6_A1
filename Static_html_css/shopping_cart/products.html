@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Main Market - Custom Makers Marketplace</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <style>
+    .quick-access {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 14px;
+      margin-bottom: 28px;
+      padding: 20px;
+      border: 2px solid rgba(119,179,248,.18);
+      background: rgba(119,179,248,.06);
+      border-radius: 12px;
+    }
+    .quick-access-item {
+      background: #fff;
+      border-radius: 8px;
+      padding: 14px;
+      border: 2px solid transparent;
+      text-align: center;
+      transition: .2s ease;
+    }
+    .quick-access-item:hover {
+      border-color: #77b3f8;
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px rgba(119,179,248,.25);
+    }
+    .quick-access-item a {
+      text-decoration: none;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
+    }
+    .quick-access-icon { font-size: 30px; }
+    .quick-access-label { font-size: 14px; font-weight: 600; }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      border-bottom: 3px solid #77b3f8;
+      padding-bottom: 10px;
+    }
+
+    .market-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 22px;
+    }
+
+    .market-card {
+      background: #fff;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      box-shadow: 0 2px 8px rgba(0,0,0,.1);
+      overflow: hidden;
+      transition: .25s ease;
+    }
+    .market-card:hover {
+      border-color: #77b3f8;
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(119,179,248,.2);
+    }
+    .market-image {
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 46px;
+      background: linear-gradient(135deg, #f0f4f8 0%, #e8f0f8 100%);
+      border-bottom: 4px solid #77b3f8;
+    }
+    .market-info { padding: 16px; }
+    .market-title { font-weight: 700; margin-bottom: 8px; color: #333; }
+    .market-sub { font-size: 13px; color: #666; margin-bottom: 8px; }
+    .market-budget { color: #2e7d32; font-weight: 700; margin-bottom: 12px; }
+
+    .market-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .market-actions .btn { flex: 1; min-width: 120px; text-align: center; }
+
+    .section-divider {
+      margin: 34px 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #77b3f8, transparent);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-container">
+      <div class="logo">🛋️ Main Market</div>
+      <nav>
+        <a href="products.html">Market</a>
+        <a href="../discuss_forum/forum.html">Forum Board</a>
+        <a href="../discuss_forum/wishlist.html">Wishlist</a>
+        <a href="cart.html">Cart</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="page-header">
+      <h1>🏪 Custom Makers Main Market</h1>
+      <p>Discover popular requests and jump directly into each item’s discussion thread.</p>
+    </div>
+
+    <div class="quick-access">
+      <div class="quick-access-item">
+        <a href="../discuss_forum/forum.html">
+          <div class="quick-access-icon">📋</div>
+          <div class="quick-access-label">Browse All Threads</div>
+        </a>
+      </div>
+      <div class="quick-access-item">
+        <a href="../discuss_forum/create-thread.html">
+          <div class="quick-access-icon">📝</div>
+          <div class="quick-access-label">Post New Request</div>
+        </a>
+      </div>
+      <div class="quick-access-item">
+        <a href="../discuss_forum/wishlist.html">
+          <div class="quick-access-icon">❤️</div>
+          <div class="quick-access-label">My Wishlist</div>
+        </a>
+      </div>
+      <div class="quick-access-item">
+        <a href="cart.html">
+          <div class="quick-access-icon">🛒</div>
+          <div class="quick-access-label">Wishlist Cart</div>
+        </a>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <h2 class="section-title">🔥 Trending Market Requests</h2>
+    <div class="market-grid">
+      <article class="market-card">
+        <div class="market-image">🪵</div>
+        <div class="market-info">
+          <div class="market-title">Custom Ergonomic Wooden Desk</div>
+          <div class="market-sub">Posted by Alex • 3 offers • Open</div>
+          <div class="market-budget">Budget: $350 - $500</div>
+          <div class="market-actions">
+            <a href="../discuss_forum/thread-detail.html?threadId=desk-001" class="btn btn-primary btn-sm">View Discussion</a>
+            <a href="../discuss_forum/thread-detail.html?threadId=desk-001#reply-form" class="btn btn-success btn-sm">Make Offer</a>
+            <button class="btn btn-secondary btn-sm" onclick="saveToWishlist('desk-001')">♡ Save</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="market-card">
+        <div class="market-image">🛋️</div>
+        <div class="market-info">
+          <div class="market-title">Sofa Reupholstery Project</div>
+          <div class="market-sub">Posted by Nina • 5 offers • Negotiating</div>
+          <div class="market-budget">Budget: $250 - $450</div>
+          <div class="market-actions">
+            <a href="../discuss_forum/thread-detail.html?threadId=sofa-002" class="btn btn-primary btn-sm">View Discussion</a>
+            <a href="../discuss_forum/thread-detail.html?threadId=sofa-002#reply-form" class="btn btn-success btn-sm">Make Offer</a>
+            <button class="btn btn-secondary btn-sm" onclick="saveToWishlist('sofa-002')">♡ Save</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="market-card">
+        <div class="market-image">📚</div>
+        <div class="market-info">
+          <div class="market-title">Walnut Wall-Mounted Shelves</div>
+          <div class="market-sub">Posted by Mark • 2 offers • Open</div>
+          <div class="market-budget">Budget: $500 - $900</div>
+          <div class="market-actions">
+            <a href="../discuss_forum/thread-detail.html?threadId=shelf-003" class="btn btn-primary btn-sm">View Discussion</a>
+            <a href="../discuss_forum/thread-detail.html?threadId=shelf-003#reply-form" class="btn btn-success btn-sm">Make Offer</a>
+            <button class="btn btn-secondary btn-sm" onclick="saveToWishlist('shelf-003')">♡ Save</button>
+          </div>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Custom Makers Marketplace. All rights reserved.</p>
+  </footer>
+
+  <script>
+    function saveToWishlist(threadId) {
+      alert(`Saved ${threadId} to wishlist`);
+    }
+  </script>
+</body>
+</html>
