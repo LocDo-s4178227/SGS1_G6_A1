@@ -5,21 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Wishlist - Custom Marketplace</title>
     <link rel="stylesheet" href="css/wishlist.css">
-    <style>
-      .wishlist-actions button {
-        cursor: pointer;
-        font-weight: 600;
-      }
-    </style>
 </head>
 <body>
     <header>
-        <h1 id="main-heading">Custom Makers Request Board</h1>
-        <nav id="main-nav">
-            <a href="../shopping_cart/products.html">← Market</a>
+        <h1 id="main-heading">🛒 Custom Makers Request Board</h1>
+        <nav>
+            <a href="../shopping_cart/products.html">Market</a>
             <a href="forum.html">Browse Board</a>
-            <a href="wishlist.html" aria-current="page">My Wishlist</a>
-            <a href="../shopping_cart/cart.html">🛒 Cart</a>
+            <a href="wishlist.html" class="active">My Wishlist</a>
+            <a href="../shopping_cart/cart.html">Cart</a>
             <a href="create-thread.html">Post Request</a>
         </nav>
     </header>
@@ -33,10 +27,8 @@
         <div class="wishlist-list">
             <!-- Wishlist Item 1 -->
             <article class="card wishlist-item">
-                <!-- Item Image -->
                 <img class="wishlist-img" src="../images/ergonomic_wooden_desk.png" alt="Reference sketch of the requested corner desk">
                 
-                <!-- Item Details & Stats -->
                 <div class="wishlist-content">
                     <a href="thread-detail.html" class="card-title">Need a custom ergonomic wooden desk</a>
                     <p class="mt-1 mb-1">Solid oak L-shaped desk (160cm x 120cm) for home office setup.</p>
@@ -49,20 +41,17 @@
                     </div>
                 </div>
 
-                <!-- Actions -->
                 <div class="wishlist-actions">
-                    <button class="btn btn-sm" style="width: 100%;" onclick="moveItemToCart('Need a custom ergonomic wooden desk', 'desk-001', 420.00)">Move to Cart</button>
-                    <button class="btn btn-success btn-sm" style="width: 100%;" onclick="alert('Mark as purchased coming soon!')">Mark as Purchased</button>
-                    <button class="btn btn-danger btn-sm" style="width: 100%;" onclick="return confirm('Remove this product from your wishlist?') && alert('Item removed from wishlist.')">Remove</button>
+                    <button class="btn btn-sm" onclick="moveItemToCart('Need a custom ergonomic wooden desk', 'desk-001', 420.00)">Move to Cart</button>
+                    <button class="btn btn-success btn-sm" onclick="alert('Mark as purchased coming soon!')">Mark as Purchased</button>
+                    <button class="btn btn-danger btn-sm" onclick="return confirm('Remove this product from your wishlist?') && alert('Item removed from wishlist.')">Remove</button>
                 </div>
             </article>
 
             <!-- Wishlist Item 2 -->
             <article class="card wishlist-item">
-                <!-- Item Image -->
                 <img class="wishlist-img" src="../images/mechanical_keyboard_case.png" alt="Reference render of the requested keyboard case">
                 
-                <!-- Item Details & Stats -->
                 <div class="wishlist-content">
                     <span class="card-title card-title-static">3D Printed Mechanical Keyboard Case</span>
                     <p class="mt-1 mb-1">Matte black resin print for a 60% mechanical keyboard PCB.</p>
@@ -75,11 +64,10 @@
                     </div>
                 </div>
 
-                <!-- Actions -->
                 <div class="wishlist-actions">
-                    <button class="btn btn-sm" style="width: 100%;" onclick="moveItemToCart('3D Printed Mechanical Keyboard Case', 'keyboard-002', 180.00)">Move to Cart</button>
-                    <button class="btn btn-success btn-sm" style="width: 100%;" onclick="alert('Mark as purchased coming soon!')">Mark as Purchased</button>
-                    <button class="btn btn-danger btn-sm" style="width: 100%;" onclick="return confirm('Remove this product from your wishlist?') && alert('Item removed from wishlist.')">Remove</button>
+                    <button class="btn btn-sm" onclick="moveItemToCart('3D Printed Mechanical Keyboard Case', 'keyboard-002', 180.00)">Move to Cart</button>
+                    <button class="btn btn-success btn-sm" onclick="alert('Mark as purchased coming soon!')">Mark as Purchased</button>
+                    <button class="btn btn-danger btn-sm" onclick="return confirm('Remove this product from your wishlist?') && alert('Item removed from wishlist.')">Remove</button>
                 </div>
             </article>
         </div>
