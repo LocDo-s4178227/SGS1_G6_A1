@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - WebReview</title>
+    <link rel="stylesheet" href="../Blog/blogpage.css">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
+    <main id="main-content" class="auth-page">
+        <div class="auth-card">
+            <h1>WebReview Admin</h1>
+            <p class="auth-subtitle muted">Sign in with your admin or user account</p>
+
+            <form action="dashboard.html" method="get">
+                <div class="form-group">
+                    <label for="login-username">Username or email</label>
+                    <input class="input" type="text" id="login-username" name="username" required placeholder="Enter username" autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input class="input" type="password" id="login-password" name="password" required placeholder="Enter password" autocomplete="current-password">
+                </div>
+                <div class="form-group">
+                    <label for="login-role">Sign in as</label>
+                    <select class="select" id="login-role" name="role">
+                        <option value="admin">Administrator</option>
+                        <option value="user">Standard user</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary full">Sign in</button>
+                </div>
+            </form>
+
+            <div class="auth-demo">
+                <p><strong>Demo credentials (static prototype):</strong></p>
+                <p>Admin: <code>admin</code> / <code>Admin123!</code></p>
+                <p>User: <code>johndoe</code> / <code>User1234!</code></p>
+            </div>
+
+            <div class="auth-footer-links">
+                <a href="profile.html">Forgot password?</a> ·
+                <a href="../Blog/blog-list.html">Back to Blog</a> ·
+                <a href="../../index.html">Home</a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

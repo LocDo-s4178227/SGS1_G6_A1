@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - WebReview</title>
+    <link rel="stylesheet" href="../Blog/blogpage.css">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
+    <header>
+        <div class="header-container">
+            <a class="logo" href="../../index.html">WebReview Admin</a>
+            <nav aria-label="Main navigation">
+                <a href="../../index.html">Home</a>
+                <a href="../Blog/blog-list.html">Blog</a>
+                <a href="../shopping_cart/products.html">Market</a>
+                <a href="../discuss_forum/forum.html">Forum</a>
+                <a href="dashboard.html" class="active" aria-current="page">Dashboard</a>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main-content" class="container page">
+        <div class="page-header">
+            <h1>Admin Dashboard</h1>
+            <p>Overview of platform activity, user accounts, and content moderation. Signed in as <strong>admin</strong> (Administrator).</p>
+        </div>
+
+        <div class="admin-layout">
+            <aside class="admin-sidebar" aria-labelledby="admin-nav-heading">
+                <h2 id="admin-nav-heading">Admin menu</h2>
+                <nav aria-label="Admin navigation">
+                    <a href="dashboard.html" class="active" aria-current="page">Dashboard</a>
+                    <a href="users.html">User management</a>
+                    <a href="profile.html">My profile</a>
+                    <a href="../Blog/blog-list.html">Blog module</a>
+                    <a href="login.html" class="admin-nav-danger">Sign out</a>
+                </nav>
+            </aside>
+
+            <div class="admin-main">
+                <section class="stats-grid" aria-label="Platform statistics">
+                    <article class="stat-card">
+                        <h3>Total users</h3>
+                        <p class="stat-value">248</p>
+                        <p class="stat-change">+12 this week</p>
+                    </article>
+                    <article class="stat-card">
+                        <h3>Blog posts</h3>
+                        <p class="stat-value">36</p>
+                        <p class="stat-change">+4 this week</p>
+                    </article>
+                    <article class="stat-card">
+                        <h3>Locked accounts</h3>
+                        <p class="stat-value">3</p>
+                        <p class="stat-change muted" style="color: var(--warning);">Requires review</p>
+                    </article>
+                    <article class="stat-card">
+                        <h3>Forum threads</h3>
+                        <p class="stat-value">89</p>
+                        <p class="stat-change">+7 this week</p>
+                    </article>
+                </section>
+
+                <section class="card mb-l" aria-labelledby="quick-links-heading">
+                    <h2 id="quick-links-heading">Quick links</h2>
+                    <div class="quick-links mt-m">
+                        <a href="users.html" class="quick-link-card">
+                            <span class="quick-link-icon">👥</span>
+                            Manage users
+                        </a>
+                        <a href="../Blog/blog-create.html" class="quick-link-card">
+                            <span class="quick-link-icon">✏️</span>
+                            New blog post
+                        </a>
+                        <a href="../Blog/blog-list.html" class="quick-link-card">
+                            <span class="quick-link-icon">📋</span>
+                            View all posts
+                        </a>
+                        <a href="profile.html" class="quick-link-card">
+                            <span class="quick-link-icon">⚙️</span>
+                            Admin profile
+                        </a>
+                    </div>
+                </section>
+
+                <section class="card" aria-labelledby="activity-heading">
+                    <h2 id="activity-heading">Recent activity</h2>
+                    <ul class="activity-list mt-m">
+                        <li class="activity-item">
+                            <span class="activity-icon">N</span>
+                            <div class="activity-body">
+                                <p><strong>Nguyễn Minh An</strong> published blog post "Đánh giá UX của Shopee Việt Nam"</p>
+                                <p class="muted">18 July 2026, 10:45 AM</p>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <span class="activity-icon">A</span>
+                            <div class="activity-body">
+                                <p><strong>admin</strong> unlocked account <strong>spam_user_42</strong></p>
+                                <p class="muted">17 July 2026, 3:20 PM</p>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <span class="activity-icon">J</span>
+                            <div class="activity-body">
+                                <p><strong>John Doe</strong> registered a new standard user account</p>
+                                <p class="muted">16 July 2026, 9:15 AM</p>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <span class="activity-icon">T</span>
+                            <div class="activity-body">
+                                <p><strong>Trần Thị Lan</strong> posted comment on blog "Tối ưu hiệu năng website TMDT"</p>
+                                <p class="muted">15 July 2026, 6:30 PM</p>
+                            </div>
+                        </li>
+                    </ul>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="users.html">Users</a>
+            <a href="profile.html">Profile</a>
+            <a href="../Blog/blog-list.html">Blog</a>
+            <a href="login.html">Sign out</a>
+        </div>
+        <p>&copy; 2026 WebReview Platform. All rights reserved.</p>
+    </footer>
+
+    <a href="#main-content" class="return-to-top-button show" aria-label="Return to top">&#8593;</a>
+</body>
+</html>

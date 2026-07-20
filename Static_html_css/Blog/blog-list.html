@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog List - WebReview</title>
+    <meta name="description" content="Browse website reviews, UX insights, and community blog posts on WebReview.">
+    <link rel="stylesheet" href="blogpage.css">
+</head>
+<body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
+    <header>
+        <div class="header-container">
+            <a class="logo" href="../../index.html">WebReview Blog</a>
+            <nav aria-label="Main navigation">
+                <a href="../../index.html">Home</a>
+                <a href="../shopping_cart/products.html">Market</a>
+                <a href="../discuss_forum/forum.html">Forum</a>
+                <a href="blog-list.html" class="active" aria-current="page">Blog</a>
+                <a href="../admin/login.html">Admin</a>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main-content" class="container page">
+        <div class="page-header">
+            <h1>Latest Blog Posts</h1>
+            <p>Explore website reviews, UX insights, and community stories from the WebReview platform.</p>
+        </div>
+
+        <section class="blog-toolbar" aria-labelledby="filter-heading">
+            <h2 id="filter-heading" class="visually-hidden">Search and filter blog posts</h2>
+            <form class="filters" action="blog-list.html" method="get">
+                <div class="form-group">
+                    <label for="search-query">Search posts</label>
+                    <input class="input" type="search" id="search-query" name="q" placeholder="Search title, author, tags, or content">
+                </div>
+                <div class="form-group">
+                    <label for="filter-category">Category</label>
+                    <select class="select" id="filter-category" name="category">
+                        <option value="">All categories</option>
+                        <option value="technology">Technology</option>
+                        <option value="education">Education</option>
+                        <option value="shopping">Shopping</option>
+                        <option value="design">Design</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="filter-tag">Tag</label>
+                    <select class="select" id="filter-tag" name="tag">
+                        <option value="">All tags</option>
+                        <option value="ux">UX</option>
+                        <option value="accessibility">Accessibility</option>
+                        <option value="performance">Performance</option>
+                        <option value="ecommerce">E-commerce</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="filter-author">Author</label>
+                    <input class="input" type="text" id="filter-author" name="author" placeholder="Author name">
+                </div>
+                <div class="form-group">
+                    <label for="filter-date">Date added</label>
+                    <input class="input" type="date" id="filter-date" name="date">
+                </div>
+                <div class="form-group filter-actions">
+                    <button type="submit" class="btn btn-primary">Apply filters</button>
+                    <a href="blog-list.html" class="btn btn-secondary">Reset</a>
+                </div>
+            </form>
+        </section>
+
+        <div class="blog-layout">
+            <aside class="blog-sidebar" aria-labelledby="sidebar-heading">
+                <h2 id="sidebar-heading">Blog actions</h2>
+                <nav class="sidebar-nav" aria-label="Blog section links">
+                    <a href="blog-list.html" class="btn btn-outline full">View all posts</a>
+                    <a href="blog-create.html" class="btn btn-primary full">Create new post</a>
+                </nav>
+                <div class="sidebar-card">
+                    <h3>Popular tags</h3>
+                    <ul class="tag-list">
+                        <li><a href="blog-list.html?tag=ux" class="tag">UX</a></li>
+                        <li><a href="blog-list.html?tag=accessibility" class="tag">Accessibility</a></li>
+                        <li><a href="blog-list.html?tag=performance" class="tag">Performance</a></li>
+                        <li><a href="blog-list.html?tag=ecommerce" class="tag">E-commerce</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <section class="blog-list" aria-labelledby="list-heading">
+                <h2 id="list-heading">Post previews</h2>
+                <p class="muted">List view shows title, summary, thumbnail, author, tags, and date.</p>
+
+                <article class="card blog-post-card">
+                    <img class="post-thumbnail" src="https://picsum.photos/seed/shopee-ux/440/280" alt="Shopee mobile app interface screenshot">
+                    <div class="post-body">
+                        <div class="post-badges">
+                            <span class="category-badge">Design</span>
+                            <span class="tag-static">UX</span>
+                            <span class="tag-static">E-commerce</span>
+                        </div>
+                        <h3 class="post-title"><a href="blog-detail.html">Đánh giá UX của Shopee Việt Nam / Shopee Vietnam UX Review</a></h3>
+                        <p class="post-summary">Phân tích trải nghiệm người dùng trên ứng dụng Shopee — từ luồng tìm kiếm đến thanh toán. A bilingual look at navigation patterns, checkout friction, and mobile-first design choices.</p>
+                        <p class="post-meta">By <strong>Nguyễn Minh An</strong> · 18 July 2026</p>
+                        <div class="post-actions">
+                            <a href="blog-detail.html" class="btn btn-primary btn-sm">Read full post</a>
+                            <a href="blog-edit.html" class="btn btn-secondary btn-sm">Edit</a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="card blog-post-card">
+                    <img class="post-thumbnail" src="https://picsum.photos/seed/accessibility/440/280" alt="Accessible web form with clear labels">
+                    <div class="post-body">
+                        <div class="post-badges">
+                            <span class="category-badge">Technology</span>
+                            <span class="tag-static">Accessibility</span>
+                            <span class="tag-static">UX</span>
+                        </div>
+                        <h3 class="post-title"><a href="blog-detail.html?id=2">Building Accessible Web Forms That Actually Work</a></h3>
+                        <p class="post-summary">Practical WCAG 2.2 guidelines for labels, focus states, error messages, and keyboard navigation — with examples from real e-commerce checkout flows.</p>
+                        <p class="post-meta">By <strong>John Doe</strong> · 15 July 2026</p>
+                        <div class="post-actions">
+                            <a href="blog-detail.html?id=2" class="btn btn-primary btn-sm">Read full post</a>
+                            <a href="blog-edit.html?id=2" class="btn btn-secondary btn-sm">Edit</a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="card blog-post-card">
+                    <img class="post-thumbnail" src="https://picsum.photos/seed/performance/440/280" alt="Website performance dashboard metrics">
+                    <div class="post-body">
+                        <div class="post-badges">
+                            <span class="category-badge">Shopping</span>
+                            <span class="tag-static">Performance</span>
+                            <span class="tag-static">E-commerce</span>
+                        </div>
+                        <h3 class="post-title"><a href="blog-detail.html?id=3">Tối ưu hiệu năng website thương mại điện tử</a></h3>
+                        <p class="post-summary">Hướng dẫn giảm thời gian tải trang, tối ưu hình ảnh và lazy loading cho cửa hàng online Việt Nam. Core Web Vitals explained for store owners.</p>
+                        <p class="post-meta">By <strong>Trần Thị Lan</strong> · 10 July 2026</p>
+                        <div class="post-actions">
+                            <a href="blog-detail.html?id=3" class="btn btn-primary btn-sm">Read full post</a>
+                            <a href="blog-edit.html?id=3" class="btn btn-secondary btn-sm">Edit</a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="card blog-post-card">
+                    <img class="post-thumbnail" src="https://picsum.photos/seed/edtech/440/280" alt="Online learning platform interface">
+                    <div class="post-body">
+                        <div class="post-badges">
+                            <span class="category-badge">Education</span>
+                            <span class="tag-static">UX</span>
+                        </div>
+                        <h3 class="post-title"><a href="blog-detail.html?id=4">Coursera vs. Local EdTech: A Design Comparison</a></h3>
+                        <p class="post-summary">Comparing course discovery, video player UX, and progress tracking between global platforms and Vietnamese EdTech startups like Topica and FUNiX.</p>
+                        <p class="post-meta">By <strong>Phạm Hoàng Long</strong> · 5 July 2026</p>
+                        <div class="post-actions">
+                            <a href="blog-detail.html?id=4" class="btn btn-primary btn-sm">Read full post</a>
+                            <a href="blog-edit.html?id=4" class="btn btn-secondary btn-sm">Edit</a>
+                        </div>
+                    </div>
+                </article>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-links">
+            <a href="../../index.html">Home</a>
+            <a href="blog-list.html">Blog list</a>
+            <a href="blog-create.html">Create post</a>
+            <a href="../shopping_cart/products.html">Market</a>
+            <a href="../discuss_forum/forum.html">Forum</a>
+            <a href="../admin/login.html">Admin</a>
+        </div>
+        <p>&copy; 2026 WebReview Platform. All rights reserved.</p>
+    </footer>
+
+    <a href="#main-content" class="return-to-top-button show" aria-label="Return to top">&#8593;</a>
+</body>
+</html>

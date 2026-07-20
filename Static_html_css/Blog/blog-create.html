@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Blog Post - WebReview</title>
+    <link rel="stylesheet" href="blogpage.css">
+</head>
+<body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
+    <header>
+        <div class="header-container">
+            <a class="logo" href="../../index.html">WebReview Blog</a>
+            <nav aria-label="Main navigation">
+                <a href="../../index.html">Home</a>
+                <a href="../shopping_cart/products.html">Market</a>
+                <a href="../discuss_forum/forum.html">Forum</a>
+                <a href="blog-list.html" class="active" aria-current="page">Blog</a>
+                <a href="../admin/login.html">Admin</a>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main-content" class="container page">
+        <div class="page-header">
+            <h1>Create a New Blog Post</h1>
+            <p>Publish website reviews and insights. All fields are required for a complete post.</p>
+        </div>
+
+        <section class="blog-form-section card" aria-labelledby="create-heading">
+            <h2 id="create-heading">Post details</h2>
+            <p class="muted">Static prototype — form does not submit to a server.</p>
+
+            <form class="blog-form" action="blog-list.html" method="post">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="create-title">Title</label>
+                        <input class="input" type="text" id="create-title" name="title" required placeholder="Enter post title">
+                    </div>
+                    <div class="form-group">
+                        <label for="create-author">Author</label>
+                        <input class="input" type="text" id="create-author" name="author" required placeholder="Your name">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="create-date">Date added</label>
+                        <input class="input" type="date" id="create-date" name="date" required value="2026-07-20">
+                    </div>
+                    <div class="form-group">
+                        <label for="create-category">Category</label>
+                        <select class="select" id="create-category" name="category" required>
+                            <option value="">Select category</option>
+                            <option value="technology">Technology</option>
+                            <option value="education">Education</option>
+                            <option value="shopping">Shopping</option>
+                            <option value="design">Design</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="create-tags">Tags</label>
+                    <input class="input" type="text" id="create-tags" name="tags" placeholder="e.g. UX, accessibility, performance">
+                    <p class="muted text-sm">Separate multiple tags with commas.</p>
+                </div>
+                <div class="form-group">
+                    <label for="create-image">Image URL</label>
+                    <input class="input" type="url" id="create-image" name="image" placeholder="https://example.com/image.jpg">
+                    <p class="muted text-sm">Thumbnail and hero image for the post.</p>
+                </div>
+                <div class="form-group">
+                    <label for="create-summary">Summary (preview text)</label>
+                    <textarea class="input" id="create-summary" name="summary" rows="3" placeholder="Short summary shown in list view"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="create-content">Main text content</label>
+                    <textarea class="input" id="create-content" name="content" rows="10" required placeholder="Write your full blog post here"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Publish post</button>
+                    <button type="reset" class="btn btn-secondary">Clear form</button>
+                    <a href="blog-list.html" class="btn btn-outline">Cancel</a>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-links">
+            <a href="../../index.html">Home</a>
+            <a href="blog-list.html">Blog list</a>
+            <a href="blog-create.html">Create post</a>
+            <a href="../shopping_cart/products.html">Market</a>
+            <a href="../discuss_forum/forum.html">Forum</a>
+        </div>
+        <p>&copy; 2026 WebReview Platform. All rights reserved.</p>
+    </footer>
+
+    <a href="#main-content" class="return-to-top-button show" aria-label="Return to top">&#8593;</a>
+</body>
+</html>

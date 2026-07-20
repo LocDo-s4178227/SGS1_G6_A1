@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - WebReview Admin</title>
+    <link rel="stylesheet" href="../Blog/blogpage.css">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
+    <header>
+        <div class="header-container">
+            <a class="logo" href="../../index.html">WebReview Admin</a>
+            <nav aria-label="Main navigation">
+                <a href="../../index.html">Home</a>
+                <a href="../Blog/blog-list.html">Blog</a>
+                <a href="../shopping_cart/products.html">Market</a>
+                <a href="../discuss_forum/forum.html">Forum</a>
+                <a href="dashboard.html">Dashboard</a>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main-content" class="container page">
+        <div class="page-header">
+            <h1>User Management</h1>
+            <p>Lock, unlock, and manage user roles. Locked users cannot perform any operations on the platform.</p>
+        </div>
+
+        <div class="admin-layout">
+            <aside class="admin-sidebar" aria-labelledby="admin-nav-heading">
+                <h2 id="admin-nav-heading">Admin menu</h2>
+                <nav aria-label="Admin navigation">
+                    <a href="dashboard.html">Dashboard</a>
+                    <a href="users.html" class="active" aria-current="page">User management</a>
+                    <a href="profile.html">My profile</a>
+                    <a href="../Blog/blog-list.html">Blog module</a>
+                    <a href="login.html" class="admin-nav-danger">Sign out</a>
+                </nav>
+            </aside>
+
+            <div class="admin-main">
+                <section class="blog-toolbar" aria-labelledby="user-filter-heading">
+                    <h2 id="user-filter-heading" class="visually-hidden">Filter users</h2>
+                    <form class="filters" action="users.html" method="get">
+                        <div class="form-group">
+                            <label for="user-search">Search users</label>
+                            <input class="input" type="search" id="user-search" name="q" placeholder="Username, email, or name">
+                        </div>
+                        <div class="form-group">
+                            <label for="user-role">Role</label>
+                            <select class="select" id="user-role" name="role">
+                                <option value="">All roles</option>
+                                <option value="admin">Administrator</option>
+                                <option value="user">Standard user</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="user-status">Account status</label>
+                            <select class="select" id="user-status" name="status">
+                                <option value="">All statuses</option>
+                                <option value="active">Active</option>
+                                <option value="locked">Locked</option>
+                            </select>
+                        </div>
+                        <div class="form-group filter-actions">
+                            <button type="submit" class="btn btn-primary">Apply filters</button>
+                            <a href="users.html" class="btn btn-secondary">Reset</a>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="table-card" aria-labelledby="users-table-heading">
+                    <div class="table-toolbar">
+                        <h3 id="users-table-heading">All users (248 total)</h3>
+                        <span class="muted text-sm">Static prototype — actions do not persist</span>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Username</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Role</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Joined</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>admin</strong></td>
+                                <td>admin@webreview.vn</td>
+                                <td><span class="role-badge role-admin">Admin</span></td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>1 Jan 2026</td>
+                                <td>
+                                    <div class="table-actions">
+                                        <a href="profile.html" class="btn btn-secondary btn-sm">View</a>
+                                        <span class="muted text-xs">—</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>johndoe</strong></td>
+                                <td>john.doe@example.com</td>
+                                <td><span class="role-badge role-user">User</span></td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>10 Mar 2026</td>
+                                <td>
+                                    <div class="table-actions">
+                                        <a href="profile.html" class="btn btn-secondary btn-sm">View</a>
+                                        <button type="button" class="btn btn-danger btn-sm">Lock</button>
+                                        <button type="button" class="btn btn-outline btn-sm">Make admin</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>minhan_nguyen</strong></td>
+                                <td>minhan.nguyen@gmail.com</td>
+                                <td><span class="role-badge role-user">User</span></td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>5 Apr 2026</td>
+                                <td>
+                                    <div class="table-actions">
+                                        <a href="profile.html" class="btn btn-secondary btn-sm">View</a>
+                                        <button type="button" class="btn btn-danger btn-sm">Lock</button>
+                                        <button type="button" class="btn btn-outline btn-sm">Make admin</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>spam_user_42</strong></td>
+                                <td>spam42@fake-mail.com</td>
+                                <td><span class="role-badge role-user">User</span></td>
+                                <td><span class="status-badge status-locked">Locked</span></td>
+                                <td>20 Jun 2026</td>
+                                <td>
+                                    <div class="table-actions">
+                                        <a href="profile.html" class="btn btn-secondary btn-sm">View</a>
+                                        <button type="button" class="btn btn-success btn-sm">Unlock</button>
+                                        <button type="button" class="btn btn-danger btn-sm">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>thilan_tran</strong></td>
+                                <td>thilan.tran@rmit.edu.vn</td>
+                                <td><span class="role-badge role-user">User</span></td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>12 May 2026</td>
+                                <td>
+                                    <div class="table-actions">
+                                        <a href="profile.html" class="btn btn-secondary btn-sm">View</a>
+                                        <button type="button" class="btn btn-danger btn-sm">Lock</button>
+                                        <button type="button" class="btn btn-outline btn-sm">Make admin</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>bot_account_07</strong></td>
+                                <td>bot07@suspicious.net</td>
+                                <td><span class="role-badge role-user">User</span></td>
+                                <td><span class="status-badge status-locked">Locked</span></td>
+                                <td>1 Jul 2026</td>
+                                <td>
+                                    <div class="table-actions">
+                                        <a href="profile.html" class="btn btn-secondary btn-sm">View</a>
+                                        <button type="button" class="btn btn-success btn-sm">Unlock</button>
+                                        <button type="button" class="btn btn-danger btn-sm">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section class="card mt-l" aria-labelledby="rbac-info-heading">
+                    <h2 id="rbac-info-heading">Role-based access control</h2>
+                    <div class="alert alert-info mt-m">
+                        <p><strong>Administrator:</strong> Full access to user management, lock/unlock accounts, assign roles, and moderate all modules.</p>
+                        <p class="mt-s"><strong>Standard user:</strong> Can create and edit own blog posts, forum threads, reviews, and manage personal profile. Cannot access admin dashboard.</p>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="users.html">Users</a>
+            <a href="profile.html">Profile</a>
+            <a href="../Blog/blog-list.html">Blog</a>
+            <a href="login.html">Sign out</a>
+        </div>
+        <p>&copy; 2026 WebReview Platform. All rights reserved.</p>
+    </footer>
+
+    <a href="#main-content" class="return-to-top-button show" aria-label="Return to top">&#8593;</a>
+</body>
+</html>

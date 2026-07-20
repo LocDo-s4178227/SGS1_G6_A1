@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Profile - WebReview</title>
+    <link rel="stylesheet" href="../Blog/blogpage.css">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
+    <header>
+        <div class="header-container">
+            <a class="logo" href="../../index.html">WebReview Admin</a>
+            <nav aria-label="Main navigation">
+                <a href="../../index.html">Home</a>
+                <a href="../Blog/blog-list.html">Blog</a>
+                <a href="../shopping_cart/products.html">Market</a>
+                <a href="../discuss_forum/forum.html">Forum</a>
+                <a href="dashboard.html">Dashboard</a>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main-content" class="container page">
+        <div class="page-header">
+            <h1>My Profile</h1>
+            <p>View and edit your account information, security settings, and preferences.</p>
+        </div>
+
+        <div class="admin-layout">
+            <aside class="admin-sidebar" aria-labelledby="admin-nav-heading">
+                <h2 id="admin-nav-heading">Admin menu</h2>
+                <nav aria-label="Admin navigation">
+                    <a href="dashboard.html">Dashboard</a>
+                    <a href="users.html">User management</a>
+                    <a href="profile.html" class="active" aria-current="page">My profile</a>
+                    <a href="../Blog/blog-list.html">Blog module</a>
+                    <a href="login.html" class="admin-nav-danger">Sign out</a>
+                </nav>
+            </aside>
+
+            <div class="admin-main">
+                <div class="profile-header">
+                    <div class="profile-avatar" aria-hidden="true">A</div>
+                    <div class="profile-header-info">
+                        <h2>System Administrator</h2>
+                        <p class="muted">admin@webreview.vn · <span class="role-badge role-admin">Administrator</span></p>
+                        <p class="muted text-sm">Member since 1 January 2026 · Last login: 20 July 2026, 9:30 AM</p>
+                    </div>
+                </div>
+
+                <nav class="profile-tabs" aria-label="Profile sections">
+                    <a href="#personal-info" class="profile-tab active">Personal info</a>
+                    <a href="#security" class="profile-tab">Security</a>
+                    <a href="#account" class="profile-tab">Account</a>
+                </nav>
+
+                <section id="personal-info" class="card profile-section" aria-labelledby="personal-heading">
+                    <h2 id="personal-heading">Personal information</h2>
+                    <form class="blog-form mt-m" action="profile.html" method="post">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="profile-firstname">First name</label>
+                                <input class="input" type="text" id="profile-firstname" name="firstname" value="System">
+                            </div>
+                            <div class="form-group">
+                                <label for="profile-lastname">Last name</label>
+                                <input class="input" type="text" id="profile-lastname" name="lastname" value="Administrator">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="profile-username">Username</label>
+                            <input class="input" type="text" id="profile-username" name="username" value="admin" disabled>
+                            <p class="muted text-sm">Username cannot be changed.</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="profile-email">Email address</label>
+                            <input class="input" type="email" id="profile-email" name="email" value="admin@webreview.vn">
+                        </div>
+                        <div class="form-group">
+                            <label for="profile-description">Description / Bio</label>
+                            <textarea class="input" id="profile-description" name="description" rows="4">Platform administrator for WebReview — managing users, content moderation, and site configuration. Quản trị viên nền tảng WebReview.</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="profile-picture">Profile picture URL</label>
+                            <input class="input" type="url" id="profile-picture" name="picture" placeholder="https://example.com/avatar.jpg">
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                            <button type="reset" class="btn btn-secondary">Reset</button>
+                        </div>
+                    </form>
+                </section>
+
+                <section id="security" class="card profile-section" aria-labelledby="security-heading">
+                    <h2 id="security-heading">Change password</h2>
+                    <div class="alert alert-info mt-m">
+                        Use a strong password with at least 8 characters including uppercase, lowercase, numbers, and special characters.
+                    </div>
+                    <form class="blog-form mt-m" action="profile.html" method="post">
+                        <div class="form-group">
+                            <label for="current-password">Current password</label>
+                            <input class="input" type="password" id="current-password" name="current_password" autocomplete="current-password">
+                        </div>
+                        <div class="form-group">
+                            <label for="new-password">New password</label>
+                            <input class="input" type="password" id="new-password" name="new_password" autocomplete="new-password">
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm-password">Confirm new password</label>
+                            <input class="input" type="password" id="confirm-password" name="confirm_password" autocomplete="new-password">
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Update password</button>
+                        </div>
+                    </form>
+                </section>
+
+                <section id="account" class="profile-section" aria-labelledby="account-heading">
+                    <div class="card">
+                        <h2 id="account-heading">Account settings</h2>
+                        <div class="form-group mt-m">
+                            <label>
+                                <input type="checkbox" name="email_notifications" checked>
+                                Email notifications for new user registrations
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" name="lock_alerts" checked>
+                                Alert when accounts are locked or unlocked
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" name="content_moderation" checked>
+                                Daily content moderation summary
+                            </label>
+                        </div>
+                        <button type="button" class="btn btn-primary mt-m">Save notification preferences</button>
+                    </div>
+
+                    <div class="danger-zone mt-l">
+                        <h3>Deactivate account</h3>
+                        <p class="muted">Temporarily deactivate your account. You can reactivate it by signing in again.</p>
+                        <button type="button" class="btn btn-secondary mt-m">Deactivate account</button>
+
+                        <hr style="margin: 24px 0; border: none; border-top: 1px solid #fecaca;">
+
+                        <h3>Permanently delete account</h3>
+                        <p class="muted">This action cannot be undone. All admin privileges will be revoked.</p>
+                        <button type="button" class="btn btn-danger mt-m">Delete account permanently</button>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="users.html">Users</a>
+            <a href="profile.html">Profile</a>
+            <a href="../Blog/blog-list.html">Blog</a>
+            <a href="login.html">Sign out</a>
+        </div>
+        <p>&copy; 2026 WebReview Platform. All rights reserved.</p>
+    </footer>
+
+    <a href="#main-content" class="return-to-top-button show" aria-label="Return to top">&#8593;</a>
+</body>
+</html>
