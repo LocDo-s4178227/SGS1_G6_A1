@@ -6,8 +6,9 @@
 @import url("shared.css");
 
 :root {
-    --primary-blue: #77b3f8;
-    --primary-dark: #4a8fdb;
+    --primary-blue: #4a90e2;
+    --primary-gray: #4e5a5a;
+    --primary-dark: #333333;
     --bg-gradient-light: #f0f4f8;
     --bg-gradient-lighter: #e8f0f8;
     --bg-light: #f5f9ff;
@@ -20,7 +21,7 @@
 }
 
 header {
-    background: linear-gradient(135deg, var(--primary-blue) 0%, #243e5a 100%);
+    background: linear-gradient(135deg, var(--primary-gray) 0%, var(--primary-dark) 100%);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
     display: flex;
     align-items: center;
@@ -79,7 +80,7 @@ nav a {
 nav a:hover,
 nav a.active {
     background: var(--primary-blue);
-    color: #243e5a;
+    color: black;
     border-color: var(--primary-blue);
     box-shadow: 0 4px 12px rgba(119, 179, 248, 0.4);
     transform: translateY(-1px);
