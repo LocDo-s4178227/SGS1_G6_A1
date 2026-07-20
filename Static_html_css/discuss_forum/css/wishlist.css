@@ -4,6 +4,17 @@
    Shared design tokens and base rules live in shared.css.
    ============================================================ */
 @import url("shared.css");
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap');
+
+body {
+    margin: 0;
+    font-family: "Fredoka", sans-serif;
+    background: linear-gradient(135deg, #f0f4f8 0%, #e8f0f8 100%);
+    color: var(--text);
+    font-size: var(--font-size-n);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
 
 :root {
     --primary-blue: #4a90e2;
