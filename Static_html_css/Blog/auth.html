@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login / Sign Up - Furniture Request Marketplace</title>
+  <link rel="stylesheet" href="../css/shopping_module_style.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--spacing-md);
+    }
+
+    .auth-container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      max-width: 580px;
+      width: 100%;
+      padding: 40px 36px;
+      animation: slideInUp 0.4s ease;
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .auth-header h1 {
+      margin-bottom: var(--spacing-md);
+      color: var(--primary-color);
+    }
+
+    .auth-tabs {
+      display: flex;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-lg);
+      border-bottom: 2px solid var(--light-bg);
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: var(--spacing-md);
+      text-align: center;
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-weight: 600;
+      color: var(--text-light);
+      transition: all 0.3s ease;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+    }
+
+    .auth-tab.active {
+      color: var(--accent-color);
+      border-bottom-color: var(--accent-color);
+    }
+
+    .auth-form {
+      display: none;
+    }
+
+    .auth-form.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .form-group {
+      margin-bottom: var(--spacing-md);
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: var(--spacing-xs);
+      color: var(--text-dark);
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: var(--spacing-sm);
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: all 0.3s ease;
+      background-color: #fafafa;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #77b3f8;
+      background-color: white;
+      box-shadow: 0 0 0 3px rgba(119, 179, 248, 0.1);
+    }
+
+    .user-type-select {
+      display: flex;
+      gap: 24px;
+      margin-top: var(--spacing-sm);
+      flex-wrap: wrap;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      font-weight: normal;
+      cursor: pointer;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+      width: auto;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: var(--spacing-md);
+      background: linear-gradient(135deg, #77b3f8 0%, #5ba6ea 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: var(--spacing-md);
+      box-shadow: 0 4px 12px rgba(119, 179, 248, 0.3);
+    }
+
+    .submit-btn:hover {
+      background: linear-gradient(135deg, #5ba6ea 0%, #4798dd 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(119, 179, 248, 0.4);
+    }
+
+    .submit-btn:disabled {
+      background: #95a5a6;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    @keyframes slideInUp {
+      from {
+        transform: translateY(30px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .error-message {
+      background-color: #f8d7da;
+      color: #721c24;
+      padding: var(--spacing-sm);
+      border-radius: 4px;
+      margin-bottom: var(--spacing-md);
+      display: none;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    .success-message {
+      background-color: #d4edda;
+      color: #155724;
+      padding: var(--spacing-sm);
+      border-radius: 4px;
+      margin-bottom: var(--spacing-md);
+      display: none;
+    }
+
+    .success-message.show {
+      display: block;
+    }
+
+    .forgot-password {
+      text-align: center;
+      margin-top: var(--spacing-md);
+    }
+
+    .forgot-password a {
+      color: var(--accent-color);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 480px) {
+      .auth-container {
+        padding: var(--spacing-md);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-header">
+      <h1>🛋️ Furniture Marketplace</h1>
+      <p>Post requests or find professional work</p>
+    </div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')">Login</button>
+      <button class="auth-tab" onclick="switchTab('signup')">Sign Up</button>
+    </div>
+
+    <!-- Login Form -->
+    <form id="loginForm" class="auth-form active">
+      <div id="loginError" class="error-message"></div>
+
+      <div class="form-group">
+        <label for="loginEmail">Email</label>
+        <input type="email" id="loginEmail" name="email" placeholder="your@email.com" required>
+      </div>
+
+      <div class="form-group">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" name="password" placeholder="Enter password" required>
+      </div>
+
+      <button type="submit" class="submit-btn" id="loginBtn">Login</button>
+
+      <div class="forgot-password">
+        <a href="#">Forgot password?</a>
+      </div>
+    </form>
+
+    <!-- Sign Up Form -->
+    <form id="signupForm" class="auth-form">
+      <div id="signupError" class="error-message"></div>
+      <div id="signupSuccess" class="success-message"></div>
+
+      <div class="form-group">
+        <label for="firstName">First Name</label>
+        <input type="text" id="firstName" name="firstName" placeholder="John" required>
+      </div>
+
+      <div class="form-group">
+        <label for="lastName">Last Name</label>
+        <input type="text" id="lastName" name="lastName" placeholder="Doe" required>
+      </div>
+
+      <div class="form-group">
+        <label for="signupEmail">Email</label>
+        <input type="email" id="signupEmail" name="email" placeholder="your@email.com" required>
+      </div>
+
+      <div class="form-group">
+        <label for="signupPassword">Password</label>
+        <input type="password" id="signupPassword" name="password" placeholder="Create password" required>
+      </div>
+
+      <div class="form-group">
+        <label>I want to:</label>
+        <div class="user-type-select">
+          <label class="checkbox-label">
+            <input type="checkbox" name="userType" value="poster" checked> Post Requests
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" name="userType" value="professional"> Provide Services
+          </label>
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn" id="signupBtn">Create Account</button>
+    </form>
+  </div>
+
+  // JavaScript section
+  
+  <script src="js/main.js"></script>
+  <script>
+    function switchTab(tab) {
+      document.querySelectorAll(".auth-tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".auth-form").forEach(f => f.classList.remove("active"));
+
+      if (tab === "login") {
+        document.querySelector(".auth-tab:nth-child(1)").classList.add("active");
+        document.getElementById("loginForm").classList.add("active");
+      } else {
+        document.querySelector(".auth-tab:nth-child(2)").classList.add("active");
+        document.getElementById("signupForm").classList.add("active");
+      }
+    }
+
+    // Login handler
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("loginEmail").value;
+      const password = document.getElementById("loginPassword").value;
+      const errorDiv = document.getElementById("loginError");
+
+      try {
+        const response = await apiCall("/auth/login", {
+          method: "POST",
+          body: JSON.stringify({ email, password }),
+        });
+
+        localStorage.setItem("userId", response.user.id);
+        localStorage.setItem("userName", `${response.user.firstName} ${response.user.lastName}`);
+        localStorage.setItem("userType", JSON.stringify(response.user.userType));
+
+        showNotification("Login successful! Redirecting...", "success");
+        setTimeout(() => {
+          window.location.href = "request-board.html";
+        }, 1500);
+      } catch (error) {
+        errorDiv.textContent = error.message;
+        errorDiv.classList.add("show");
+        setTimeout(() => errorDiv.classList.remove("show"), 5000);
+      }
+    });
+
+    // Sign up handler
+    document.getElementById("signupForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const firstName = document.getElementById("firstName").value;
+      const lastName = document.getElementById("lastName").value;
+      const email = document.getElementById("signupEmail").value;
+      const password = document.getElementById("signupPassword").value;
+      const errorDiv = document.getElementById("signupError");
+      const successDiv = document.getElementById("signupSuccess");
+
+      // Get selected user types
+      const userTypes = Array.from(
+        document.querySelectorAll("input[name='userType']:checked")
+      ).map((el) => el.value);
+
+      if (userTypes.length === 0) {
+        errorDiv.textContent = "Please select at least one option";
+        errorDiv.classList.add("show");
+        return;
+      }
+
+      try {
+        const response = await apiCall("/auth/register", {
+          method: "POST",
+          body: JSON.stringify({
+            firstName,
+            lastName,
+            email,
+            password,
+            userType: userTypes,
+          }),
+        });
+
+        localStorage.setItem("userId", response.user.id);
+        localStorage.setItem("userName", `${response.user.firstName} ${response.user.lastName}`);
+        localStorage.setItem("userType", JSON.stringify(response.user.userType));
+
+        successDiv.textContent = "Account created! Redirecting...";
+        successDiv.classList.add("show");
+
+        setTimeout(() => {
+          window.location.href = "request-board.html";
+        }, 1500);
+      } catch (error) {
+        errorDiv.textContent = error.message;
+        errorDiv.classList.add("show");
+        setTimeout(() => errorDiv.classList.remove("show"), 5000);
+      }
+    });
+  </script>
+</body>
+</html>
