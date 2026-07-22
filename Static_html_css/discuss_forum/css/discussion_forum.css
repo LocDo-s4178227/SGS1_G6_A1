@@ -1,4 +1,6 @@
+
 @import url("shared.css");
+
 
 .forum-layout {
     max-width: var(--site-max-width);
@@ -109,6 +111,13 @@
     border-left: 4px solid var(--accent);
 }
 
+.reply-title {
+    margin: 0;
+    font-size: var(--font-size-m);
+    font-weight: var(--font-weight-bold);
+    color: var(--primary);
+}
+
 .offer-section {
     background: var(--bg);
     border: 1px solid var(--border);
@@ -205,5 +214,3 @@
         font-size: var(--font-size-xs);
     }
 }
-
-

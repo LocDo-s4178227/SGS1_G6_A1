@@ -7,8 +7,7 @@
     <title>Request Board - Custom Makers Marketplace</title>
     <link rel="stylesheet" href="../css/shopping_module_style.css">
     <link rel="stylesheet" href="css/discussion_forum.css">
-    
-    </head>
+</head>
 <body>
     <header>
         <div class="header-container">
@@ -35,14 +34,18 @@
                 <h3>Filter &amp; Sort</h3>
                 <form action="forum.html" method="GET">
                     <div class="form-group">
-                        <label for="search-keyword">Search Content/Title</label>
-                        <input type="text" id="search-keyword" name="keyword" placeholder="e.g., wooden desk, leather...">
+                        <label for="search-title">Filter by Thread Title</label>
+                        <input type="text" id="search-title" name="title" placeholder="e.g., wooden desk, keyboard...">
+                    </div>
+                    <div class="form-group">
+                        <label for="search-content">Filter by Post Content</label>
+                        <input type="text" id="search-content" name="content" placeholder="e.g., oak, resin printer, budget...">
                     </div>
                     <div class="form-group">
                         <label for="sort-by">Sort By</label>
                         <select id="sort-by" name="sort">
-                            <option value="newest">Date: Newest First</option>
-                            <option value="oldest">Date: Oldest First</option>
+                            <option value="newest">Date: Most Recent Post First</option>
+                            <option value="oldest">Date: Oldest Post First</option>
                             <option value="title_asc">Title: A-Z</option>
                             <option value="title_desc">Title: Z-A</option>
                         </select>
