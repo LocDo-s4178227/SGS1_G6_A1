@@ -138,9 +138,10 @@
       <div class="logo">🛒 Wishlist Cart</div>
       <nav>
         <a href="products.html">Market</a>
+        <a href="../Blog/blog-list.html">Blog</a>
         <a href="../discuss_forum/forum.html">Forum Board</a>
         <a href="../discuss_forum/wishlist.html">Wishlist</a>
-        <a href="cart.html">Cart <span class="cart-badge">(2)</span></a>
+        <a href="cart.html">Cart</a>
         <a href="checkout.html">Checkout</a>
         <a href="profile.html">Profile</a>
       </nav>
@@ -289,6 +290,26 @@
 
     // Load items when page loads
     document.addEventListener('DOMContentLoaded', loadCartItems);
+
+    /**
+     * Highlight the active navigation link based on current page
+     */
+    function highlightActiveLink() {
+      const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+      const navLinks = document.querySelectorAll('nav a');
+      
+      navLinks.forEach(link => {
+        const linkPage = link.getAttribute('href').split('/').pop();
+        if (linkPage === currentPage) {
+          link.classList.add('active');
+        } else {
+          link.classList.remove('active');
+        }
+      });
+    }
+
+    // Highlight active link when page loads
+    document.addEventListener('DOMContentLoaded', highlightActiveLink);
   </script>
 </body>
 </html>

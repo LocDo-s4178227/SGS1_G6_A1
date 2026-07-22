@@ -89,6 +89,108 @@
       height: 1px;
       background: linear-gradient(90deg, transparent, #77b3f8, transparent);
     }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 18px;
+    }
+
+    .info-card {
+      background: #fff;
+      border: 2px solid #e8eef7;
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: 0 3px 10px rgba(0,0,0,.08);
+      transition: .2s ease;
+    }
+
+    .info-card:hover {
+      border-color: #77b3f8;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 18px rgba(119,179,248,.2);
+    }
+
+    .info-meta {
+      font-size: 13px;
+      color: #5f6f82;
+      margin-bottom: 8px;
+    }
+
+    .info-card h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      color: #26374a;
+    }
+
+    .info-card p {
+      margin: 0 0 14px;
+      color: #49586a;
+      line-height: 1.45;
+    }
+
+    .tag-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .tag-pill {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #edf5ff;
+      color: #2f6fb3;
+      font-weight: 600;
+      border: 1px solid #d8e9ff;
+    }
+
+    .review-panel {
+      border: 2px solid rgba(76,175,80,.25);
+      background: linear-gradient(135deg, rgba(232,245,233,.9), rgba(255,255,255,1));
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .review-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin: 14px 0;
+    }
+
+    .review-stat {
+      background: #fff;
+      border: 1px solid #dbe8dc;
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .review-stat strong {
+      display: block;
+      font-size: 20px;
+      color: #1f6a2a;
+      margin-bottom: 4px;
+    }
+
+    .review-stat span {
+      font-size: 13px;
+      color: #47604b;
+    }
+
+    .review-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .review-actions .btn {
+      min-width: 180px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -96,7 +198,8 @@
     <div class="header-container">
       <div class="logo">🛋️ Main Market</div>
       <nav>
-        <a href="products.html">Market</a>
+        <a href="products.html" class="active">Market</a>
+        <a href="../Blog/blog-list.html">Blog</a>
         <a href="../discuss_forum/forum.html">Forum Board</a>
         <a href="../discuss_forum/wishlist.html">Wishlist</a>
         <a href="cart.html">Cart</a>
@@ -143,7 +246,9 @@
     <h2 class="section-title">🔥 Trending Market Requests</h2>
     <div class="market-grid">
       <article class="market-card">
-        <div class="market-image">🪵</div>
+        <div class="market-image">
+          <img src="../images/ergonomic_wooden_desk.png" alt="Reference sketch of the requested corner desk" />
+        </div>
         <div class="market-info">
           <div class="market-title">Custom Ergonomic Wooden Desk</div>
           <div class="market-sub">Posted by Alex • 3 offers • Open</div>
@@ -157,7 +262,9 @@
       </article>
 
       <article class="market-card">
-        <div class="market-image">🛋️</div>
+        <div class="market-image">
+          <img src="../images/reupholstery.png" alt="Reference image of the sofa to be reupholstered" />
+        </div>
         <div class="market-info">
           <div class="market-title">Sofa Reupholstery Project</div>
           <div class="market-sub">Posted by Nina • 5 offers • Negotiating</div>
@@ -171,7 +278,9 @@
       </article>
 
       <article class="market-card">
-        <div class="market-image">📚</div>
+        <div class="market-image">
+          <img src="../images/shelves.png" alt="Reference image of the walnut wall-mounted shelves" />
+        </div>
         <div class="market-info">
           <div class="market-title">Walnut Wall-Mounted Shelves</div>
           <div class="market-sub">Posted by Mark • 2 offers • Open</div>
@@ -183,6 +292,69 @@
           </div>
         </div>
       </article>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <h2 class="section-title">📰 Blog Highlights</h2>
+    <div class="info-grid">
+      <article class="info-card">
+        <div class="info-meta">By Nguyễn Minh An • 18 July 2026</div>
+        <h3>Shopee Vietnam UX Review</h3>
+        <div class="tag-row">
+          <span class="tag-pill">Design</span>
+          <span class="tag-pill">UX</span>
+          <span class="tag-pill">E-commerce</span>
+        </div>
+        <p>Bilingual analysis of Shopee's mobile flow, with strengths in product discovery and recommendations, plus friction points in checkout and voucher usage.</p>
+        <a href="../Blog/blog-detail.html" class="btn btn-primary btn-sm">Read Article</a>
+      </article>
+
+      <article class="info-card">
+        <div class="info-meta">By John Doe • 15 July 2026</div>
+        <h3>Accessible Web Forms That Work</h3>
+        <div class="tag-row">
+          <span class="tag-pill">Technology</span>
+          <span class="tag-pill">Accessibility</span>
+        </div>
+        <p>Practical WCAG 2.2 form patterns focused on labels, keyboard navigation, and error messaging for better conversion and inclusive checkout journeys.</p>
+        <a href="../Blog/blog-detail.html?id=2" class="btn btn-primary btn-sm">Read Article</a>
+      </article>
+
+      <article class="info-card">
+        <div class="info-meta">By Trần Thị Lan • 10 July 2026</div>
+        <h3>E-commerce Performance Tuning</h3>
+        <div class="tag-row">
+          <span class="tag-pill">Shopping</span>
+          <span class="tag-pill">Performance</span>
+        </div>
+        <p>Guide to reducing load time and improving Core Web Vitals through image optimization and lazy loading for marketplace storefronts.</p>
+        <a href="../Blog/blog-detail.html?id=3" class="btn btn-primary btn-sm">Read Article</a>
+      </article>
+    </div>
+
+    <div class="review-panel" style="margin-top: 24px;">
+      <h2 class="section-title" style="margin-bottom: 14px;">⭐ Product Reviews and Ratings</h2>
+      <p style="margin: 0 0 10px; color: #2a4a31;">Use the review hub to compare user sentiment before making or accepting offers in the market.</p>
+      <div class="review-stats">
+        <div class="review-stat">
+          <strong>3</strong>
+          <span>Featured Reviews</span>
+        </div>
+        <div class="review-stat">
+          <strong>4.7/5</strong>
+          <span>Sample Average Rating</span>
+        </div>
+        <div class="review-stat">
+          <strong>4</strong>
+          <span>Filter Categories</span>
+        </div>
+      </div>
+      <div class="review-actions">
+        <a href="../Product_Review_Rating/review.html#reviews" class="btn btn-success btn-sm">Browse Latest Reviews</a>
+        <a href="../Product_Review_Rating/review.html#create-review" class="btn btn-primary btn-sm">Write a New Review</a>
+        <a href="../Product_Review_Rating/review.html" class="btn btn-secondary btn-sm">Open Review Center</a>
+      </div>
     </div>
   </main>
 
