@@ -6,24 +6,32 @@
     <title>Blog List - WebReview</title>
     <meta name="description" content="Browse website reviews, UX insights, and community blog posts on WebReview.">
     <link rel="stylesheet" href="blogpage.css">
+    <link rel="stylesheet" href="../css/top-nav.css">
 </head>
-<body>
+<body class="with-rshop-nav">
+<header class="rshop-top-header">
+    <div class="rshop-header-container">
+        <div class="rshop-logo-section">
+            <a href="../shopping_cart/cart.html" class="rshop-cart-icon" aria-label="Cart">&#128722;</a>
+            <a href="../homepage/homepage.html" class="rshop-logo">Rshop</a>
+        </div>
+        <nav class="rshop-nav" aria-label="Main navigation">
+            <a href="../homepage/homepage.html" class="rshop-nav-link">Home</a>
+            <a href="../shopping_cart/products.html" class="rshop-nav-link">Market</a>
+            <a href="../Blog/blog-list.html" class="rshop-nav-link">Blog</a>
+            <a href="../discuss_forum/forum.html" class="rshop-nav-link">Forum</a>
+            <a href="../discuss_forum/wishlist.html" class="rshop-nav-link">Wishlist</a>
+            <a href="../shopping_cart/cart.html" class="rshop-nav-link">Cart</a>
+            <a href="../Product_Review_Rating/review.html" class="rshop-nav-link">Review</a>
+            <a href="../discuss_forum/create-thread.html" class="rshop-nav-link">Post</a>
+            <a href="../user_account/profile.html" class="rshop-nav-link">Profile</a>
+            <a href="../user_account/auth.html" class="rshop-nav-link">Sign In</a>
+        </nav>
+    </div>
+</header>
     <a class="skip-link" href="#main-content">Skip to main content</a>
 
-    <header>
-        <div class="header-container">
-            <a class="logo" href="../homepage/homepage.html">WebReview Blog</a>
-            <nav aria-label="Main navigation">
-                <a href="../homepage/homepage.html">Home</a>
-                <a href="../shopping_cart/products.html">Market</a>
-                <a href="blog-list.html" class="active" aria-current="page">Blog</a>
-                <a href="../discuss_forum/forum.html">Forum</a>
-                <a href="../discuss_forum/wishlist.html">Wishlist</a>
-                <a href="../shopping_cart/auth.html">Profile</a>
-                <a href="../admin/login.html">Admin</a>
-            </nav>
-        </div>
-    </header>
+    
 
     <main id="main-content" class="container page">
         <div class="page-header">
@@ -184,4 +192,8 @@
     <a href="#main-content" class="return-to-top-button show" aria-label="Return to top">&#8593;</a>
 </body>
 </html>
+
+
+
+
 

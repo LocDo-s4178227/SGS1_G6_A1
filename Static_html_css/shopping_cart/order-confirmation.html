@@ -1,32 +1,39 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Order Confirmation</title>
   <link rel="stylesheet" href="../css/shopping_module_style.css" />
+    <link rel="stylesheet" href="../css/top-nav.css">
 </head>
-<body>
-  <header>
-    <div class="header-container">
-      <div class="logo">✅ Order Complete</div>
-      <nav>
-        <a href="../homepage/homepage.html">Home</a>
-        <a href="products.html">Market</a>
-        <a href="../Blog/blog-list.html">Blog</a>
-        <a href="../discuss_forum/forum.html">Forum Board</a>
-        <a href="../discuss_forum/wishlist.html">Wishlist</a>
-        <a href="cart.html">Cart</a>
-        <a href="auth.html">Profile</a>
-        <a href="../admin/login.html">Admin</a>
-      </nav>
+<body class="with-rshop-nav">
+<header class="rshop-top-header">
+    <div class="rshop-header-container">
+        <div class="rshop-logo-section">
+            <a href="../shopping_cart/cart.html" class="rshop-cart-icon" aria-label="Cart">&#128722;</a>
+            <a href="../homepage/homepage.html" class="rshop-logo">Rshop</a>
+        </div>
+        <nav class="rshop-nav" aria-label="Main navigation">
+            <a href="../homepage/homepage.html" class="rshop-nav-link">Home</a>
+            <a href="../shopping_cart/products.html" class="rshop-nav-link">Market</a>
+            <a href="../Blog/blog-list.html" class="rshop-nav-link">Blog</a>
+            <a href="../discuss_forum/forum.html" class="rshop-nav-link">Forum</a>
+            <a href="../discuss_forum/wishlist.html" class="rshop-nav-link">Wishlist</a>
+            <a href="../shopping_cart/cart.html" class="rshop-nav-link">Cart</a>
+            <a href="../Product_Review_Rating/review.html" class="rshop-nav-link">Review</a>
+            <a href="../discuss_forum/create-thread.html" class="rshop-nav-link">Post</a>
+            <a href="../user_account/profile.html" class="rshop-nav-link">Profile</a>
+            <a href="../user_account/auth.html" class="rshop-nav-link">Sign In</a>
+        </nav>
     </div>
-  </header>
+</header>
+  
 
   <main class="container">
     <div class="confirmation-container">
       <section class="confirmation-header">
-        <div class="confirmation-icon">✓</div>
+        <div class="confirmation-icon">âœ“</div>
         <h1 style="color:var(--success-color); margin-bottom:var(--spacing-sm);">Order Confirmed</h1>
         <p style="color:var(--text-light);">
           Your wishlist-selected marketplace items were successfully purchased.
@@ -40,8 +47,8 @@
 
       <section class="confirmation-section">
         <div class="confirmation-label">Purchased Items</div>
-        <p>• Custom Ergonomic Wooden Desk (thread: desk-001)</p>
-        <p>• Walnut Wall-Mounted Shelves (thread: shelf-003)</p>
+        <p>â€¢ Custom Ergonomic Wooden Desk (thread: desk-001)</p>
+        <p>â€¢ Walnut Wall-Mounted Shelves (thread: shelf-003)</p>
       </section>
 
       <section class="confirmation-section">
@@ -63,3 +70,7 @@
   </footer>
 </body>
 </html>
+
+
+
+

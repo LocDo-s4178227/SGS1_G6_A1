@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -7,23 +7,30 @@
     <title>Request Details - Custom Makers Marketplace</title>
     <link rel="stylesheet" href="../css/shopping_module_style.css">
     <link rel="stylesheet" href="css/discussion_forum.css">
+    <link rel="stylesheet" href="../css/top-nav.css">
 </head>
-<body>
-    <header>
-        <div class="header-container">
-            <div class="logo">🔨 Custom Makers Board</div>
-            <nav class="forum-top-nav">
-                <a href="../shopping_cart/products.html">Market</a>
-                <a href="../Blog/blog-list.html">Blog</a>
-                <a href="forum.html" class="active">Forum Board</a>
-                <a href="wishlist.html">Wishlist</a>
-                <a href="../shopping_cart/cart.html">Cart</a>
-                <a href="create-thread.html">Post Request</a>
-                <a href="../shopping_cart/auth.html">Profile</a>
-                <a href="../admin/login.html">Admin</a>
-            </nav>
+<body class="with-rshop-nav">
+<header class="rshop-top-header">
+    <div class="rshop-header-container">
+        <div class="rshop-logo-section">
+            <a href="../shopping_cart/cart.html" class="rshop-cart-icon" aria-label="Cart">&#128722;</a>
+            <a href="../homepage/homepage.html" class="rshop-logo">Rshop</a>
         </div>
-    </header>
+        <nav class="rshop-nav" aria-label="Main navigation">
+            <a href="../homepage/homepage.html" class="rshop-nav-link">Home</a>
+            <a href="../shopping_cart/products.html" class="rshop-nav-link">Market</a>
+            <a href="../Blog/blog-list.html" class="rshop-nav-link">Blog</a>
+            <a href="../discuss_forum/forum.html" class="rshop-nav-link">Forum</a>
+            <a href="../discuss_forum/wishlist.html" class="rshop-nav-link">Wishlist</a>
+            <a href="../shopping_cart/cart.html" class="rshop-nav-link">Cart</a>
+            <a href="../Product_Review_Rating/review.html" class="rshop-nav-link">Review</a>
+            <a href="../discuss_forum/create-thread.html" class="rshop-nav-link">Post</a>
+            <a href="../user_account/profile.html" class="rshop-nav-link">Profile</a>
+            <a href="../user_account/auth.html" class="rshop-nav-link">Sign In</a>
+        </nav>
+    </div>
+</header>
+    
 
     <main class="container-md">
         <article class="card">
@@ -72,7 +79,7 @@
                         <span class="meta-info">Proposed Price:</span>
                         <div class="offer-price">$420.00</div>
                     </div>
-                    <button class="btn btn-success" onclick="agreePriceAndAddToCart('Need a custom ergonomic wooden desk', 'MakerJohn', 420.00, 'desk-001')">✓ Agree Price</button>
+                    <button class="btn btn-success" onclick="agreePriceAndAddToCart('Need a custom ergonomic wooden desk', 'MakerJohn', 420.00, 'desk-001')">âœ“ Agree Price</button>
                 </div>
             </article>
 
@@ -138,7 +145,7 @@
           localStorage.setItem('forumCart', JSON.stringify(cart));
 
           // Show confirmation
-          alert(`✓ "${itemTitle}" has been added to your cart at $${price.toFixed(2)}\n\nRedirecting to cart...`);
+          alert(`âœ“ "${itemTitle}" has been added to your cart at $${price.toFixed(2)}\n\nRedirecting to cart...`);
 
           // Redirect to cart
           setTimeout(() => {
@@ -152,3 +159,7 @@
     </script>
 </body>
 </html>
+
+
+
+
