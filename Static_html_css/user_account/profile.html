@@ -1,50 +1,25 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>User Profile</title>
-  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/shopping_module_style.css" />
   <style>
-    nav {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 1rem 2rem;
-      display: flex;
-      gap: 2rem;
-      align-items: center;
-      color: white;
-      font-weight: 500;
-    }
-
-    nav a {
-      color: white;
-      text-decoration: none;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-
-    nav a:hover {
-      opacity: 0.8;
-    }
-
-    .nav-right {
-      margin-left: auto;
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-    }
-
     .container {
       max-width: 800px;
       margin: 0 auto;
-      padding: 2rem;
+      padding: 110px 2rem 2rem;
     }
 
     .page-header {
+      background: transparent;
+      border: none;
+      margin: 0 0 2rem;
+      padding: 0;
       display: flex;
       align-items: center;
       gap: 2rem;
-      margin-bottom: 2rem;
     }
 
     .profile-avatar-large {
@@ -345,16 +320,19 @@
   </style>
 </head>
 <body>
-  <nav>
-    <a href="request-board.html">Browse Requests</a>
-    <a href="my-requests.html">My Posts</a>
-    <a href="my-proposals.html">My Proposals</a>
-    <a href="messaging-hub.html">Messages</a>
-    <div class="nav-right">
-      <a href="auth.html">Profile</a>
-      <a href="auth.html" onclick="logout()">Logout</a>
+  <header>
+    <div class="header-container">
+      <div class="logo">🛋️ Furniture Store</div>
+      <nav>
+        <a href="../homepage/homepage.html">Home</a>
+        <a href="products.html">Market</a>
+        <a href="../Blog/blog-list.html">Blog</a>
+        <a href="../discuss_forum/forum.html">Forum Board</a>
+        <a href="auth.html">Profile</a>
+        <a href="../admin/login.html">Admin</a>
+      </nav>
     </div>
-  </nav>
+  </header>
 
   <div class="container">
     <div class="page-header" id="profileHeader">
@@ -537,19 +515,23 @@
     </div>
   </div>
 
+
+  // Javascript Section
+  
   <script src="js/main.js"></script>
   <script>
     let currentUser = null;
 
     // Initialize
     (async () => {
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
-      if (!user.id) {
+      const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+      const currentUserId = localStorage.getItem("userId") || storedUser.id;
+      if (!currentUserId) {
         window.location.href = "auth.html";
         return;
       }
 
-      await loadUserProfile(user.id);
+      await loadUserProfile(currentUserId);
     })();
 
     async function loadUserProfile(userId) {
@@ -753,6 +735,9 @@
 
     function logout() {
       localStorage.removeItem("user");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("userName");
+      localStorage.removeItem("userType");
       window.location.href = "auth.html";
     }
   </script>
