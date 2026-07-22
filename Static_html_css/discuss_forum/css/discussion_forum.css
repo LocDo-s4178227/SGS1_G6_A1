@@ -1,6 +1,23 @@
 
 @import url("shared.css");
 
+/* Forum page-specific nav tuning so adding an Admin link does not break the fixed header. */
+.forum-header-container {
+    height: auto;
+    min-height: 80px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+.forum-top-nav {
+    gap: 6px;
+}
+
+.forum-top-nav a {
+    padding: 9px 14px;
+    font-size: var(--font-size-s);
+}
+
 
 .forum-layout {
     max-width: var(--site-max-width);
