@@ -3,78 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Request Details - Marketplace</title>
+    <meta name="description" content="View request details, replies, and offers, or agree a price with a maker.">
+    <title>Request Details - Custom Makers Marketplace</title>
+    <link rel="stylesheet" href="../css/shopping_module_style.css">
     <link rel="stylesheet" href="css/discussion_forum.css">
-    <style>
-      .reply-card {
-        border-left: 4px solid #0066cc;
-      }
-      
-      .offer-section {
-        background: #f8f9fa;
-        border: 1px solid #dee2e6;
-        border-radius: 6px;
-        padding: 12px;
-        margin: 12px 0;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .offer-price {
-        font-size: 18px;
-        font-weight: bold;
-        color: #2e7d32;
-      }
-
-      .agree-price-btn {
-        background-color: #2e7d32;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: background-color 0.2s ease;
-      }
-
-      .agree-price-btn:hover {
-        background-color: #1b5e20;
-      }
-
-      .agree-price-btn:active {
-        transform: scale(0.98);
-      }
-    </style>
 </head>
 <body>
     <header>
-        <h1 id="main-heading">Custom Makers Request Board</h1>
-        <nav id="main-nav">
-            <a href="../shopping_cart/products.html">← Market</a>
-            <a href="forum.html">Back to Board</a>
-            <a href="wishlist.html">My Wishlist</a>
-            <a href="../shopping_cart/cart.html">🛒 Cart</a>
-            <a href="create-thread.html">Post Request</a>
-        </nav>
+        <div class="header-container">
+            <div class="logo">🔨 Custom Makers Board</div>
+            <nav>
+                <a href="../shopping_cart/products.html">Market</a>
+                <a href="forum.html" class="active">Forum Board</a>
+                <a href="wishlist.html">Wishlist</a>
+                <a href="../shopping_cart/cart.html">Cart</a>
+                <a href="create-thread.html">Post Request</a>
+                <a href="../shopping_cart/profile.html">Profile</a>
+            </nav>
+        </div>
     </header>
 
     <main class="container-md">
         <article class="card">
             <div class="flex-between mb-1">
-                <h2>Need a custom ergonomic wooden desk</h2>
+                <h1>Need a custom ergonomic wooden desk</h1>
                 <div>
-                    <a href="edit-post.html" class="btn">Edit Request</a>
+                    <a href="edit-post.html" class="btn btn-secondary btn-sm">Edit Request</a>
                     <form action="forum.html" method="POST" class="inline-form">
-                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this post?')">Delete</button>
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this post?')">Delete</button>
                     </form>
                 </div>
             </div>
-            
+
             <div class="meta-info mb-1">
                 Posted by: <strong>Alex</strong> | Oct 25, 2026 at 10:30 AM
             </div>
-            
+
             <div class="post-content">
                 <p>I'm looking for a carpenter or design student who can build an L-shaped wooden desk for my home office. I need it to be exactly 160cm x 120cm to fit my corner space. Solid wood preferred, open to material suggestions like oak or walnut. Budget is around $400.</p>
                 <img class="post-image" src="../images/ergonomic_wooden_desk.png" alt="Reference sketch of the requested corner desk">
@@ -82,14 +46,14 @@
         </article>
 
         <section class="reply-section">
-            <h3 class="mb-1">Offers & Replies (1)</h3>
-            
+            <h2 class="mb-1">Offers &amp; Replies (1)</h2>
+
             <!-- Reply 1 -->
-            <article class="reply-card">
+            <article class="card reply-card">
                 <div class="flex-between mb-1">
                     <div class="meta-info">Reply from: <strong>MakerJohn</strong> | Oct 25, 2026 at 11:15 AM</div>
                     <div>
-                        <a href="edit-reply.html" class="btn btn-sm">Edit Reply</a>
+                        <a href="edit-reply.html" class="btn btn-secondary btn-sm">Edit Reply</a>
                         <form action="thread-detail.html" method="POST" class="inline-form">
                             <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this reply?')">Delete</button>
                         </form>
@@ -102,29 +66,34 @@
                 <!-- Price Offer Section -->
                 <div class="offer-section">
                     <div>
-                        <span style="color: #6c757d; font-size: 14px;">Proposed Price:</span>
+                        <span class="meta-info">Proposed Price:</span>
                         <div class="offer-price">$420.00</div>
                     </div>
-                    <button class="agree-price-btn" onclick="agreePriceAndAddToCart('Need a custom ergonomic wooden desk', 'MakerJohn', 420.00, 'desk-001')">✓ Agree Price</button>
+                    <button class="btn btn-success" onclick="agreePriceAndAddToCart('Need a custom ergonomic wooden desk', 'MakerJohn', 420.00, 'desk-001')">✓ Agree Price</button>
                 </div>
             </article>
 
             <!-- Reply Form -->
-            <div class="card mt-2">
-                <h4>Post a Reply / Make an Offer</h4>
+            <div class="card mt-2" id="reply-form">
+                <h3>Post a Reply / Make an Offer</h3>
                 <form action="thread-detail.html" method="POST" class="mt-1">
                     <div class="form-group">
+                        <label for="reply-content">Your Reply</label>
                         <textarea id="reply-content" name="reply_content" rows="4" required placeholder="Type your reply, questions, or offer here..."></textarea>
                     </div>
                     <div class="form-group">
                         <label for="reply-image">Attach Image (Optional)</label>
                         <input type="file" id="reply-image" name="reply_image" accept="image/*">
                     </div>
-                    <button type="submit" class="btn">Submit Reply</button>
+                    <button type="submit" class="btn btn-primary">Submit Reply</button>
                 </form>
             </div>
         </section>
     </main>
+
+    <footer>
+        <p>&copy; 2026 Custom Makers Marketplace</p>
+    </footer>
 
     <script>
       /**

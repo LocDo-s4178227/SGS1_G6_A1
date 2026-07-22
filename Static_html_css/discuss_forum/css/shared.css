@@ -1,89 +1,38 @@
-:root {
-    --bg-color: #f8f9fa;
-    --card-bg: #ffffff;
-    --text-color: #333333;
-    --meta-color: #6c757d;
-    --primary-color: #0066cc;
-    --primary-hover: #004080;
-    --danger-color: #dc3545;
-    --danger-hover: #bd2130;
-    --border-color: #dee2e6;
-}
+/*
+ * shared.css - Discussion Forum module
+ * Base tokens, header/nav/footer, buttons, and form controls now live in
+ * ../css/shopping_module_style.css (the site-wide stylesheet also used by
+ * shopping_cart) so both modules share one visual identity.
+ * This file only keeps the small set of helpers that are specific to the
+ * forum/wishlist pages and are not part of the global stylesheet.
+ */
 
-
-body {
-    font-family: Arial, sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    margin: 0;
-    padding: 0;
-    line-height: 1.6;
-}
-
-
-header {
-    background-color: var(--card-bg);
-    border-bottom: 1px solid var(--border-color);
-    padding: 1rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-header h1 {
-    font-size: 1.5rem;
-    margin: 0;
-}
-
-nav a {
-    color: var(--primary-color);
-    text-decoration: none;
-    margin-left: 1rem;
-    font-weight: bold;
-}
-
-nav a:hover {
-    text-decoration: underline;
-}
-
-nav a[aria-current="page"] {
-    text-decoration: underline;
-}
-
+/* Page containers used instead of the global fixed-width .container,
+   offset to clear the fixed header defined in shopping_module_style.css */
 .container-sm {
     max-width: 700px;
-    margin: 2rem auto;
-    padding: 0 1rem;
+    margin: 0 auto;
+    padding: 110px 1rem 40px;
 }
 
 .container-md {
     max-width: 900px;
-    margin: 2rem auto;
-    padding: 0 1rem;
+    margin: 0 auto;
+    padding: 110px 1rem 40px;
 }
 
-.card {
-    background-color: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-}
-
+/* Card title links (forum threads / wishlist items) */
 .card-title {
-    font-size: 1.25rem;
-    color: var(--primary-color);
+    font-size: var(--font-size-l);
+    color: var(--primary);
     text-decoration: none;
-    font-weight: bold;
+    font-weight: var(--font-weight-bold);
 }
 
 .card-title:hover {
+    color: var(--accent);
     text-decoration: underline;
 }
-
 
 .card-title-static {
     cursor: default;
@@ -94,63 +43,8 @@ nav a[aria-current="page"] {
 }
 
 .meta-info {
-    font-size: 0.85rem;
-    color: var(--meta-color);
-}
-
-
-.btn {
-    display: inline-block;
-    background-color: var(--primary-color);
-    color: white;
-    padding: 0.6rem 1.2rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    text-decoration: none;
-    font-size: 1rem;
-}
-
-.btn:hover {
-    background-color: var(--primary-hover);
-}
-
-.btn-danger {
-    background-color: var(--danger-color);
-}
-
-.btn-danger:hover {
-    background-color: var(--danger-hover);
-}
-
-.btn-sm {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.85rem;
-}
-
-.form-group {
-    margin-bottom: 1rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: bold;
-}
-
-input[type="text"],
-input[type="file"],
-select,
-textarea {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    box-sizing: border-box;
-}
-
-textarea {
-    resize: vertical;
+    font-size: var(--font-size-s);
+    color: var(--muted);
 }
 
 .flex-between {
@@ -158,27 +52,63 @@ textarea {
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: var(--spacing-s);
 }
 
 .inline-form {
     display: inline;
 }
 
-.mt-1 { margin-top: 0.5rem; }
-.mb-1 { margin-bottom: 0.5rem; }
-.mt-2 { margin-top: 1rem; }
-.mb-2 { margin-bottom: 1rem; }
+.mt-1 { margin-top: var(--spacing-s); }
+.mb-1 { margin-bottom: var(--spacing-s); }
+.mt-2 { margin-top: var(--spacing-m); }
+.mb-2 { margin-bottom: var(--spacing-m); }
 
+/* Forum/wishlist forms keep their own compact input styling
+   (the global stylesheet only provides the .input/.select utility classes) */
+.form-group {
+    margin-bottom: var(--spacing-m);
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: var(--spacing-s);
+    font-weight: var(--font-weight-semi-bold);
+    color: var(--text);
+    font-size: var(--font-size-s);
+}
+
+input[type="text"],
+input[type="file"],
+select,
+textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-s);
+    font: inherit;
+    font-size: var(--font-size-n);
+    background-color: var(--surface);
+    color: var(--text);
+    box-sizing: border-box;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+input[type="text"]:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(119, 179, 248, 0.18);
+}
+
+textarea {
+    resize: vertical;
+}
 
 @media (max-width: 600px) {
-    header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    nav a {
-        margin-left: 0;
-        margin-right: 1rem;
+    .container-sm,
+    .container-md {
+        padding-top: 130px;
     }
 }
