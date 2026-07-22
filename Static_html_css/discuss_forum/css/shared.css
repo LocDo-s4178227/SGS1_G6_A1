@@ -1,11 +1,3 @@
-/* ============================================================
-   shared.css
-   Common design tokens and base rules used across every module
-   (Discussion Forum, Wishlist, and future modules).
-   Module-specific stylesheets @import this file and only define
-   the rules that are unique to that module.
-   ============================================================ */
-
 :root {
     --bg-color: #f8f9fa;
     --card-bg: #ffffff;
@@ -18,7 +10,7 @@
     --border-color: #dee2e6;
 }
 
-/* Base page setup */
+
 body {
     font-family: Arial, sans-serif;
     background-color: var(--bg-color);
@@ -28,7 +20,7 @@ body {
     line-height: 1.6;
 }
 
-/* Site header, shared on every page */
+
 header {
     background-color: var(--card-bg);
     border-bottom: 1px solid var(--border-color);
@@ -60,7 +52,6 @@ nav a[aria-current="page"] {
     text-decoration: underline;
 }
 
-/* Layout containers */
 .container-sm {
     max-width: 700px;
     margin: 2rem auto;
@@ -73,7 +64,6 @@ nav a[aria-current="page"] {
     padding: 0 1rem;
 }
 
-/* Card component, used by both modules */
 .card {
     background-color: var(--card-bg);
     border: 1px solid var(--border-color);
@@ -94,9 +84,7 @@ nav a[aria-current="page"] {
     text-decoration: underline;
 }
 
-/* For card titles that intentionally have nothing to link to yet
-   (e.g. sample items with no detail page). Keeps the same look
-   without implying it's clickable. */
+
 .card-title-static {
     cursor: default;
 }
@@ -110,7 +98,7 @@ nav a[aria-current="page"] {
     color: var(--meta-color);
 }
 
-/* Buttons, used by both modules */
+
 .btn {
     display: inline-block;
     background-color: var(--primary-color);
@@ -140,7 +128,6 @@ nav a[aria-current="page"] {
     font-size: 0.85rem;
 }
 
-/* Form building blocks, used by both modules */
 .form-group {
     margin-bottom: 1rem;
 }
@@ -166,7 +153,6 @@ textarea {
     resize: vertical;
 }
 
-/* Layout utilities, used by both modules */
 .flex-between {
     display: flex;
     justify-content: space-between;
@@ -184,8 +170,7 @@ textarea {
 .mt-2 { margin-top: 1rem; }
 .mb-2 { margin-bottom: 1rem; }
 
-/* Small screens: stack the header nav under the site title so
-   nothing overflows on narrow viewports. */
+
 @media (max-width: 600px) {
     header {
         flex-direction: column;

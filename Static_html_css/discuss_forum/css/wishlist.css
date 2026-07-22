@@ -1,8 +1,3 @@
-/* ============================================================
-   wishlist.css
-   Styles specific to the Wishlist module.
-   Shared design tokens and base rules live in shared.css.
-   ============================================================ */
 @import url("shared.css");
 @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap');
 
@@ -89,7 +84,6 @@ nav a.active {
     background-color: var(--success-hover);
 }
 
-/* Wishlist item layout */
 .wishlist-list {
     display: grid;
     gap: 1.5rem;
