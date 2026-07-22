@@ -3,24 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Reply - Marketplace</title>
+    <meta name="description" content="Edit your reply or offer on a custom-make request.">
+    <title>Edit Reply - Custom Makers Marketplace</title>
+    <link rel="stylesheet" href="../css/shopping_module_style.css">
     <link rel="stylesheet" href="css/discussion_forum.css">
 </head>
 <body>
     <header>
-        <h1 id="main-heading">Custom Makers Request Board</h1>
-        <nav id="main-nav">
-            <a href="../shopping_cart/products.html">← Market</a>
-            <a href="thread-detail.html">Cancel</a>
-            <a href="forum.html">Browse</a>
-            <a href="wishlist.html">My Wishlist</a>
-            <a href="../shopping_cart/cart.html">🛒 Cart</a>
-        </nav>
+        <div class="header-container">
+            <div class="logo">🔨 Custom Makers Board</div>
+            <nav>
+                <a href="../shopping_cart/products.html">Market</a>
+                <a href="forum.html" class="active">Forum Board</a>
+                <a href="wishlist.html">Wishlist</a>
+                <a href="../shopping_cart/cart.html">Cart</a>
+                <a href="create-thread.html">Post Request</a>
+                <a href="../shopping_cart/profile.html">Profile</a>
+            </nav>
+        </div>
     </header>
 
     <main class="container-sm">
         <div class="card">
-            <h2>Edit Your Reply</h2>
+            <h1>Edit Your Reply</h1>
             <p class="meta-info mb-1">Editing your offer on: <strong>Need a custom ergonomic wooden desk</strong></p>
 
             <form action="thread-detail.html" method="POST" class="mt-1">
@@ -34,9 +39,16 @@
                     <input type="file" id="edit-reply-image" name="reply_image" accept="image/*">
                 </div>
 
-                <button type="submit" class="btn">Save Reply Changes</button>
+                <div class="flex-between">
+                    <a href="thread-detail.html" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Save Reply Changes</button>
+                </div>
             </form>
         </div>
     </main>
+
+    <footer>
+        <p>&copy; 2026 Custom Makers Marketplace</p>
+    </footer>
 </body>
 </html>

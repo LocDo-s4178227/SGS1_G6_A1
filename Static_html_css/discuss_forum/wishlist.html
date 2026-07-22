@@ -3,24 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Wishlist - Custom Marketplace</title>
+    <meta name="description" content="View and manage the custom requests and products you have saved.">
+    <title>My Wishlist - Custom Makers Marketplace</title>
+    <link rel="stylesheet" href="../css/shopping_module_style.css">
     <link rel="stylesheet" href="css/wishlist.css">
 </head>
 <body>
     <header>
-        <h1 id="main-heading">🛒 Custom Makers Request Board</h1>
-        <nav>
-            <a href="../shopping_cart/products.html">Market</a>
-            <a href="forum.html">Browse Board</a>
-            <a href="wishlist.html" class="active">My Wishlist</a>
-            <a href="../shopping_cart/cart.html">Cart</a>
-            <a href="create-thread.html">Post Request</a>
-        </nav>
+        <div class="header-container">
+            <div class="logo">🔨 Custom Makers Board</div>
+            <nav>
+                <a href="../shopping_cart/products.html">Market</a>
+                <a href="forum.html">Forum Board</a>
+                <a href="wishlist.html" class="active">Wishlist</a>
+                <a href="../shopping_cart/cart.html">Cart</a>
+                <a href="create-thread.html">Post Request</a>
+                <a href="../shopping_cart/profile.html">Profile</a>
+            </nav>
+        </div>
     </header>
 
     <main class="container-md">
         <div class="card mb-2">
-            <h2>My Saved Wishlist Items</h2>
+            <h1>My Saved Wishlist Items</h1>
             <p class="meta-info">View and manage the custom requests and products you are interested in.</p>
         </div>
 
@@ -28,11 +33,11 @@
             <!-- Wishlist Item 1 -->
             <article class="card wishlist-item">
                 <img class="wishlist-img" src="../images/ergonomic_wooden_desk.png" alt="Reference sketch of the requested corner desk">
-                
+
                 <div class="wishlist-content">
-                    <a href="thread-detail.html" class="card-title">Need a custom ergonomic wooden desk</a>
+                    <a href="thread-detail.html?threadId=desk-001" class="card-title">Need a custom ergonomic wooden desk</a>
                     <p class="mt-1 mb-1">Solid oak L-shaped desk (160cm x 120cm) for home office setup.</p>
-                    
+
                     <div class="meta-info">
                         <strong>Wishlist Stats:</strong><br>
                         • 14 users added to wishlist<br>
@@ -42,7 +47,7 @@
                 </div>
 
                 <div class="wishlist-actions">
-                    <button class="btn btn-sm" onclick="moveItemToCart('Need a custom ergonomic wooden desk', 'desk-001', 420.00)">Move to Cart</button>
+                    <button class="btn btn-primary btn-sm" onclick="moveItemToCart('Need a custom ergonomic wooden desk', 'desk-001', 420.00)">Move to Cart</button>
                     <button class="btn btn-success btn-sm" onclick="alert('Mark as purchased coming soon!')">Mark as Purchased</button>
                     <button class="btn btn-danger btn-sm" onclick="return confirm('Remove this product from your wishlist?') && alert('Item removed from wishlist.')">Remove</button>
                 </div>
@@ -51,11 +56,11 @@
             <!-- Wishlist Item 2 -->
             <article class="card wishlist-item">
                 <img class="wishlist-img" src="../images/mechanical_keyboard_case.png" alt="Reference render of the requested keyboard case">
-                
+
                 <div class="wishlist-content">
                     <span class="card-title card-title-static">3D Printed Mechanical Keyboard Case</span>
                     <p class="mt-1 mb-1">Matte black resin print for a 60% mechanical keyboard PCB.</p>
-                    
+
                     <div class="meta-info">
                         <strong>Wishlist Stats:</strong><br>
                         • 8 users added to wishlist<br>
@@ -65,13 +70,17 @@
                 </div>
 
                 <div class="wishlist-actions">
-                    <button class="btn btn-sm" onclick="moveItemToCart('3D Printed Mechanical Keyboard Case', 'keyboard-002', 180.00)">Move to Cart</button>
+                    <button class="btn btn-primary btn-sm" onclick="moveItemToCart('3D Printed Mechanical Keyboard Case', 'keyboard-002', 180.00)">Move to Cart</button>
                     <button class="btn btn-success btn-sm" onclick="alert('Mark as purchased coming soon!')">Mark as Purchased</button>
                     <button class="btn btn-danger btn-sm" onclick="return confirm('Remove this product from your wishlist?') && alert('Item removed from wishlist.')">Remove</button>
                 </div>
             </article>
         </div>
     </main>
+
+    <footer>
+        <p>&copy; 2026 Custom Makers Marketplace</p>
+    </footer>
 
     <script>
       /**
@@ -103,7 +112,7 @@
 
           localStorage.setItem('forumCart', JSON.stringify(forumCart));
           alert(`✓ "${title}" has been added to your cart.\n\nRedirecting to cart...`);
-          
+
           setTimeout(() => {
             window.location.href = '../shopping_cart/cart.html';
           }, 500);

@@ -3,45 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Post a Request - Marketplace</title>
+    <meta name="description" content="Edit the details of your custom-make request.">
+    <title>Edit Request - Custom Makers Marketplace</title>
+    <link rel="stylesheet" href="../css/shopping_module_style.css">
     <link rel="stylesheet" href="css/discussion_forum.css">
 </head>
 <body>
     <header>
-        <h1 id="main-heading">Custom Makers Request Board</h1>
-        <nav id="main-nav">
-            <a href="../shopping_cart/products.html">← Market</a>
-            <a href="forum.html">Cancel &amp; Back</a>
-            <a href="wishlist.html">My Wishlist</a>
-            <a href="../shopping_cart/cart.html">🛒 Cart</a>
-            <a href="create-thread.html" aria-current="page">Post Request</a>
-        </nav>
+        <div class="header-container">
+            <div class="logo">🔨 Custom Makers Board</div>
+            <nav>
+                <a href="../shopping_cart/products.html">Market</a>
+                <a href="forum.html" class="active">Forum Board</a>
+                <a href="wishlist.html">Wishlist</a>
+                <a href="../shopping_cart/cart.html">Cart</a>
+                <a href="create-thread.html">Post Request</a>
+                <a href="../shopping_cart/profile.html">Profile</a>
+            </nav>
+        </div>
     </header>
 
     <main class="container-sm">
         <div class="card">
-            <h2>Post a New Request</h2>
-            <p class="meta-info mb-1">Describe what you need made, designed, or found.</p>
-            
-            <form action="forum.html" method="POST">
+            <h1>Edit Your Request</h1>
+
+            <form action="thread-detail.html" method="POST" class="mt-1">
                 <div class="form-group">
-                    <label for="req-title">Request Title</label>
-                    <input type="text" id="req-title" name="title" required placeholder="e.g., Custom Leather Wallet Design">
+                    <label for="edit-title">Request Title</label>
+                    <input type="text" id="edit-title" name="title" value="Need a custom ergonomic wooden desk" required>
                 </div>
-                
+
                 <div class="form-group">
-                    <label for="req-content">Description & Requirements</label>
-                    <textarea id="req-content" name="content" rows="6" required placeholder="Provide details about dimensions, materials, budget expectations..."></textarea>
+                    <label for="edit-content">Description &amp; Requirements</label>
+                    <textarea id="edit-content" name="content" rows="6" required>I'm looking for a carpenter or design student who can build an L-shaped wooden desk for my home office. I need it to be exactly 160cm x 120cm to fit my corner space. Solid wood preferred, open to material suggestions like oak or walnut. Budget is around $400.</textarea>
                 </div>
-                
+
                 <div class="form-group">
-                    <label for="req-image">Attach Reference Image</label>
-                    <input type="file" id="req-image" name="image" accept="image/*">
+                    <label for="edit-image">Update Reference Image</label>
+                    <img class="current-image-preview" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNDAwIj4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iIzhCNUUzNCIvPgogIDx0ZXh0IHg9IjIwMCIgeT0iMjEwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjgiIGZpbGw9IiNmZmZmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkNvcm5lciBEZXNrPC90ZXh0Pgo8L3N2Zz4=" alt="Current reference image attached to this request">
+                    <input type="file" id="edit-image" name="image" accept="image/*">
                 </div>
-                
-                <button type="submit" class="btn">Publish Request</button>
+
+                <div class="flex-between">
+                    <a href="thread-detail.html" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Save All Changes</button>
+                </div>
             </form>
         </div>
     </main>
+
+    <footer>
+        <p>&copy; 2026 Custom Makers Marketplace</p>
+    </footer>
 </body>
 </html>

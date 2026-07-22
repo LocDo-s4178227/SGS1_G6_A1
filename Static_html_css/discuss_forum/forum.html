@@ -3,73 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Request Board - Custom Marketplace</title>
+    <meta name="description" content="Browse open custom-make requests posted by the community.">
+    <title>Request Board - Custom Makers Marketplace</title>
+    <link rel="stylesheet" href="../css/shopping_module_style.css">
     <link rel="stylesheet" href="css/discussion_forum.css">
-</head>
+    
+    </head>
 <body>
     <header>
-        <h1 id="main-heading">Custom Makers Request Board</h1>
-        <nav>
-            <a href="../shopping_cart/products.html">Market</a>
-            <a href="forum.html" class="active">Browse</a>
-            <a href="wishlist.html">Wishlist</a>
-            <a href="../shopping_cart/cart.html">Cart</a>
-            <a href="create-thread.html">Post Request</a>
-        </nav>
+        <div class="header-container">
+            <div class="logo">🔨 Custom Makers Board</div>
+            <nav>
+                <a href="../shopping_cart/products.html">Market</a>
+                <a href="forum.html" class="active">Forum Board</a>
+                <a href="wishlist.html">Wishlist</a>
+                <a href="../shopping_cart/cart.html">Cart</a>
+                <a href="create-thread.html">Post Request</a>
+                <a href="../shopping_cart/profile.html">Profile</a>
+            </nav>
+        </div>
     </header>
 
-    <div class="container">
-        <aside id="forum-filters">
-            <h3>Filter & Sort</h3>
-            <form action="forum.html" method="GET" class="mt-1">
-                <div class="form-group">
-                    <label for="search-keyword">Search Content/Title</label>
-                    <input type="text" id="search-keyword" name="keyword" placeholder="e.g., wooden desk, leather...">
-                </div>
-                <div class="form-group">
-                    <label for="sort-by">Sort By</label>
-                    <select id="sort-by" name="sort">
-                        <option value="newest">Date: Newest First</option>
-                        <option value="oldest">Date: Oldest First</option>
-                        <option value="title_asc">Title: A-Z</option>
-                        <option value="title_desc">Title: Z-A</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn">Apply Filters</button>
-            </form>
-        </aside>
+    <main class="container">
+        <div class="page-header">
+            <h1>Custom Makers Request Board</h1>
+            <p>Browse open requests from the community and offer your craftsmanship.</p>
+        </div>
 
-        <main class="thread-list">
-            <!-- Thread 1 -->
-            <article class="card thread-card">
-                <div class="card-header thread-card-header">
-                    <img class="thread-thumb" src="../images/ergonomic_wooden_desk.png" alt="Reference sketch of the requested corner desk">
-                    <div>
-                        <a href="thread-detail.html" class="card-title">Need a custom ergonomic wooden desk</a>
-                        <div class="meta-info mt-1">Posted by: <strong>Alex</strong> | Oct 25, 2026, 10:30 AM</div>
+        <div class="forum-layout">
+            <aside id="forum-filters">
+                <h3>Filter &amp; Sort</h3>
+                <form action="forum.html" method="GET">
+                    <div class="form-group">
+                        <label for="search-keyword">Search Content/Title</label>
+                        <input type="text" id="search-keyword" name="keyword" placeholder="e.g., wooden desk, leather...">
                     </div>
-                </div>
-                <p>I'm looking for a carpenter who can build an L-shaped wooden desk for my home office. Needs to be 160x120cm...</p>
-                <div class="mt-1">
-                    <span class="meta-info">3 Replies | Status: Open</span>
-                </div>
-            </article>
+                    <div class="form-group">
+                        <label for="sort-by">Sort By</label>
+                        <select id="sort-by" name="sort">
+                            <option value="newest">Date: Newest First</option>
+                            <option value="oldest">Date: Oldest First</option>
+                            <option value="title_asc">Title: A-Z</option>
+                            <option value="title_desc">Title: Z-A</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                </form>
+            </aside>
 
-            <!-- Thread 2 -->
-            <article class="card thread-card">
-                <div class="card-header thread-card-header">
-                    <img class="thread-thumb" src="../images/mechanical_keyboard_case.png" alt="Reference render of the requested keyboard case">
-                    <div>
-                        <span class="card-title card-title-static">3D Printed Mechanical Keyboard Case</span>
-                        <div class="meta-info mt-1">Posted by: <strong>SarahM</strong> | Oct 24, 2026, 02:15 PM</div>
+            <section class="thread-list" aria-label="Open requests">
+                <!-- Thread 1 -->
+                <article class="card thread-card">
+                    <div class="card-header thread-card-header">
+                        <img class="thread-thumb" src="../images/ergonomic_wooden_desk.png" alt="Reference sketch of the requested corner desk">
+                        <div>
+                            <a href="thread-detail.html?threadId=desk-001" class="card-title">Need a custom ergonomic wooden desk</a>
+                            <div class="meta-info mt-1">Posted by: <strong>Alex</strong> | Oct 25, 2026, 10:30 AM</div>
+                        </div>
                     </div>
-                </div>
-                <p>I have the STL files but need someone with a resin printer to print a 60% keyboard case in matte black...</p>
-                <div class="mt-1">
-                    <span class="meta-info">5 Replies | Status: Negotiating</span>
-                </div>
-            </article>
-        </main>
-    </div>
+                    <p>I'm looking for a carpenter who can build an L-shaped wooden desk for my home office. Needs to be 160x120cm...</p>
+                    <div class="mt-1">
+                        <span class="meta-info">3 Replies | Status: Open</span>
+                    </div>
+                </article>
+
+                <!-- Thread 2 -->
+                <article class="card thread-card">
+                    <div class="card-header thread-card-header">
+                        <img class="thread-thumb" src="../images/mechanical_keyboard_case.png" alt="Reference render of the requested keyboard case">
+                        <div>
+                            <span class="card-title card-title-static">3D Printed Mechanical Keyboard Case</span>
+                            <div class="meta-info mt-1">Posted by: <strong>SarahM</strong> | Oct 24, 2026, 02:15 PM</div>
+                        </div>
+                    </div>
+                    <p>I have the STL files but need someone with a resin printer to print a 60% keyboard case in matte black...</p>
+                    <div class="mt-1">
+                        <span class="meta-info">5 Replies | Status: Negotiating</span>
+                    </div>
+                </article>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Custom Makers Marketplace</p>
+    </footer>
 </body>
 </html>
