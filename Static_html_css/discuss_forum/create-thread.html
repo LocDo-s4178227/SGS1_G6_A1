@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Edit the details of your custom-make request.">
-    <title>Edit Request - Custom Makers Marketplace</title>
+    <meta name="description" content="Create a new forum post with author and timestamp details.">
+    <title>Create Thread - Custom Makers Marketplace</title>
     <link rel="stylesheet" href="../css/shopping_module_style.css">
     <link rel="stylesheet" href="css/discussion_forum.css">
     <link rel="stylesheet" href="../css/top-nav.css">
@@ -34,11 +34,21 @@
 
     <main class="container-sm">
         <div class="card">
-            <h1>Edit Your Request</h1>
+            <h1>Create Your Post</h1>
 
             <form action="thread-detail.html" method="POST" class="mt-1">
                 <div class="form-group">
-                    <label for="edit-title">Request Title</label>
+                    <label for="post-author">Author</label>
+                    <input type="text" id="post-author" name="author" placeholder="Enter your name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="post-timestamp">Posted Date &amp; Time</label>
+                    <input type="datetime-local" id="post-timestamp" name="posted_at" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-title">Post Title</label>
                     <input type="text" id="edit-title" name="title" value="Need a custom ergonomic wooden desk" required>
                 </div>
 
@@ -48,19 +58,30 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="edit-image">Update Reference Image</label>
+                    <label for="edit-image">Reference Image</label>
                     <img class="current-image-preview" src="../images/ergonomic_wooden_desk.png" alt="Reference sketch of the requested corner desk">
-                        <div>
+                </div>
+                <div class="form-group">
                     <input type="file" id="edit-image" name="image" accept="image/*">
                 </div>
 
                 <div class="flex-between">
                     <a href="thread-detail.html" class="btn btn-secondary">Cancel</a>
-                    <button type="submit" class="btn btn-primary">Save All Changes</button>
+                    <button type="submit" class="btn btn-primary">Create Thread</button>
                 </div>
             </form>
         </div>
     </main>
+    <script>
+        (function() {
+            var timestampInput = document.getElementById('post-timestamp');
+            if (timestampInput && !timestampInput.value) {
+                var now = new Date();
+                var local = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+                timestampInput.value = local;
+            }
+        })();
+    </script>
 
     <footer>
         <p>&copy; 2026 Custom Makers Marketplace</p>
