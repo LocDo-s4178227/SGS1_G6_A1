@@ -305,6 +305,12 @@
     function highlightActiveLink() {
       const currentPage = window.location.pathname.split('/').pop() || 'index.html';
       const navLinks = document.querySelectorAll('nav a');
+
+      // Keep Cart and Review unhighlighted on their own pages.
+      if (currentPage === 'cart.html' || currentPage === 'review.html') {
+        navLinks.forEach(link => link.classList.remove('active'));
+        return;
+      }
       
       navLinks.forEach(link => {
         const linkPage = link.getAttribute('href').split('/').pop();
