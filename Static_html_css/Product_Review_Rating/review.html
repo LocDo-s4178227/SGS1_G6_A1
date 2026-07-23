@@ -1,341 +1,219 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
-
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Browse, search and publish product reviews on Rshop Marketplace.">
+  <title>Reviews & Ratings | Rshop</title>
 
-<title>WebReview - Website Review Platform</title>
-
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="../css/top-nav.css">
-
+  <link rel="stylesheet" href="../css/top-nav.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="review.js" defer></script>
 </head>
-
-
 <body>
-
-
-<!-- Navigation -->
-
-<header class="rshop-top-header">
-<div class="rshop-header-container">
-<div class="rshop-logo-section">
-<a href="../shopping_cart/cart.html" class="rshop-cart-icon" aria-label="Cart">&#128722;</a>
-<a href="../homepage/homepage.html" class="rshop-logo">Rshop</a>
-</div>
-<nav class="rshop-nav" aria-label="Main navigation">
-<a href="../homepage/homepage.html" class="rshop-nav-link">Home</a>
-<a href="../shopping_cart/products.html" class="rshop-nav-link">Market</a>
-<a href="../Blog/blog-list.html" class="rshop-nav-link">Blog</a>
-<a href="../discuss_forum/forum.html" class="rshop-nav-link">Forum</a>
-<a href="../discuss_forum/wishlist.html" class="rshop-nav-link">Wishlist</a>
-<a href="../shopping_cart/cart.html" class="rshop-nav-link">Cart</a>
-<a href="../Product_Review_Rating/review.html" class="rshop-nav-link">Review</a>
-<a href="../discuss_forum/create-thread.html" class="rshop-nav-link">Post</a>
-<a href="../user_account/profile.html" class="rshop-nav-link">Profile</a>
-<a href="../user_account/auth.html" class="rshop-nav-link">Sign In</a>
-</nav>
-</div>
-</header>
-
-
-
-<!-- Hero -->
-
-<section class="hero">
-
-<h2>Share Your Website Experience</h2>
-
-<p>
-Read, create and manage professional website reviews.
-</p>
-
-<div class="hero-actions">
-<a href="#create-review" class="action-btn">Write a Review</a>
-<a href="../Blog/blog-list.html" class="action-btn">Read Blog</a>
-<a href="../discuss_forum/forum.html" class="action-btn">Go to Forum</a>
-</div>
-
-</section>
-
-
-
-
-<!-- Search -->
-
-<section class="search-box">
-
-<h2>Find Reviews</h2>
-
-<input type="text" placeholder="Search website, category, title...">
-
-
-<select>
-
-<option>All Categories</option>
-<option>Technology</option>
-<option>Education</option>
-<option>Shopping</option>
-
-</select>
-
-
-</section>
-
-
-
-
-
-<!-- Create Review -->
-
-<section class="create" id="create-review">
-
-<h2>Create New Review</h2>
-
-
-<form>
-
-
-<input type="text" placeholder="Review title">
-
-
-<input type="text" placeholder="Website name">
-
-
-<select>
-
-<option>Technology</option>
-<option>Education</option>
-<option>Shopping</option>
-
-</select>
-
-
-
-<select>
-
-<option>★★★★★</option>
-<option>★★★★☆</option>
-<option>★★★☆☆</option>
-
-</select>
-
-
-
-<input type="text" placeholder="Thumbnail image URL">
-
-
-<textarea placeholder="Short summary"></textarea>
-
-
-<textarea placeholder="Full review"></textarea>
-
-
-
-<button>
-Publish Review
-</button>
-
-
-</form>
-
-
-</section>
-
-
-
-
-
-
-<!-- Review List -->
-
-
-<section>
-
-
-<h2>Latest Reviews</h2>
-
-
-
-<div class="review-container">
-
-
-
-<div class="review-card">
-
-
-<img src="https://picsum.photos/300/200">
-
-
-<div>
-
-
-<h3>Google</h3>
-
-
-<div class="stars">
-★★★★★
-</div>
-
-
-<p>
-Fast and reliable search engine with many useful services.
-</p>
-
-
-<small>
-Technology | 15 July 2026
-</small>
-
-
-<br><br>
-
-
-<button>
-View
-</button>
-
-<button>
-Edit
-</button>
-
-<button class="delete">
-Delete
-</button>
-
-
-
-</div>
-
-
-</div>
-
-
-
-
-
-<div class="review-card">
-
-
-<img src="https://picsum.photos/301/200">
-
-
-<div>
-
-
-<h3>YouTube</h3>
-
-
-<div class="stars">
-★★★★☆
-</div>
-
-
-<p>
-Excellent video platform with huge content library.
-</p>
-
-
-<small>
-Entertainment | 10 July 2026
-</small>
-
-
-<br><br>
-
-
-<button>
-View
-</button>
-
-<button>
-Edit
-</button>
-
-<button class="delete">
-Delete
-</button>
-
-
-</div>
-
-
-</div>
-
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-<!-- Detail View -->
-
-
-<section class="detail">
-
-
-<h2>Review Detail</h2>
-
-
-<img src="https://picsum.photos/700/300">
-
-
-<h3>Google Website Review</h3>
-
-
-<p class="stars">
-★★★★★
-</p>
-
-
-<p>
-
-Google provides a clean interface and very fast searching.
-It is useful for students, businesses and everyday users.
-
-</p>
-
-
-<p>
-<strong>Category:</strong> Technology
-</p>
-
-
-<p>
-<strong>Date:</strong> 15 July 2026
-</p>
-
-
-<button>Edit Review</button>
-
-<button class="delete">
-Delete Review
-</button>
-
-
-
-</section>
-
-
-
-
-
-<footer>
-
-<p>
-© 2026 WebReview Platform
-</p>
-
-</footer>
-
-
-
+  <header class="rshop-top-header">
+    <div class="rshop-header-container">
+      <div class="rshop-logo-section">
+        <a href="../shopping_cart/cart.html" class="rshop-cart-icon" aria-label="Open cart">&#128722;</a>
+        <a href="../homepage/homepage.html" class="rshop-logo">Rshop</a>
+      </div>
+
+      <nav class="rshop-nav" aria-label="Main navigation">
+        <a href="../homepage/homepage.html" class="rshop-nav-link">Home</a>
+        <a href="../shopping_cart/products.html" class="rshop-nav-link">Market</a>
+        <a href="../Blog/blog-list.html" class="rshop-nav-link">Blog</a>
+        <a href="../discuss_forum/forum.html" class="rshop-nav-link">Forum</a>
+        <a href="../discuss_forum/wishlist.html" class="rshop-nav-link">Wishlist</a>
+        <a href="../shopping_cart/cart.html" class="rshop-nav-link">Cart</a>
+        <a href="review.html" class="rshop-nav-link active" aria-current="page">Reviews</a>
+        <a href="../discuss_forum/create-thread.html" class="rshop-nav-link">Post</a>
+        <a href="../user_account/profile.html" class="rshop-nav-link">Profile</a>
+        <a href="../user_account/auth.html" class="rshop-nav-link">Sign In</a>
+        <a href="../sitemap/sitemap.html" class="rshop-nav-link">Sitemap</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="review-hero" aria-labelledby="hero-title">
+      <div class="hero-content">
+        <p class="eyebrow">Community feedback</p>
+        <h1 id="hero-title">Reviews that help people buy with confidence</h1>
+        <p class="hero-copy">Explore customer experiences, compare ratings and share helpful feedback about products listed on Rshop.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#write-review">Write a review</a>
+          <a class="button button-secondary" href="#review-list">Browse reviews</a>
+        </div>
+      </div>
+
+      <div class="hero-summary" aria-label="Review summary">
+        <div class="summary-score">
+          <strong id="averageRating">4.5</strong>
+          <span class="summary-stars" aria-hidden="true">★★★★★</span>
+          <span id="reviewCount">Based on 4 reviews</span>
+        </div>
+        <div class="summary-bars" id="ratingBars"></div>
+      </div>
+    </section>
+
+    <section class="toolbar" aria-labelledby="find-reviews-title">
+      <div>
+        <p class="section-kicker">Discover feedback</p>
+        <h2 id="find-reviews-title">Find reviews</h2>
+      </div>
+
+      <div class="toolbar-controls">
+        <label class="field search-field">
+          <span>Search</span>
+          <input id="searchInput" type="search" placeholder="Product, title or keyword">
+        </label>
+
+        <label class="field">
+          <span>Category</span>
+          <select id="categoryFilter">
+            <option value="all">All categories</option>
+            <option value="Furniture">Furniture</option>
+            <option value="Technology">Technology</option>
+            <option value="Home">Home</option>
+            <option value="Lifestyle">Lifestyle</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Rating</span>
+          <select id="ratingFilter">
+            <option value="all">All ratings</option>
+            <option value="5">5 stars</option>
+            <option value="4">4 stars & up</option>
+            <option value="3">3 stars & up</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Sort</span>
+          <select id="sortFilter">
+            <option value="newest">Newest first</option>
+            <option value="highest">Highest rated</option>
+            <option value="lowest">Lowest rated</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <div class="page-grid">
+      <section class="reviews-panel" id="review-list" aria-labelledby="latest-reviews-title">
+        <div class="section-heading-row">
+          <div>
+            <p class="section-kicker">Verified community opinions</p>
+            <h2 id="latest-reviews-title">Latest reviews</h2>
+          </div>
+          <p id="resultCount" class="result-count" aria-live="polite"></p>
+        </div>
+
+        <div id="emptyState" class="empty-state" hidden>
+          <h3>No reviews found</h3>
+          <p>Try changing the search term or filter options.</p>
+        </div>
+
+        <div id="reviewContainer" class="review-list"></div>
+      </section>
+
+      <aside class="review-sidebar">
+        <section class="form-card" id="write-review" aria-labelledby="write-review-title">
+          <p class="section-kicker">Share your experience</p>
+          <h2 id="write-review-title">Write a review</h2>
+          <p class="form-intro">Helpful reviews are specific, respectful and based on real product experience.</p>
+
+          <form id="reviewForm">
+            <input id="reviewId" type="hidden">
+
+            <label class="field">
+              <span>Review title</span>
+              <input id="reviewTitle" type="text" maxlength="80" required placeholder="What stood out?">
+            </label>
+
+            <label class="field">
+              <span>Product name</span>
+              <input id="productName" type="text" maxlength="80" required placeholder="Example: Ergonomic Wooden Desk">
+            </label>
+
+            <div class="form-row">
+              <label class="field">
+                <span>Category</span>
+                <select id="reviewCategory" required>
+                  <option value="">Select</option>
+                  <option value="Furniture">Furniture</option>
+                  <option value="Technology">Technology</option>
+                  <option value="Home">Home</option>
+                  <option value="Lifestyle">Lifestyle</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>Rating</span>
+                <select id="reviewRating" required>
+                  <option value="">Select</option>
+                  <option value="5">5 - Excellent</option>
+                  <option value="4">4 - Very good</option>
+                  <option value="3">3 - Good</option>
+                  <option value="2">2 - Fair</option>
+                  <option value="1">1 - Poor</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="field">
+              <span>Your name</span>
+              <input id="reviewerName" type="text" maxlength="60" required placeholder="Display name">
+            </label>
+
+            <label class="field">
+              <span>Image path or URL <small>(optional)</small></span>
+              <input id="reviewImage" type="text" placeholder="../images/product.png">
+            </label>
+
+            <label class="field">
+              <span>Review</span>
+              <textarea id="reviewBody" minlength="20" maxlength="900" required placeholder="Describe quality, value, usability and your overall experience."></textarea>
+              <small class="character-count"><span id="characterCount">0</span>/900</small>
+            </label>
+
+            <div class="form-actions">
+              <button class="button button-primary" type="submit" id="submitButton">Publish review</button>
+              <button class="button button-ghost" type="button" id="cancelEdit" hidden>Cancel edit</button>
+            </div>
+            <p id="formMessage" class="form-message" aria-live="polite"></p>
+          </form>
+        </section>
+
+        <section class="guidelines-card" aria-labelledby="guidelines-title">
+          <h2 id="guidelines-title">Review guidelines</h2>
+          <ul>
+            <li>Focus on your direct product experience.</li>
+            <li>Explain both strengths and limitations.</li>
+            <li>Do not include private or offensive information.</li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <dialog id="reviewDialog" class="review-dialog">
+    <button id="closeDialog" class="dialog-close" type="button" aria-label="Close review">×</button>
+    <div id="dialogContent"></div>
+  </dialog>
+
+  <footer class="site-footer">
+    <div>
+      <strong>Rshop</strong>
+      <p>Community-powered product discovery.</p>
+    </div>
+    <nav aria-label="Footer navigation">
+      <a href="../homepage/homepage.html">Home</a>
+      <a href="../shopping_cart/products.html">Marketplace</a>
+      <a href="../sitemap/sitemap.html">Sitemap</a>
+    </nav>
+    <p>© 2026 Rshop. RMIT Studio Project.</p>
+  </footer>
 </body>
 </html>
