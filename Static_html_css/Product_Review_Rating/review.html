@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -8,6 +8,7 @@
 <title>WebReview - Website Review Platform</title>
 
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="../css/top-nav.css">
 
 </head>
 
@@ -17,17 +18,26 @@
 
 <!-- Navigation -->
 
-<nav>
-
-<h1>WebReview</h1>
-
-<div>
-<a href="#">Home</a>
-<a href="#">Reviews</a>
-<a href="#">Create Review</a>
+<header class="rshop-top-header">
+<div class="rshop-header-container">
+<div class="rshop-logo-section">
+<a href="../shopping_cart/cart.html" class="rshop-cart-icon" aria-label="Cart">&#128722;</a>
+<a href="../homepage/homepage.html" class="rshop-logo">Rshop</a>
 </div>
-
+<nav class="rshop-nav" aria-label="Main navigation">
+<a href="../homepage/homepage.html" class="rshop-nav-link">Home</a>
+<a href="../shopping_cart/products.html" class="rshop-nav-link">Market</a>
+<a href="../Blog/blog-list.html" class="rshop-nav-link">Blog</a>
+<a href="../discuss_forum/forum.html" class="rshop-nav-link">Forum</a>
+<a href="../discuss_forum/wishlist.html" class="rshop-nav-link">Wishlist</a>
+<a href="../shopping_cart/cart.html" class="rshop-nav-link">Cart</a>
+<a href="../Product_Review_Rating/review.html" class="rshop-nav-link active">Review</a>
+<a href="../discuss_forum/create-thread.html" class="rshop-nav-link">Post</a>
+<a href="../user_account/profile.html" class="rshop-nav-link">Profile</a>
+<a href="../user_account/auth.html" class="rshop-nav-link">Sign In</a>
 </nav>
+</div>
+</header>
 
 
 
@@ -41,9 +51,11 @@
 Read, create and manage professional website reviews.
 </p>
 
-<button>
-Write a Review
-</button>
+<div class="hero-actions">
+<a href="#create-review" class="action-btn">Write a Review</a>
+<a href="../Blog/blog-list.html" class="action-btn">Read Blog</a>
+<a href="../discuss_forum/forum.html" class="action-btn">Go to Forum</a>
+</div>
 
 </section>
 
@@ -77,7 +89,7 @@ Write a Review
 
 <!-- Create Review -->
 
-<section class="create">
+<section class="create" id="create-review">
 
 <h2>Create New Review</h2>
 

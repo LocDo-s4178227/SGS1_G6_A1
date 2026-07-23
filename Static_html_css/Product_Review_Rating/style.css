@@ -56,7 +56,7 @@ html {
 
 body {
     min-height: 100vh;
-    padding-top: 80px;
+    padding-top: 0;
 
     background: var(--background);
     color: var(--text-primary);
@@ -258,6 +258,40 @@ main {
 
 .hero button {
     padding: 13px 28px;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.hero-actions .action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 11px 20px;
+    color: var(--primary);
+    background: var(--accent);
+    border: 2px solid var(--accent);
+    border-radius: var(--radius-medium);
+    font-weight: var(--font-weight-semi-bold);
+    text-decoration: none;
+    transition:
+        background 0.3s ease,
+        color 0.3s ease,
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+.hero-actions .action-btn:hover {
+    color: #ffffff;
+    background: var(--primary);
+    border-color: var(--primary);
+    box-shadow: 0 5px 14px rgba(38, 52, 52, 0.25);
+    transform: translateY(-2px);
 }
 
 /* =========================================
