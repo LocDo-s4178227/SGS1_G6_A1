@@ -474,6 +474,12 @@
         </div>
 
         <button class="btn btn-primary" onclick="saveNotificationPreferences()" style="width: 100%; margin-top: 1rem;">Save Notification Settings</button>
+
+        <hr style="margin: 2rem 0; border: none; border-top: 1px solid #e0e0e0;" />
+
+        <h3 style="color: #666; margin-bottom: 1rem;">Admin Access</h3>
+        <p style="color: #666; margin-bottom: 1rem;">Need admin tools? Sign in to the admin module.</p>
+        <button class="btn btn-secondary" type="button" onclick="goToAdminLogin()" style="width: 100%;">Sign In as Admin</button>
       </div>
 
       <div class="section danger-zone">
@@ -525,9 +531,7 @@
   </div>
 
 
-  // Javascript Section
-  
-  <script src="js/main.js"></script>
+  <script src="../shopping_cart/js/main.js"></script>
   <script>
     let currentUser = null;
 
@@ -748,6 +752,10 @@
       localStorage.removeItem("userName");
       localStorage.removeItem("userType");
       window.location.href = "auth.html";
+    }
+
+    function goToAdminLogin() {
+      window.location.href = "../admin/login.html";
     }
   </script>
 </body>

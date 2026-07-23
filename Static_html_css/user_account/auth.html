@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Authentication - Service Marketplace</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/shopping_module_style.css">
     <style>
         .auth-container {
             display: flex;
@@ -545,7 +545,7 @@
                     localStorage.setItem('userRole', data.user.role);
                     showAlert('loginAlert', 'Login successful! Redirecting...', 'success');
                     setTimeout(() => {
-                        window.location.href = '/profile.html';
+                        window.location.href = 'profile.html';
                     }, 1000);
                 } else {
                     showAlert('loginAlert', data.message || 'Login failed', 'error');
@@ -724,12 +724,7 @@
             }
         });
 
-        // Check if user is already logged in
-        window.addEventListener('load', () => {
-            if (localStorage.getItem('userId')) {
-                window.location.href = '/profile.html';
-            }
-        });
+        // Keep auth page accessible from Sign In even when a user session exists.
     </script>
 </body>
 </html>
