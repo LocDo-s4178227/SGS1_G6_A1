@@ -35,8 +35,17 @@
     <main class="container-sm">
         <div class="card">
             <h1>Edit Your Request</h1>
+            <p class="meta-info mb-1">Posted by: <strong>Alex</strong> | Oct 25, 2026 at 10:30 AM</p>
 
             <form action="thread-detail.html" method="POST" class="mt-1">
+                <div class="form-group">
+                    <label for="edit-author">Author</label>
+                    <input type="text" id="edit-author" name="author" value="Alex" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-posted-at">Posted on</label>
+                    <input type="datetime-local" id="edit-posted-at" name="posted_at" value="2026-10-25T10:30" required>
+                </div>
                 <div class="form-group">
                     <label for="edit-title">Request Title</label>
                     <input type="text" id="edit-title" name="title" value="Need a custom ergonomic wooden desk" required>
@@ -50,9 +59,10 @@
                 <div class="form-group">
                     <label for="edit-image">Update Reference Image</label>
                     <img class="current-image-preview" src="../images/ergonomic_wooden_desk.png" alt="Reference sketch of the requested corner desk">
-                        <div>
-                            <input type="file" id="edit-image" name="image" accept="image/*">
-                            <small class="form-text text-muted">Choose a new image to replace the current reference sketch (optional).</small>
+                </div>
+                <div class="form-group">
+                    <input type="file" id="edit-image" name="image" accept="image/*">
+                    <small class="form-text text-muted">Choose a new image to replace the current reference sketch (optional).</small>
                 </div>
 
                 <div class="flex-between">
@@ -68,7 +78,3 @@
     </footer>
 </body>
 </html>
-
-
-
-
