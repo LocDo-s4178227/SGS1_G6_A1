@@ -1,967 +1,329 @@
-﻿```html
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<title>WebReview - Website Review Platform</title>
 
-    <meta
-        name="description"
-        content="Read, create and manage product reviews and ratings."
-    >
+<link rel="stylesheet" href="style.css">
 
-    <title>Reviews and Ratings | SGS Marketplace</title>
-
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="../css/top-nav.css">
 </head>
 
-<body class="with-rshop-nav">
-<header class="rshop-top-header">
-    <div class="rshop-header-container">
-        <div class="rshop-logo-section">
-            <a href="../shopping_cart/cart.html" class="rshop-cart-icon" aria-label="Cart">&#128722;</a>
-            <a href="../homepage/homepage.html" class="rshop-logo">Rshop</a>
-        </div>
-        <nav class="rshop-nav" aria-label="Main navigation">
-            <a href="../homepage/homepage.html" class="rshop-nav-link">Home</a>
-            <a href="../shopping_cart/products.html" class="rshop-nav-link">Market</a>
-            <a href="../Blog/blog-list.html" class="rshop-nav-link">Blog</a>
-            <a href="../discuss_forum/forum.html" class="rshop-nav-link">Forum</a>
-            <a href="../discuss_forum/wishlist.html" class="rshop-nav-link">Wishlist</a>
-            <a href="../shopping_cart/cart.html" class="rshop-nav-link">Cart</a>
-            <a href="../Product_Review_Rating/review.html" class="rshop-nav-link">Review</a>
-            <a href="../discuss_forum/create-thread.html" class="rshop-nav-link">Post</a>
-            <a href="../user_account/profile.html" class="rshop-nav-link">Profile</a>
-            <a href="../user_account/auth.html" class="rshop-nav-link">Sign In</a>
-        </nav>
-    </div>
-</header>
-
-    <!-- ================================
-         NAVIGATION
-    ================================= -->
-
-    
-
-
-    <!-- ================================
-         HERO
-    ================================= -->
-
-    <header class="hero">
-
-        <h2>Share Your Product Experience</h2>
-
-        <p>
-            Read trusted customer reviews, compare ratings and share
-            your own experience with the SGS Marketplace community.
-        </p>
-
-        <button
-            type="button"
-            onclick="document.getElementById('create-review').scrollIntoView()"
-        >
-            Write a Review
-        </button>
-
-    </header>
-
-
-    <main>
-
-        <!-- ================================
-             SEARCH AND FILTER
-        ================================= -->
-
-        <section class="search-box">
-
-            <h2>Find Reviews</h2>
-
-            <input
-                id="searchInput"
-                type="search"
-                placeholder="Search product, category or review..."
-                aria-label="Search reviews"
-            >
-
-            <select
-                id="categoryFilter"
-                aria-label="Filter reviews by category"
-            >
-                <option value="all">
-                    All Categories
-                </option>
-
-                <option value="technology">
-                    Technology
-                </option>
-
-                <option value="education">
-                    Education
-                </option>
-
-                <option value="shopping">
-                    Shopping
-                </option>
-
-                <option value="entertainment">
-                    Entertainment
-                </option>
-            </select>
-
-        </section>
-
-
-        <!-- ================================
-             CREATE REVIEW FORM
-        ================================= -->
-
-        <section
-            id="create-review"
-            class="create"
-        >
-
-            <h2>Create New Review</h2>
-
-            <form id="reviewForm">
-
-                <input
-                    id="reviewTitle"
-                    type="text"
-                    placeholder="Review title"
-                    required
-                >
-
-                <input
-                    id="productName"
-                    type="text"
-                    placeholder="Product or website name"
-                    required
-                >
-
-                <select
-                    id="reviewCategory"
-                    required
-                >
-                    <option value="">
-                        Select category
-                    </option>
-
-                    <option value="Technology">
-                        Technology
-                    </option>
-
-                    <option value="Education">
-                        Education
-                    </option>
-
-                    <option value="Shopping">
-                        Shopping
-                    </option>
-
-                    <option value="Entertainment">
-                        Entertainment
-                    </option>
-                </select>
-
-                <select
-                    id="reviewRating"
-                    required
-                >
-                    <option value="">
-                        Select rating
-                    </option>
-
-                    <option value="5">
-                        ★★★★★ - Excellent
-                    </option>
-
-                    <option value="4">
-                        ★★★★☆ - Very Good
-                    </option>
-
-                    <option value="3">
-                        ★★★☆☆ - Good
-                    </option>
-
-                    <option value="2">
-                        ★★☆☆☆ - Fair
-                    </option>
-
-                    <option value="1">
-                        ★☆☆☆☆ - Poor
-                    </option>
-                </select>
-
-                <input
-                    id="thumbnailUrl"
-                    type="url"
-                    placeholder="Thumbnail image URL"
-                >
-
-                <input
-                    id="reviewerName"
-                    type="text"
-                    placeholder="Your name"
-                    required
-                >
-
-                <textarea
-                    id="reviewSummary"
-                    placeholder="Write a short summary"
-                    required
-                ></textarea>
-
-                <textarea
-                    id="fullReview"
-                    placeholder="Write your full review"
-                    required
-                ></textarea>
-
-                <button type="submit">
-                    Publish Review
-                </button>
-
-            </form>
-
-        </section>
-
-
-        <!-- ================================
-             REVIEW LIST
-        ================================= -->
-
-        <section id="reviews">
-
-            <h2>Latest Reviews</h2>
-
-            <div
-                id="reviewContainer"
-                class="review-container"
-            >
-
-                <!-- Review 1 -->
-
-                <article
-                    class="review-card"
-                    data-category="technology"
-                    data-search="google technology search engine fast reliable"
-                >
-
-                    <img
-                        src="https://picsum.photos/seed/google-review/500/350"
-                        alt="Google review thumbnail"
-                    >
-
-                    <div>
-
-                        <h3>Google Search</h3>
-
-                        <div
-                            class="stars"
-                            aria-label="5 out of 5 stars"
-                        >
-                            ★★★★★
-                        </div>
-
-                        <p>
-                            Fast and reliable search engine with a clean
-                            interface and many useful services.
-                        </p>
-
-                        <small>
-                            Technology | 15 July 2026
-                        </small>
-
-                        <br><br>
-
-                        <button
-                            type="button"
-                            onclick="showReviewDetail(
-                                'Google Search',
-                                '★★★★★',
-                                'Google provides a clean interface and very fast searching. It is useful for students, businesses and everyday users.',
-                                'Technology',
-                                '15 July 2026',
-                                'https://picsum.photos/seed/google-detail/900/450'
-                            )"
-                        >
-                            View
-                        </button>
-
-                        <button
-                            type="button"
-                            onclick="editReview(this)"
-                        >
-                            Edit
-                        </button>
-
-                        <button
-                            type="button"
-                            class="delete"
-                            onclick="deleteReview(this)"
-                        >
-                            Delete
-                        </button>
-
-                    </div>
-
-                </article>
-
-
-                <!-- Review 2 -->
-
-                <article
-                    class="review-card"
-                    data-category="entertainment"
-                    data-search="youtube entertainment video platform content"
-                >
-
-                    <img
-                        src="https://picsum.photos/seed/youtube-review/500/350"
-                        alt="YouTube review thumbnail"
-                    >
-
-                    <div>
-
-                        <h3>YouTube</h3>
-
-                        <div
-                            class="stars"
-                            aria-label="4 out of 5 stars"
-                        >
-                            ★★★★☆
-                        </div>
-
-                        <p>
-                            Excellent video platform with a very large
-                            collection of educational and entertainment content.
-                        </p>
-
-                        <small>
-                            Entertainment | 10 July 2026
-                        </small>
-
-                        <br><br>
-
-                        <button
-                            type="button"
-                            onclick="showReviewDetail(
-                                'YouTube',
-                                '★★★★☆',
-                                'YouTube offers a huge content library and is useful for entertainment, education and tutorials. Some users may find the number of advertisements distracting.',
-                                'Entertainment',
-                                '10 July 2026',
-                                'https://picsum.photos/seed/youtube-detail/900/450'
-                            )"
-                        >
-                            View
-                        </button>
-
-                        <button
-                            type="button"
-                            onclick="editReview(this)"
-                        >
-                            Edit
-                        </button>
-
-                        <button
-                            type="button"
-                            class="delete"
-                            onclick="deleteReview(this)"
-                        >
-                            Delete
-                        </button>
-
-                    </div>
-
-                </article>
-
-
-                <!-- Review 3 -->
-
-                <article
-                    class="review-card"
-                    data-category="shopping"
-                    data-search="online marketplace shopping product customer"
-                >
-
-                    <img
-                        src="https://picsum.photos/seed/marketplace-review/500/350"
-                        alt="Marketplace review thumbnail"
-                    >
-
-                    <div>
-
-                        <h3>SGS Marketplace</h3>
-
-                        <div
-                            class="stars"
-                            aria-label="5 out of 5 stars"
-                        >
-                            ★★★★★
-                        </div>
-
-                        <p>
-                            A simple marketplace with convenient product
-                            browsing, community reviews and shopping features.
-                        </p>
-
-                        <small>
-                            Shopping | 18 July 2026
-                        </small>
-
-                        <br><br>
-
-                        <button
-                            type="button"
-                            onclick="showReviewDetail(
-                                'SGS Marketplace',
-                                '★★★★★',
-                                'SGS Marketplace provides product listings, reviews, shopping cart features and community discussions in one website.',
-                                'Shopping',
-                                '18 July 2026',
-                                'https://picsum.photos/seed/marketplace-detail/900/450'
-                            )"
-                        >
-                            View
-                        </button>
-
-                        <button
-                            type="button"
-                            onclick="editReview(this)"
-                        >
-                            Edit
-                        </button>
-
-                        <button
-                            type="button"
-                            class="delete"
-                            onclick="deleteReview(this)"
-                        >
-                            Delete
-                        </button>
-
-                    </div>
-
-                </article>
-
-            </div>
-
-        </section>
-
-
-        <!-- ================================
-             REVIEW DETAIL
-        ================================= -->
-
-        <section
-            id="reviewDetail"
-            class="detail"
-        >
-
-            <h2>Review Detail</h2>
-
-            <img
-                id="detailImage"
-                src="https://picsum.photos/seed/google-detail/900/450"
-                alt="Selected review image"
-            >
-
-            <h3 id="detailTitle">
-                Google Search
-            </h3>
-
-            <p
-                id="detailStars"
-                class="stars"
-            >
-                ★★★★★
-            </p>
-
-            <p id="detailText">
-                Google provides a clean interface and very fast searching.
-                It is useful for students, businesses and everyday users.
-            </p>
-
-            <p>
-                <strong>Category:</strong>
-
-                <span id="detailCategory">
-                    Technology
-                </span>
-            </p>
-
-            <p>
-                <strong>Date:</strong>
-
-                <span id="detailDate">
-                    15 July 2026
-                </span>
-            </p>
-
-            <button
-                type="button"
-                onclick="editSelectedReview()"
-            >
-                Edit Review
-            </button>
-
-            <button
-                type="button"
-                class="delete"
-                onclick="clearReviewDetail()"
-            >
-                Clear Detail
-            </button>
-
-        </section>
-
-    </main>
-
-
-    <!-- ================================
-         FOOTER
-    ================================= -->
-
-    <footer>
-
-        <p>
-            © 2026 SGS Marketplace. Reviews and ratings created
-            for the RMIT Studio Project.
-        </p>
-
-    </footer>
-
-
-    <!-- ================================
-         JAVASCRIPT
-    ================================= -->
-
-    <script>
-
-        const searchInput =
-            document.getElementById("searchInput");
-
-        const categoryFilter =
-            document.getElementById("categoryFilter");
-
-        const reviewForm =
-            document.getElementById("reviewForm");
-
-        const reviewContainer =
-            document.getElementById("reviewContainer");
-
-
-        /*
-         * Filter reviews using the search text
-         * and selected category.
-         */
-        function filterReviews() {
-
-            const searchValue =
-                searchInput.value.toLowerCase().trim();
-
-            const categoryValue =
-                categoryFilter.value.toLowerCase();
-
-            const reviewCards =
-                document.querySelectorAll(".review-card");
-
-            reviewCards.forEach(function (card) {
-
-                const reviewText =
-                    card.dataset.search.toLowerCase();
-
-                const reviewCategory =
-                    card.dataset.category.toLowerCase();
-
-                const matchesSearch =
-                    reviewText.includes(searchValue);
-
-                const matchesCategory =
-                    categoryValue === "all" ||
-                    reviewCategory === categoryValue;
 
-                if (matchesSearch && matchesCategory) {
-                    card.style.display = "";
-                } else {
-                    card.style.display = "none";
-                }
+<body>
 
-            });
 
-        }
+<!-- Navigation -->
 
+<nav>
 
-        searchInput.addEventListener(
-            "input",
-            filterReviews
-        );
+<h1>WebReview</h1>
 
-        categoryFilter.addEventListener(
-            "change",
-            filterReviews
-        );
+<div>
+<a href="#">Home</a>
+<a href="#">Reviews</a>
+<a href="#">Create Review</a>
+</div>
 
+</nav>
 
-        /*
-         * Display a selected review in the
-         * Review Detail section.
-         */
-        function showReviewDetail(
-            title,
-            stars,
-            text,
-            category,
-            date,
-            image
-        ) {
 
-            document.getElementById("detailTitle").textContent =
-                title;
 
-            document.getElementById("detailStars").textContent =
-                stars;
+<!-- Hero -->
 
-            document.getElementById("detailText").textContent =
-                text;
+<section class="hero">
 
-            document.getElementById("detailCategory").textContent =
-                category;
+<h2>Share Your Website Experience</h2>
 
-            document.getElementById("detailDate").textContent =
-                date;
+<p>
+Read, create and manage professional website reviews.
+</p>
 
-            document.getElementById("detailImage").src =
-                image;
+<button>
+Write a Review
+</button>
 
-            document.getElementById("reviewDetail")
-                .scrollIntoView({
-                    behavior: "smooth"
-                });
+</section>
 
-        }
 
 
-        /*
-         * Remove a review card.
-         */
-        function deleteReview(button) {
 
-            const confirmed =
-                confirm("Are you sure you want to delete this review?");
+<!-- Search -->
 
-            if (!confirmed) {
-                return;
-            }
+<section class="search-box">
 
-            const reviewCard =
-                button.closest(".review-card");
+<h2>Find Reviews</h2>
 
-            reviewCard.remove();
+<input type="text" placeholder="Search website, category, title...">
 
-        }
 
+<select>
 
-        /*
-         * Fill the form with basic information
-         * from an existing review.
-         */
-        function editReview(button) {
+<option>All Categories</option>
+<option>Technology</option>
+<option>Education</option>
+<option>Shopping</option>
 
-            const reviewCard =
-                button.closest(".review-card");
+</select>
 
-            const title =
-                reviewCard.querySelector("h3").textContent;
 
-            const summary =
-                reviewCard.querySelector("p").textContent.trim();
+</section>
 
-            document.getElementById("reviewTitle").value =
-                title + " Review";
 
-            document.getElementById("productName").value =
-                title;
 
-            document.getElementById("reviewSummary").value =
-                summary;
 
-            document.getElementById("fullReview").value =
-                summary;
 
-            document.getElementById("create-review")
-                .scrollIntoView({
-                    behavior: "smooth"
-                });
+<!-- Create Review -->
 
-        }
+<section class="create">
 
+<h2>Create New Review</h2>
 
-        /*
-         * Edit the currently selected detailed review.
-         */
-        function editSelectedReview() {
 
-            const title =
-                document.getElementById("detailTitle").textContent;
+<form>
 
-            const text =
-                document.getElementById("detailText").textContent.trim();
 
-            const category =
-                document.getElementById("detailCategory").textContent;
+<input type="text" placeholder="Review title">
 
-            document.getElementById("reviewTitle").value =
-                title + " Review";
 
-            document.getElementById("productName").value =
-                title;
+<input type="text" placeholder="Website name">
 
-            document.getElementById("reviewCategory").value =
-                category;
 
-            document.getElementById("reviewSummary").value =
-                text;
+<select>
 
-            document.getElementById("fullReview").value =
-                text;
+<option>Technology</option>
+<option>Education</option>
+<option>Shopping</option>
 
-            document.getElementById("create-review")
-                .scrollIntoView({
-                    behavior: "smooth"
-                });
+</select>
 
-        }
 
 
-        /*
-         * Reset the review detail section.
-         */
-        function clearReviewDetail() {
+<select>
 
-            document.getElementById("detailTitle").textContent =
-                "Select a Review";
+<option>★★★★★</option>
+<option>★★★★☆</option>
+<option>★★★☆☆</option>
 
-            document.getElementById("detailStars").textContent =
-                "☆☆☆☆☆";
+</select>
 
-            document.getElementById("detailText").textContent =
-                "Choose a review from the list above to view its details.";
 
-            document.getElementById("detailCategory").textContent =
-                "Not selected";
 
-            document.getElementById("detailDate").textContent =
-                "Not selected";
+<input type="text" placeholder="Thumbnail image URL">
 
-            document.getElementById("detailImage").src =
-                "https://picsum.photos/seed/empty-review/900/450";
 
-        }
+<textarea placeholder="Short summary"></textarea>
 
 
-        /*
-         * Create a new review card.
-         * This works only in the current browser session.
-         */
-        reviewForm.addEventListener(
-            "submit",
-            function (event) {
+<textarea placeholder="Full review"></textarea>
 
-                event.preventDefault();
 
-                const reviewTitle =
-                    document.getElementById("reviewTitle").value.trim();
 
-                const productName =
-                    document.getElementById("productName").value.trim();
+<button>
+Publish Review
+</button>
 
-                const category =
-                    document.getElementById("reviewCategory").value;
 
-                const rating =
-                    Number(
-                        document.getElementById("reviewRating").value
-                    );
+</form>
 
-                const thumbnailUrl =
-                    document.getElementById("thumbnailUrl").value.trim();
 
-                const reviewerName =
-                    document.getElementById("reviewerName").value.trim();
+</section>
 
-                const summary =
-                    document.getElementById("reviewSummary").value.trim();
 
-                const fullReview =
-                    document.getElementById("fullReview").value.trim();
 
-                const defaultImage =
-                    "https://picsum.photos/seed/new-review/500/350";
 
-                const image =
-                    thumbnailUrl || defaultImage;
 
-                const stars =
-                    "★".repeat(rating) +
-                    "☆".repeat(5 - rating);
 
-                const currentDate =
-                    new Date().toLocaleDateString(
-                        "en-GB",
-                        {
-                            day: "numeric",
-                            month: "long",
-                            year: "numeric"
-                        }
-                    );
+<!-- Review List -->
 
-                const article =
-                    document.createElement("article");
 
-                article.className =
-                    "review-card";
+<section>
 
-                article.dataset.category =
-                    category.toLowerCase();
 
-                article.dataset.search =
-                    (
-                        reviewTitle +
-                        " " +
-                        productName +
-                        " " +
-                        category +
-                        " " +
-                        summary
-                    ).toLowerCase();
+<h2>Latest Reviews</h2>
 
-                article.innerHTML = `
-                    <img
-                        src="${escapeHtml(image)}"
-                        alt="${escapeHtml(productName)} review thumbnail"
-                    >
 
-                    <div>
 
-                        <h3>${escapeHtml(productName)}</h3>
+<div class="review-container">
 
-                        <div
-                            class="stars"
-                            aria-label="${rating} out of 5 stars"
-                        >
-                            ${stars}
-                        </div>
 
-                        <p>
-                            ${escapeHtml(summary)}
-                        </p>
 
-                        <small>
-                            ${escapeHtml(category)}
-                            |
-                            ${escapeHtml(currentDate)}
-                            |
-                            By ${escapeHtml(reviewerName)}
-                        </small>
+<div class="review-card">
 
-                        <br><br>
 
-                        <button
-                            type="button"
-                            class="view-button"
-                        >
-                            View
-                        </button>
+<img src="https://picsum.photos/300/200">
 
-                        <button
-                            type="button"
-                            onclick="editReview(this)"
-                        >
-                            Edit
-                        </button>
 
-                        <button
-                            type="button"
-                            class="delete"
-                            onclick="deleteReview(this)"
-                        >
-                            Delete
-                        </button>
+<div>
 
-                    </div>
-                `;
 
-                const viewButton =
-                    article.querySelector(".view-button");
+<h3>Google</h3>
 
-                viewButton.addEventListener(
-                    "click",
-                    function () {
 
-                        showReviewDetail(
-                            productName,
-                            stars,
-                            fullReview,
-                            category,
-                            currentDate,
-                            image
-                        );
+<div class="stars">
+★★★★★
+</div>
 
-                    }
-                );
 
-                reviewContainer.prepend(article);
+<p>
+Fast and reliable search engine with many useful services.
+</p>
 
-                showReviewDetail(
-                    productName,
-                    stars,
-                    fullReview,
-                    category,
-                    currentDate,
-                    image
-                );
 
-                reviewForm.reset();
+<small>
+Technology | 15 July 2026
+</small>
 
-                document.getElementById("reviews")
-                    .scrollIntoView({
-                        behavior: "smooth"
-                    });
 
-            }
-        );
+<br><br>
 
 
-        /*
-         * Prevent form content from being inserted
-         * into HTML as executable markup.
-         */
-        function escapeHtml(value) {
+<button>
+View
+</button>
 
-            return value
-                .replaceAll("&", "&amp;")
-                .replaceAll("<", "&lt;")
-                .replaceAll(">", "&gt;")
-                .replaceAll('"', "&quot;")
-                .replaceAll("'", "&#039;");
+<button>
+Edit
+</button>
 
-        }
+<button class="delete">
+Delete
+</button>
 
-    </script>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div class="review-card">
+
+
+<img src="https://picsum.photos/301/200">
+
+
+<div>
+
+
+<h3>YouTube</h3>
+
+
+<div class="stars">
+★★★★☆
+</div>
+
+
+<p>
+Excellent video platform with huge content library.
+</p>
+
+
+<small>
+Entertainment | 10 July 2026
+</small>
+
+
+<br><br>
+
+
+<button>
+View
+</button>
+
+<button>
+Edit
+</button>
+
+<button class="delete">
+Delete
+</button>
+
+
+</div>
+
+
+</div>
+
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+<!-- Detail View -->
+
+
+<section class="detail">
+
+
+<h2>Review Detail</h2>
+
+
+<img src="https://picsum.photos/700/300">
+
+
+<h3>Google Website Review</h3>
+
+
+<p class="stars">
+★★★★★
+</p>
+
+
+<p>
+
+Google provides a clean interface and very fast searching.
+It is useful for students, businesses and everyday users.
+
+</p>
+
+
+<p>
+<strong>Category:</strong> Technology
+</p>
+
+
+<p>
+<strong>Date:</strong> 15 July 2026
+</p>
+
+
+<button>Edit Review</button>
+
+<button class="delete">
+Delete Review
+</button>
+
+
+
+</section>
+
+
+
+
+
+<footer>
+
+<p>
+© 2026 WebReview Platform
+</p>
+
+</footer>
+
+
 
 </body>
-
 </html>
-```
-
-
-

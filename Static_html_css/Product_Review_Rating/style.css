@@ -1,249 +1,759 @@
-*{
-box-sizing:border-box;
-margin:0;
-padding:0;
-font-family:"Segoe UI",Arial,sans-serif;
+/* =========================================
+   REVIEW AND RATING PAGE
+   SGS MARKETPLACE SHARED STYLE
+========================================= */
+
+:root {
+    --primary: #263434;
+    --primary-light: #3d4b4b;
+    --accent: #77b3f8;
+    --accent-dark: #4f95e5;
+
+    --background: #f4f6f8;
+    --surface: #ffffff;
+
+    --text-primary: #263434;
+    --text-secondary: #5f6b6b;
+    --text-light: #ffffff;
+
+    --border: #d8e0e5;
+    --danger: #d9534f;
+    --danger-dark: #b83d39;
+    --warning: #f5b301;
+
+    --site-max-width: 1200px;
+
+    --font-size-s: 0.875rem;
+    --font-size-m: 1rem;
+    --font-size-l: 1.25rem;
+
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semi-bold: 600;
+    --font-weight-bold: 700;
+
+    --radius-small: 6px;
+    --radius-medium: 8px;
+    --radius-large: 14px;
+
+    --shadow-small: 0 3px 10px rgba(0, 0, 0, 0.08);
+    --shadow-medium: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
+/* =========================================
+   RESET
+========================================= */
 
-body{
-
-background:#f5f7fb;
-color:#333;
-
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
-
-
-nav{
-
-height:70px;
-background:#2563eb;
-color:white;
-
-display:flex;
-justify-content:space-between;
-align-items:center;
-
-padding:0 60px;
-
+html {
+    scroll-behavior: smooth;
 }
 
+body {
+    min-height: 100vh;
+    padding-top: 80px;
 
+    background: var(--background);
+    color: var(--text-primary);
 
-nav h1{
-
-font-size:28px;
-
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: var(--font-size-m);
+    line-height: 1.6;
 }
 
-
-nav a{
-
-color:white;
-text-decoration:none;
-margin-left:25px;
-
+img {
+    display: block;
+    max-width: 100%;
 }
 
-
-
-.hero{
-
-background:linear-gradient(135deg,#2563eb,#06b6d4);
-
-color:white;
-
-padding:70px;
-
-text-align:center;
-
+button,
+input,
+select,
+textarea {
+    font: inherit;
 }
 
+/* =========================================
+   FIXED HEADER / TOPBAR
+========================================= */
 
+.topbar,
+header.site-header,
+body > nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
 
-.hero h2{
+    background: linear-gradient(
+        135deg,
+        var(--primary) 0%,
+        var(--primary-light) 100%
+    );
 
-font-size:40px;
-margin-bottom:15px;
-
+    z-index: 1000;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
+/*
+   Áp dụng cho HTML hiện tại nếu bạn dùng:
 
-button{
+   <nav>
+       <h1>WebReview</h1>
+       <div>...</div>
+   </nav>
+*/
 
-background:#2563eb;
-color:white;
+body > nav {
+    min-height: 80px;
+    padding: 0 20px;
 
-border:none;
-
-padding:10px 20px;
-
-border-radius:8px;
-
-cursor:pointer;
-
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
+/* Giới hạn chiều rộng nội dung navbar */
 
-
-button:hover{
-
-background:#1d4ed8;
-
+body > nav > h1,
+body > nav > div {
+    position: relative;
 }
 
+/* =========================================
+   LOGO / BRAND
+========================================= */
 
+.logo,
+.brand,
+body > nav h1 {
+    color: #ffffff;
+    font-size: 1.8rem;
+    font-weight: var(--font-weight-bold);
+    letter-spacing: -0.5px;
+    text-decoration: none;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 
-section{
+    flex-shrink: 0;
 
-background:white;
-
-margin:30px auto;
-
-padding:30px;
-
-width:90%;
-
-max-width:1100px;
-
-border-radius:15px;
-
-box-shadow:0 5px 20px #ddd;
-
+    transition:
+        transform 0.3s ease,
+        text-shadow 0.3s ease;
 }
 
-
-
-
-input,select,textarea{
-
-width:100%;
-
-padding:12px;
-
-margin:10px 0;
-
-border:1px solid #ddd;
-
-border-radius:8px;
-
+.logo:hover,
+.brand:hover,
+body > nav h1:hover {
+    transform: scale(1.08);
+    text-shadow: 0 4px 8px rgba(119, 179, 248, 0.4);
 }
 
+/* =========================================
+   NAVIGATION
+========================================= */
 
-
-textarea{
-
-height:120px;
-
+.nav,
+body > nav > div {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
 }
 
+.nav-link,
+body > nav a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 
+    padding: 12px 20px;
 
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.1);
 
-.review-container{
+    border: 2px solid transparent;
+    border-radius: var(--radius-medium);
 
-display:grid;
+    text-decoration: none;
+    font-size: var(--font-size-m);
+    font-weight: var(--font-weight-semi-bold);
 
-grid-template-columns:repeat(auto-fit,minmax(400px,1fr));
-
-gap:25px;
-
+    transition: all 0.3s ease;
 }
 
+.nav-link:hover,
+body > nav a:hover,
+.nav-link.active,
+body > nav a.active {
+    color: var(--primary);
+    background: var(--accent);
 
+    border-color: var(--accent);
 
+    box-shadow: 0 4px 12px rgba(119, 179, 248, 0.4);
 
-.review-card{
-
-display:flex;
-
-gap:20px;
-
-padding:20px;
-
-border:1px solid #ddd;
-
-border-radius:15px;
-
+    transform: translateY(-2px);
 }
 
-
-
-.review-card img{
-
-width:180px;
-
-height:120px;
-
-object-fit:cover;
-
-border-radius:10px;
-
+.nav-link.active,
+.nav-link:active,
+body > nav a.active,
+body > nav a:active {
+    color: var(--primary);
+    background: var(--accent);
 }
 
+/* =========================================
+   MAIN CONTENT
+========================================= */
 
-
-.stars{
-
-color:#fbbf24;
-
-font-size:22px;
-
+main {
+    width: min(92%, var(--site-max-width));
+    margin: 0 auto;
+    padding: 35px 0 20px;
 }
 
+/* =========================================
+   HERO
+========================================= */
 
+.hero {
+    width: 100%;
+    padding: 75px 25px;
 
+    background:
+        linear-gradient(
+            135deg,
+            rgba(38, 52, 52, 0.96),
+            rgba(61, 75, 75, 0.92)
+        );
 
-.delete{
+    color: var(--text-light);
+    text-align: center;
 
-background:#dc2626;
-
+    border-bottom: 5px solid var(--accent);
 }
 
+.hero h2 {
+    margin-bottom: 16px;
 
-.detail img{
-
-width:100%;
-
-border-radius:15px;
-
+    color: #ffffff;
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    font-weight: var(--font-weight-bold);
+    line-height: 1.15;
 }
 
+.hero p {
+    max-width: 700px;
+    margin: 0 auto 28px;
 
-
-footer{
-
-background:#111827;
-
-color:white;
-
-text-align:center;
-
-padding:25px;
-
-margin-top:40px;
-
+    color: #e9eeee;
+    font-size: 1.1rem;
 }
 
-
-
-
-@media(max-width:700px){
-
-
-.review-card{
-
-flex-direction:column;
-
+.hero button {
+    padding: 13px 28px;
 }
 
+/* =========================================
+   GENERAL SECTION
+========================================= */
 
-nav{
+section {
+    margin-bottom: 30px;
+    padding: 28px;
 
-padding:20px;
+    background: var(--surface);
 
+    border: 1px solid var(--border);
+    border-radius: var(--radius-large);
+
+    box-shadow: var(--shadow-small);
 }
 
+section h2 {
+    position: relative;
 
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+
+    color: var(--primary);
+    font-size: 1.7rem;
+    font-weight: var(--font-weight-bold);
+}
+
+section h2::after {
+    content: "";
+
+    position: absolute;
+    left: 0;
+    bottom: 0;
+
+    width: 70px;
+    height: 4px;
+
+    background: var(--accent);
+    border-radius: 999px;
+}
+
+/* =========================================
+   SEARCH AND FILTER
+========================================= */
+
+.search-box {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 230px;
+    gap: 16px;
+    align-items: end;
+}
+
+.search-box h2 {
+    grid-column: 1 / -1;
+}
+
+/* =========================================
+   CREATE REVIEW FORM
+========================================= */
+
+.create form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.create textarea,
+.create button {
+    grid-column: 1 / -1;
+}
+
+/* =========================================
+   INPUTS
+========================================= */
+
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 13px 15px;
+
+    color: var(--text-primary);
+    background: #ffffff;
+
+    border: 1px solid var(--border);
+    border-radius: var(--radius-medium);
+
+    outline: none;
+
+    transition:
+        border-color 0.25s ease,
+        box-shadow 0.25s ease,
+        transform 0.25s ease;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: #8a9696;
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+    border-color: var(--accent);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--accent);
+
+    box-shadow:
+        0 0 0 4px rgba(119, 179, 248, 0.2);
+
+    transform: translateY(-1px);
+}
+
+textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* =========================================
+   BUTTONS
+========================================= */
+
+button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 44px;
+    padding: 11px 20px;
+
+    color: var(--primary);
+    background: var(--accent);
+
+    border: 2px solid var(--accent);
+    border-radius: var(--radius-medium);
+
+    font-weight: var(--font-weight-semi-bold);
+    cursor: pointer;
+
+    transition:
+        background 0.3s ease,
+        color 0.3s ease,
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+button:hover {
+    color: #ffffff;
+    background: var(--primary);
+
+    border-color: var(--primary);
+
+    box-shadow: 0 5px 14px rgba(38, 52, 52, 0.25);
+
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+button:focus-visible {
+    outline: 3px solid rgba(119, 179, 248, 0.5);
+    outline-offset: 3px;
+}
+
+.delete {
+    color: #ffffff;
+    background: var(--danger);
+    border-color: var(--danger);
+}
+
+.delete:hover {
+    color: #ffffff;
+    background: var(--danger-dark);
+    border-color: var(--danger-dark);
+
+    box-shadow: 0 5px 14px rgba(217, 83, 79, 0.25);
+}
+
+/* =========================================
+   REVIEW CONTAINER
+========================================= */
+
+.review-container {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(min(100%, 440px), 1fr)
+    );
+    gap: 22px;
+}
+
+/* =========================================
+   REVIEW CARD
+========================================= */
+
+.review-card {
+    overflow: hidden;
+
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr);
+    gap: 20px;
+
+    background: #ffffff;
+
+    border: 1px solid var(--border);
+    border-radius: var(--radius-large);
+
+    box-shadow: var(--shadow-small);
+
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease,
+        border-color 0.3s ease;
+}
+
+.review-card:hover {
+    border-color: var(--accent);
+
+    box-shadow: var(--shadow-medium);
+
+    transform: translateY(-5px);
+}
+
+.review-card img {
+    width: 100%;
+    height: 100%;
+    min-height: 230px;
+
+    object-fit: cover;
+
+    border-right: 5px solid var(--accent);
+}
+
+.review-card > div {
+    min-width: 0;
+    padding: 22px 22px 22px 0;
+}
+
+.review-card h3 {
+    margin-bottom: 8px;
+
+    color: var(--primary);
+    font-size: 1.4rem;
+    font-weight: var(--font-weight-bold);
+}
+
+.review-card p {
+    margin: 12px 0;
+
+    color: var(--text-secondary);
+}
+
+.review-card small {
+    color: #778282;
+    font-size: var(--font-size-s);
+}
+
+.review-card button {
+    min-height: 38px;
+    margin-top: 14px;
+    margin-right: 7px;
+    padding: 8px 15px;
+
+    font-size: var(--font-size-s);
+}
+
+/* =========================================
+   STAR RATING
+========================================= */
+
+.stars {
+    color: var(--warning);
+    font-size: 1.35rem;
+    line-height: 1;
+    letter-spacing: 2px;
+
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+/* =========================================
+   REVIEW DETAIL
+========================================= */
+
+.detail {
+    overflow: hidden;
+}
+
+.detail > img {
+    width: 100%;
+    max-height: 430px;
+    margin-bottom: 25px;
+
+    object-fit: cover;
+
+    border: 1px solid var(--border);
+    border-bottom: 5px solid var(--accent);
+    border-radius: var(--radius-medium);
+}
+
+.detail h3 {
+    margin-bottom: 10px;
+
+    color: var(--primary);
+    font-size: 1.7rem;
+}
+
+.detail p {
+    margin-bottom: 14px;
+    color: var(--text-secondary);
+}
+
+.detail strong {
+    color: var(--primary);
+}
+
+.detail button {
+    margin-top: 8px;
+    margin-right: 8px;
+}
+
+/* =========================================
+   FOOTER
+========================================= */
+
+footer {
+    margin-top: 45px;
+    padding: 30px 20px;
+
+    color: #ffffff;
+    background: linear-gradient(
+        135deg,
+        var(--primary) 0%,
+        var(--primary-light) 100%
+    );
+
+    border-top: 5px solid var(--accent);
+
+    text-align: center;
+
+    box-shadow: 0 -5px 18px rgba(0, 0, 0, 0.12);
+}
+
+footer p {
+    margin: 0;
+    color: #e4ebeb;
+    font-size: var(--font-size-s);
+}
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (max-width: 950px) {
+    body > nav {
+        padding: 0 14px;
+    }
+
+    body > nav h1 {
+        font-size: 1.45rem;
+    }
+
+    body > nav a {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+    }
+
+    .review-card {
+        grid-template-columns: 150px minmax(0, 1fr);
+    }
+}
+
+/* =========================================
+   MOBILE NAVIGATION
+========================================= */
+
+@media (max-width: 760px) {
+    body {
+        padding-top: 0;
+    }
+
+    .topbar,
+    header.site-header,
+    body > nav {
+        position: static;
+    }
+
+    body > nav {
+        padding: 16px 18px;
+
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+    }
+
+    body > nav > div {
+        width: 100%;
+
+        flex-wrap: nowrap;
+        overflow-x: auto;
+
+        padding-bottom: 5px;
+    }
+
+    body > nav a {
+        flex-shrink: 0;
+    }
+
+    .hero {
+        padding: 55px 20px;
+    }
+
+    .hero h2 {
+        font-size: 2.1rem;
+    }
+
+    main {
+        width: calc(100% - 28px);
+        padding-top: 22px;
+    }
+
+    section {
+        padding: 21px;
+    }
+
+    .search-box {
+        grid-template-columns: 1fr;
+    }
+
+    .search-box h2 {
+        grid-column: auto;
+    }
+
+    .create form {
+        grid-template-columns: 1fr;
+    }
+
+    .create textarea,
+    .create button {
+        grid-column: auto;
+    }
+
+    .review-container {
+        grid-template-columns: 1fr;
+    }
+
+    .review-card {
+        display: block;
+    }
+
+    .review-card img {
+        width: 100%;
+        height: 210px;
+        min-height: 0;
+
+        border-right: none;
+        border-bottom: 5px solid var(--accent);
+    }
+
+    .review-card > div {
+        padding: 20px;
+    }
+}
+
+/* =========================================
+   SMALL MOBILE
+========================================= */
+
+@media (max-width: 480px) {
+    body > nav h1 {
+        font-size: 1.35rem;
+    }
+
+    body > nav a {
+        padding: 9px 11px;
+        font-size: 0.85rem;
+    }
+
+    .hero h2 {
+        font-size: 1.8rem;
+    }
+
+    section h2 {
+        font-size: 1.4rem;
+    }
+
+    .review-card button,
+    .detail button {
+        width: 100%;
+        margin-right: 0;
+    }
 }
