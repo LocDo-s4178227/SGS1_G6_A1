@@ -39,6 +39,16 @@
 
             <form action="thread-detail.html" method="POST" class="mt-1">
                 <div class="form-group">
+                    <label for="edit-reply-author"> Author</label>
+                    <input type="text" id="edit-reply-author" name="reply_author" value="MakerJohn" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-reply-timestamp">Reply Date &amp; Time</label>
+                    <input type="datetime-local" id="edit-reply-timestamp" name="reply_timestamp" value="2026-10-25T11:15" required>
+                </div>
+
+                <div class="form-group">
                     <label for="edit-reply-title">Reply Title</label>
                     <input type="text" id="edit-reply-title" name="reply_title" value="Re: Can build this in solid oak" required>
                 </div>
