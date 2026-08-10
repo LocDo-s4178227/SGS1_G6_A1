@@ -1,0 +1,24 @@
+{
+  "users": {
+    "user_001": {
+      "id": "user_001",
+      "firstName": "Demo",
+      "lastName": "User",
+      "username": "demouser",
+      "email": "demo@example.com",
+      "password": "demo123",
+      "phone": "+1 (555) 010-2244",
+      "location": "Seattle, WA",
+      "description": "I post custom furniture requests and compare proposals from local professionals.",
+      "profilePicture": "",
+      "preferences": {
+        "emailNotifications": true,
+        "messageNotifications": true,
+        "newRequestNotifications": true
+      },
+      "active": true
+    }
+  },
+  "carts": {},
+  "orders": []
+}

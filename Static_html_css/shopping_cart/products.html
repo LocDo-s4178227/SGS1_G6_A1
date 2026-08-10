@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Main Market - Custom Makers Marketplace</title>
-  <link rel="stylesheet" href="../css/shopping_module_style.css" />
+  <link rel="stylesheet" href="../css/module-base.css" />
   <style>
     .quick-access {
       display: grid;
@@ -46,6 +46,58 @@
       margin-bottom: 20px;
       border-bottom: 3px solid #77b3f8;
       padding-bottom: 10px;
+    }
+
+    .filter-toolbar {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr 0.8fr;
+      gap: 12px;
+      margin-bottom: 18px;
+      align-items: end;
+    }
+
+    .filter-control label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #36506a;
+    }
+
+    .filter-control input,
+    .filter-control select {
+      width: 100%;
+      border: 2px solid #d5e5f8;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 14px;
+      background: #fff;
+      color: #2a3d52;
+      outline: none;
+      transition: border-color .2s ease, box-shadow .2s ease;
+    }
+
+    .filter-control input:focus,
+    .filter-control select:focus {
+      border-color: #77b3f8;
+      box-shadow: 0 0 0 3px rgba(119, 179, 248, 0.15);
+    }
+
+    .result-count {
+      margin: 0 0 14px;
+      color: #4f6880;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .empty-state {
+      border: 2px dashed #bfd8f3;
+      border-radius: 12px;
+      background: #f6fbff;
+      padding: 20px;
+      color: #4f6880;
+      text-align: center;
+      font-weight: 600;
     }
 
     .market-grid {
@@ -235,55 +287,32 @@
     <div class="section-divider"></div>
 
     <h2 class="section-title">🔥 Trending Market Requests</h2>
-    <div class="market-grid">
-      <article class="market-card">
-        <div class="market-image">
-          <img src="../images/ergonomic_wooden_desk.png" alt="Reference sketch of the requested corner desk" />
-        </div>
-        <div class="market-info">
-          <div class="market-title">Custom Ergonomic Wooden Desk</div>
-          <div class="market-sub">Posted by Alex • 3 offers • Open</div>
-          <div class="market-budget">Budget: $350 - $500</div>
-          <div class="market-actions">
-            <a href="../discuss_forum/thread-detail.html?threadId=desk-001" class="btn btn-primary btn-sm">View Discussion</a>
-            <a href="../discuss_forum/thread-detail.html?threadId=desk-001#reply-form" class="btn btn-success btn-sm">Make Offer</a>
-            <button class="btn btn-secondary btn-sm" onclick="saveToWishlist('desk-001')">♡ Save</button>
-          </div>
-        </div>
-      </article>
-
-      <article class="market-card">
-        <div class="market-image">
-          <img src="../images/reupholstery.png" alt="Reference image of the sofa to be reupholstered" />
-        </div>
-        <div class="market-info">
-          <div class="market-title">Sofa Reupholstery Project</div>
-          <div class="market-sub">Posted by Nina • 5 offers • Negotiating</div>
-          <div class="market-budget">Budget: $250 - $450</div>
-          <div class="market-actions">
-            <a href="../discuss_forum/thread-detail.html?threadId=sofa-002" class="btn btn-primary btn-sm">View Discussion</a>
-            <a href="../discuss_forum/thread-detail.html?threadId=sofa-002#reply-form" class="btn btn-success btn-sm">Make Offer</a>
-            <button class="btn btn-secondary btn-sm" onclick="saveToWishlist('sofa-002')">♡ Save</button>
-          </div>
-        </div>
-      </article>
-
-      <article class="market-card">
-        <div class="market-image">
-          <img src="../images/shelves.png" alt="Reference image of the walnut wall-mounted shelves" />
-        </div>
-        <div class="market-info">
-          <div class="market-title">Walnut Wall-Mounted Shelves</div>
-          <div class="market-sub">Posted by Mark • 2 offers • Open</div>
-          <div class="market-budget">Budget: $500 - $900</div>
-          <div class="market-actions">
-            <a href="../discuss_forum/thread-detail.html?threadId=shelf-003" class="btn btn-primary btn-sm">View Discussion</a>
-            <a href="../discuss_forum/thread-detail.html?threadId=shelf-003#reply-form" class="btn btn-success btn-sm">Make Offer</a>
-            <button class="btn btn-secondary btn-sm" onclick="saveToWishlist('shelf-003')">♡ Save</button>
-          </div>
-        </div>
-      </article>
-    </div>
+    <section class="filter-toolbar" aria-label="Request filters">
+      <div class="filter-control">
+        <label for="searchInput">Search Requests</label>
+        <input id="searchInput" type="search" placeholder="Search title or seller..." />
+      </div>
+      <div class="filter-control">
+        <label for="statusFilter">Filter By Status</label>
+        <select id="statusFilter">
+          <option value="all">All statuses</option>
+          <option value="open">Open</option>
+          <option value="negotiating">Negotiating</option>
+          <option value="accepted">Accepted Offer</option>
+        </select>
+      </div>
+      <div class="filter-control">
+        <label for="sortBy">Sort By</label>
+        <select id="sortBy">
+          <option value="offers-desc">Most offers</option>
+          <option value="budget-asc">Lowest budget min</option>
+          <option value="budget-desc">Highest budget max</option>
+          <option value="title-asc">Title A-Z</option>
+        </select>
+      </div>
+    </section>
+    <p id="resultCount" class="result-count">0 requests found</p>
+    <div class="market-grid" id="marketGrid"></div>
 
     <div class="section-divider"></div>
 
@@ -354,13 +383,143 @@
   </footer>
 
   <script>
-    function saveToWishlist(threadId) {
-      alert(`Saved ${threadId} to wishlist`);
+    const MARKET_REQUESTS = [
+      {
+        threadId: "desk-001",
+        title: "Custom Ergonomic Wooden Desk",
+        postedBy: "Alex",
+        offers: 3,
+        status: "open",
+        statusLabel: "Open",
+        budgetMin: 350,
+        budgetMax: 500,
+        image: "../images/ergonomic_wooden_desk.png",
+        alt: "Reference sketch of the requested corner desk"
+      },
+      {
+        threadId: "sofa-002",
+        title: "Sofa Reupholstery Project",
+        postedBy: "Nina",
+        offers: 5,
+        status: "negotiating",
+        statusLabel: "Negotiating",
+        budgetMin: 250,
+        budgetMax: 450,
+        image: "../images/reupholstery.png",
+        alt: "Reference image of the sofa to be reupholstered"
+      },
+      {
+        threadId: "shelf-003",
+        title: "Walnut Wall-Mounted Shelves",
+        postedBy: "Mark",
+        offers: 2,
+        status: "open",
+        statusLabel: "Open",
+        budgetMin: 500,
+        budgetMax: 900,
+        image: "../images/shelves.png",
+        alt: "Reference image of the walnut wall-mounted shelves"
+      },
+      {
+        threadId: "table-004",
+        title: "Round Oak Coffee Table",
+        postedBy: "Priya",
+        offers: 1,
+        status: "accepted",
+        statusLabel: "Accepted Offer",
+        budgetMin: 180,
+        budgetMax: 320,
+        image: "../images/ergonomic_wooden_desk.png",
+        alt: "Reference image for a round oak coffee table request"
+      }
+    ];
+
+    function getSavedThreads() {
+      return JSON.parse(localStorage.getItem("savedMarketThreads") || "[]");
     }
+
+    function saveToWishlist(threadId) {
+      const saved = getSavedThreads();
+      if (!saved.includes(threadId)) {
+        saved.push(threadId);
+        localStorage.setItem("savedMarketThreads", JSON.stringify(saved));
+      }
+      alert(`Saved ${threadId} to wishlist`);
+      renderMarketRequests();
+    }
+
+    function applyFiltersAndSort(list) {
+      const query = document.getElementById("searchInput")?.value.trim().toLowerCase() || "";
+      const status = document.getElementById("statusFilter")?.value || "all";
+      const sortBy = document.getElementById("sortBy")?.value || "offers-desc";
+
+      let filtered = list.filter((item) => {
+        const matchesSearch = !query || item.title.toLowerCase().includes(query) || item.postedBy.toLowerCase().includes(query);
+        const matchesStatus = status === "all" || item.status === status;
+        return matchesSearch && matchesStatus;
+      });
+
+      filtered.sort((a, b) => {
+        if (sortBy === "budget-asc") return a.budgetMin - b.budgetMin;
+        if (sortBy === "budget-desc") return b.budgetMax - a.budgetMax;
+        if (sortBy === "title-asc") return a.title.localeCompare(b.title);
+        return b.offers - a.offers;
+      });
+
+      return filtered;
+    }
+
+    function renderMarketRequests() {
+      const grid = document.getElementById("marketGrid");
+      const countEl = document.getElementById("resultCount");
+      const saved = getSavedThreads();
+      const list = applyFiltersAndSort(MARKET_REQUESTS);
+
+      countEl.textContent = `${list.length} request${list.length === 1 ? "" : "s"} found`;
+
+      if (!list.length) {
+        grid.innerHTML = '<div class="empty-state">No requests match your filters. Try a different search or status.</div>';
+        return;
+      }
+
+      grid.innerHTML = list.map((item) => {
+        const isSaved = saved.includes(item.threadId);
+        return `
+          <article class="market-card">
+            <div class="market-image">
+              <img src="${item.image}" alt="${item.alt}" />
+            </div>
+            <div class="market-info">
+              <div class="market-title">${item.title}</div>
+              <div class="market-sub">Posted by ${item.postedBy} • ${item.offers} offer${item.offers === 1 ? "" : "s"} • ${item.statusLabel}</div>
+              <div class="market-budget">Budget: $${item.budgetMin} - $${item.budgetMax}</div>
+              <div class="market-actions">
+                <a href="../discuss_forum/thread-detail.html?threadId=${item.threadId}" class="btn btn-primary btn-sm">View Discussion</a>
+                <a href="../discuss_forum/thread-detail.html?threadId=${item.threadId}#reply-form" class="btn btn-success btn-sm">Make Offer</a>
+                <button class="btn btn-secondary btn-sm" onclick="saveToWishlist('${item.threadId}')">${isSaved ? "Saved" : "♡ Save"}</button>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      ["searchInput", "statusFilter", "sortBy"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener("input", renderMarketRequests);
+          el.addEventListener("change", renderMarketRequests);
+        }
+      });
+
+      renderMarketRequests();
+    });
   </script>
   <script src="../components/shared-nav.js"></script>
 </body>
 </html>
+
 
 
 

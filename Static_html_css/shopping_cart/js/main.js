@@ -404,6 +404,84 @@ async function mockEndpointResponse(endpoint, options = {}) {
     return { success: true };
   }
 
+  const cartBySessionMatch = path.match(/^\/cart\/([^/]+)$/);
+  if (cartBySessionMatch && method === "GET") {
+    const sessionId = cartBySessionMatch[1];
+    const cartItems = deepClone(JSON.parse(localStorage.getItem(`cart_${sessionId}`) || "[]"));
+    const subtotal = cartItems.reduce((sum, item) => sum + Number(item.unitPrice || 0) * Number(item.quantity || 0), 0);
+    return { sessionId, items: cartItems, subtotal };
+  }
+
+  const cartItemRouteMatch = path.match(/^\/cart\/([^/]+)\/items(?:\/([^/]+))?$/);
+  if (cartItemRouteMatch) {
+    const sessionId = cartItemRouteMatch[1];
+    const itemId = cartItemRouteMatch[2];
+    const storageKey = `cart_${sessionId}`;
+    const cartItems = JSON.parse(localStorage.getItem(storageKey) || "[]");
+
+    if (method === "POST") {
+      const newItem = {
+        id: `cartitem_${Date.now()}`,
+        productId: body.productId,
+        quantity: Number(body.quantity || 1),
+        textDetails: body.textDetails || {},
+        unitPrice: Number(body.unitPrice || 0)
+      };
+      cartItems.push(newItem);
+      localStorage.setItem(storageKey, JSON.stringify(cartItems));
+      return { success: true, item: deepClone(newItem), items: deepClone(cartItems) };
+    }
+
+    if (method === "PUT") {
+      const index = cartItems.findIndex((item) => item.id === itemId);
+      if (index === -1) throw new Error("Cart item not found");
+      cartItems[index] = {
+        ...cartItems[index],
+        ...body,
+        quantity: typeof body.quantity === "undefined" ? cartItems[index].quantity : Number(body.quantity)
+      };
+      localStorage.setItem(storageKey, JSON.stringify(cartItems));
+      return { success: true, item: deepClone(cartItems[index]), items: deepClone(cartItems) };
+    }
+
+    if (method === "DELETE") {
+      const filtered = cartItems.filter((item) => item.id !== itemId);
+      localStorage.setItem(storageKey, JSON.stringify(filtered));
+      return { success: true, items: deepClone(filtered) };
+    }
+  }
+
+  const checkoutMatch = path.match(/^\/orders\/checkout\/([^/]+)$/);
+  if (checkoutMatch && method === "POST") {
+    const sessionId = checkoutMatch[1];
+    const storageKey = `cart_${sessionId}`;
+    const cartItems = JSON.parse(localStorage.getItem(storageKey) || "[]");
+    if (!cartItems.length) throw new Error("Cart is empty");
+
+    const subtotal = cartItems.reduce((sum, item) => sum + Number(item.unitPrice || 0) * Number(item.quantity || 0), 0);
+    const shippingCost = Number(body.shippingCost || 0);
+    const taxRate = Number(body.taxRate || 0.1);
+    const taxAmount = (subtotal + shippingCost) * taxRate;
+    const total = subtotal + shippingCost + taxAmount;
+    const order = {
+      id: `order_${Date.now()}`,
+      orderNumber: `ORD-${Date.now()}`,
+      items: deepClone(cartItems),
+      subtotal,
+      shippingCost,
+      taxAmount,
+      total,
+      payment: body.payment || {},
+      delivery: body.delivery || {},
+      createdAt: new Date().toISOString()
+    };
+
+    localStorage.setItem(storageKey, "[]");
+    localStorage.setItem("lastOrder", JSON.stringify(order));
+
+    return { success: true, order: deepClone(order) };
+  }
+
   return { success: true, data: [], message: `Mock fallback for ${path}` };
 }
 

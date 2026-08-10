@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Checkout - Wishlist Cart</title>
-  <link rel="stylesheet" href="../css/shopping_module_style.css" />
+  <link rel="stylesheet" href="../css/module-base.css" />
     <link rel="stylesheet" href="../css/top-nav.css">
 </head>
 <body class="with-rshop-nav">
@@ -66,7 +66,7 @@
         </section>
 
         <div style="display:flex; gap:var(--spacing-md);">
-          <a href="cart.html" class="btn btn-secondary" style="flex:1; text-align:center;">â† Back to Cart</a>
+          <a href="cart.html" class="btn btn-secondary" style="flex:1; text-align:center;">Ã¢â€ Â Back to Cart</a>
           <button class="btn btn-primary" style="flex:1;" type="submit">Place Order ($902.00)</button>
         </div>
       </form>
@@ -86,32 +86,11 @@
     <p>&copy; 2026 Rshop Marketplace</p>
   </footer>
 
-  // JavaScript section
-  <script>
-    document.getElementById('checkoutForm').addEventListener('submit', function(e){
-      e.preventDefault();
-      if (!document.getElementById('terms').checked) {
-        alert('Please agree to terms first.');
-        return;
-      }
-      alert('Processing payment...');
-      setTimeout(() => window.location.href = 'order-confirmation.html', 900);
-    });
-
-    document.getElementById('cardNumber').addEventListener('input', function(e){
-      let value = e.target.value.replace(/\s/g, '');
-      e.target.value = value.replace(/(\d{4})/g, '$1 ').trim();
-    });
-
-    document.getElementById('expiryDate').addEventListener('input', function(e){
-      let v = e.target.value.replace(/\D/g, '');
-      if (v.length >= 2) v = v.slice(0,2) + '/' + v.slice(2,4);
-      e.target.value = v;
-    });
-  </script>
+  <script src="js/main.js"></script>
   <script src="../components/shared-nav.js"></script>
 </body>
 </html>
+
 
 
 
