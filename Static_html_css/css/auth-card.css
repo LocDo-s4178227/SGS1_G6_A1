@@ -1,13 +1,207 @@
 /* Shared auth card styles used by login/signup pages */
 
 .auth-page {
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-md);
+  padding: var(--spacing-m);
 }
+
+.auth-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  max-width: 580px;
+  width: 100%;
+  padding: 40px 36px;
+  animation: slideInUp 0.4s ease;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: var(--spacing-l);
+}
+
+.auth-header h1 {
+  margin-bottom: var(--spacing-m);
+  color: var(--primary);
+}
+
+.auth-tabs {
+  display: flex;
+  gap: var(--spacing-s);
+  margin-bottom: var(--spacing-l);
+  border-bottom: 2px solid var(--bg);
+}
+
+.auth-tab {
+  flex: 1;
+  padding: var(--spacing-m);
+  text-align: center;
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--muted);
+  transition: all 0.3s ease;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+}
+
+.auth-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.auth-form {
+  display: none;
+}
+
+.auth-form.active {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Auth-specific overrides of .form-group (base from shopping_module_style.css) */
+.auth-container .form-group input,
+.auth-container .form-group select {
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  background-color: #fafafa;
+  transition: all 0.3s ease;
+}
+
+.auth-container .form-group input:focus,
+.auth-container .form-group select:focus {
+  border-color: var(--accent);
+  background-color: white;
+  box-shadow: 0 0 0 3px rgba(119, 179, 248, 0.1);
+}
+
+.user-type-select {
+  display: flex;
+  gap: 24px;
+  margin-top: var(--spacing-s);
+  flex-wrap: wrap;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: auto;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: var(--spacing-m);
+  background: linear-gradient(135deg, #77b3f8 0%, #5ba6ea 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: var(--spacing-m);
+  box-shadow: 0 4px 12px rgba(119, 179, 248, 0.3);
+}
+
+.submit-btn:hover {
+  background: linear-gradient(135deg, #5ba6ea 0%, #4798dd 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(119, 179, 248, 0.4);
+}
+
+.submit-btn:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.forgot-password {
+  text-align: center;
+  margin-top: var(--spacing-m);
+}
+
+.forgot-password a {
+  color: var(--accent);
+  font-size: 0.9rem;
+}
+
+/* Auth demo credentials box */
+.auth-demo {
+  background: #eef4fd;
+  border: 1px solid #c3d9f7;
+  border-radius: 6px;
+  padding: var(--spacing-s) var(--spacing-m);
+  margin-bottom: var(--spacing-l);
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.auth-demo code {
+  background: #d6e8fb;
+  border-radius: 3px;
+  padding: 1px 5px;
+  font-size: 0.85em;
+  color: var(--primary);
+}
+
+/* Auth feedback messages */
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: var(--spacing-s);
+  border-radius: 4px;
+  margin-bottom: var(--spacing-m);
+  display: none;
+}
+
+.error-message.show {
+  display: block;
+}
+
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+  padding: var(--spacing-s);
+  border-radius: 4px;
+  margin-bottom: var(--spacing-m);
+  display: none;
+}
+
+.success-message.show {
+  display: block;
+}
+
+@keyframes slideInUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@media (max-width: 480px) {
+  .auth-container {
+    padding: var(--spacing-m);
+  }
+}
+
 
 .auth-container {
   background: white;

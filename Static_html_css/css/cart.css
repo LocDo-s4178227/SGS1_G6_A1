@@ -1,0 +1,118 @@
+/* Shopping cart page styles */
+
+.cart-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 2px solid #77b3f8;
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 2px 8px rgba(119, 179, 248, 0.12);
+}
+
+.cart-table thead {
+  background: linear-gradient(135deg, #f0f4f8 0%, #e8f0f8 100%);
+  border-bottom: 2px solid #77b3f8;
+}
+
+.cart-table th {
+  padding: 16px;
+  text-align: left;
+  font-weight: 700;
+  color: #1a3a52;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cart-table tbody tr {
+  border-bottom: 1px solid #e8f0f8;
+  transition: background-color 0.2s ease;
+}
+
+.cart-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.cart-table tbody tr:hover {
+  background-color: #fafbfc;
+}
+
+.cart-table td {
+  padding: 18px 16px;
+  color: #333;
+  font-size: 14px;
+}
+
+.cart-table td strong {
+  font-weight: 700;
+  color: #1a3a52;
+}
+
+.cart-table a {
+  color: #77b3f8;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.cart-table a:hover {
+  color: #4a8fdb;
+  text-decoration: underline;
+}
+
+.cart-summary {
+  background: linear-gradient(135deg, #f5f9ff 0%, #eef6ff 100%);
+  border: 2px solid #77b3f8;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(119, 179, 248, 0.12);
+  height: fit-content;
+}
+
+.cart-summary h3 {
+  margin-top: 0;
+  color: #1a3a52;
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Cart page summary rows (different from the global .summary-row) */
+.cart-summary .summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(119, 179, 248, 0.2);
+  font-size: 14px;
+  color: #333;
+  margin: 0;
+}
+
+.cart-summary .summary-row:last-child {
+  border-bottom: none;
+}
+
+.cart-summary .summary-row span:first-child {
+  font-weight: 500;
+  color: #666;
+}
+
+.cart-summary .summary-row span:last-child {
+  font-weight: 600;
+  color: #1a3a52;
+}
+
+.cart-summary .summary-row.total {
+  padding: 16px 0;
+  margin-top: 8px;
+  border-top: 2px solid #77b3f8;
+  font-size: 16px;
+  font-weight: 700;
+  color: #2e7d32;
+}
+
+.cart-summary .summary-row.total span:last-child {
+  color: #2e7d32;
+  font-size: 18px;
+}
