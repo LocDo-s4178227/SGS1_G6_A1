@@ -17,6 +17,111 @@
         "newRequestNotifications": true
       },
       "active": true
+    },
+    "user_1786521860353_110": {
+      "id": "user_1786521860353_110",
+      "firstName": "E2E",
+      "lastName": "Tester",
+      "username": "e2euser1786521859126",
+      "email": "e2e_1786521859126@example.com",
+      "password": "Stronger#Pass2",
+      "phone": "+84-111-222-333",
+      "location": "Hanoi",
+      "description": "",
+      "profilePicture": "",
+      "userType": [
+        "professional"
+      ],
+      "preferences": {
+        "emailNotifications": true,
+        "messageNotifications": true,
+        "newRequestNotifications": true
+      },
+      "active": false
+    },
+    "user_1786521902940_426": {
+      "id": "user_1786521902940_426",
+      "firstName": "E2E",
+      "lastName": "Tester",
+      "username": "e2euser1786521902827",
+      "email": "e2e_1786521902827@example.com",
+      "password": "Stronger#Pass2",
+      "phone": "+84-111-222-333",
+      "location": "Hanoi",
+      "description": "",
+      "profilePicture": "",
+      "userType": [
+        "professional"
+      ],
+      "preferences": {
+        "emailNotifications": true,
+        "messageNotifications": true,
+        "newRequestNotifications": true
+      },
+      "active": false
+    },
+    "user_1786521935304_484": {
+      "id": "user_1786521935304_484",
+      "firstName": "E2E",
+      "lastName": "Tester",
+      "username": "e2euser1786521935207",
+      "email": "e2e_1786521935207@example.com",
+      "password": "Stronger#Pass2",
+      "phone": "+84-111-222-333",
+      "location": "Hanoi",
+      "description": "",
+      "profilePicture": "",
+      "userType": [
+        "professional"
+      ],
+      "preferences": {
+        "emailNotifications": true,
+        "messageNotifications": true,
+        "newRequestNotifications": true
+      },
+      "active": false
+    },
+    "user_1786521958215_755": {
+      "id": "user_1786521958215_755",
+      "firstName": "E2E",
+      "lastName": "Tester",
+      "username": "e2euser1786521957302",
+      "email": "e2e_1786521957302@example.com",
+      "password": "Stronger#Pass2",
+      "phone": "+84-111-222-333",
+      "location": "Hanoi",
+      "description": "",
+      "profilePicture": "",
+      "userType": [
+        "professional"
+      ],
+      "preferences": {
+        "emailNotifications": true,
+        "messageNotifications": true,
+        "newRequestNotifications": true
+      },
+      "active": true
+    },
+    "user_1786521985183_61": {
+      "id": "user_1786521985183_61",
+      "firstName": "E2E",
+      "lastName": "Tester",
+      "username": "e2euser1786521984596",
+      "email": "e2e_1786521984596@example.com",
+      "password": "Stronger#Pass2",
+      "phone": "+84-111-222-333",
+      "location": "Hanoi",
+      "description": "",
+      "profilePicture": "",
+      "userType": [
+        "professional"
+      ],
+      "preferences": {
+        "emailNotifications": true,
+        "messageNotifications": true,
+        "newRequestNotifications": true
+      },
+      "active": false
     }
   },
   "carts": {},

@@ -207,6 +207,10 @@
                 alert.classList.remove('show');
                 alert.textContent = '';
             });
+            document.querySelectorAll('.error-message').forEach(error => {
+                error.classList.remove('show');
+                error.textContent = '';
+            });
         }
 
         // Show alert
@@ -268,10 +272,10 @@
             e.preventDefault();
             clearAlerts();
 
-            const username = document.getElementById('loginUsername').value.trim();
+            const usernameOrEmail = document.getElementById('loginUsername').value.trim();
             const password = document.getElementById('loginPassword').value;
 
-            if (!username || !password) {
+            if (!usernameOrEmail || !password) {
                 showAlert('loginAlert', 'Please fill in all fields', 'info');
                 return;
             }
@@ -284,15 +288,18 @@
                 const response = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
+                    body: JSON.stringify({ username: usernameOrEmail, email: usernameOrEmail, password })
                 });
 
                 const data = await response.json();
 
                 if (data.success) {
-                    localStorage.setItem('userId', data.user._id);
+                    const userId = data.user.id || data.user._id;
+                    const userRole = Array.isArray(data.user.userType) ? data.user.userType[0] : (data.user.role || 'poster');
+                    localStorage.setItem('userId', userId);
                     localStorage.setItem('username', data.user.username);
-                    localStorage.setItem('userRole', data.user.role);
+                    localStorage.setItem('userType', userRole);
+                    localStorage.setItem('user', JSON.stringify(data.user));
                     showAlert('loginAlert', 'Login successful! Redirecting...', 'success');
                     setTimeout(() => {
                         window.location.href = 'profile.html';
@@ -358,7 +365,7 @@
                 const response = await fetch('/api/auth/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, email, password, role })
+                    body: JSON.stringify({ username, email, password, role, userType: role })
                 });
 
                 const data = await response.json();
@@ -404,7 +411,7 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    showAlert('forgotAlert', `Reset token sent! Token: ${data.resetToken}`, 'success');
+                    showAlert('forgotAlert', 'Reset token issued. Continue to set your new password.', 'success');
                     setTimeout(() => {
                         localStorage.setItem('resetToken', data.resetToken);
                         showResetForm();
