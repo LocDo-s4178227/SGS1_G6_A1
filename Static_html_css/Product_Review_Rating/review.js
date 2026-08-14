@@ -1,795 +1,2312 @@
-const STORAGE_KEY = "rshopReviewsV2";
+/* =====================================================
+   RSHOP - REVIEW & RATING PAGE
+   Front-end prototype with:
+   - live validation
+   - create / edit / delete
+   - list + detail modal
+   - search / filter / sort
+   - localStorage persistence
+   - review draft persistence
+   - current-user ownership behaviour
+===================================================== */
 
-const seedReviews = [
-  {
+
+/* =====================================================
+   STORAGE KEYS
+===================================================== */
+
+const REVIEW_STORAGE_KEY = "rshop.reviews.v3";
+const DRAFT_STORAGE_KEY = "rshop.reviewDraft.v3";
+const FILTER_STORAGE_KEY = "rshop.reviewFilters.v3";
+
+
+/* =====================================================
+   CURRENT USER
+   Replace this object later with your shared login module.
+===================================================== */
+
+const currentUser = {
     id: 1,
-    title: "A strong desk for study and work",
-    product: "Ergonomic Wooden Desk",
-    category: "Furniture",
-    rating: 5,
-    reviewer: "Minh Tran",
-    date: "2026-07-18",
-    image: "../images/ergonomic_wooden_desk.png",
-    body:
-      "The desk feels solid, has plenty of usable surface area and is comfortable for long study sessions. Assembly was straightforward and the wood finish looks more premium than expected."
-  },
-  {
-    id: 2,
-    title: "Premium case with excellent build quality",
-    product: "Mechanical Keyboard Case",
-    category: "Technology",
-    rating: 4,
-    reviewer: "Anh Le",
-    date: "2026-07-15",
-    image: "../images/mechanical_keyboard_case.png",
-    body:
-      "The case is sturdy and fits the keyboard securely. The finish is clean and professional, although it is slightly heavier than I expected for daily travel."
-  },
-  {
-    id: 3,
-    title: "Simple storage that looks great",
-    product: "Wall Shelves",
-    category: "Home",
-    rating: 5,
-    reviewer: "Linh Nguyen",
-    date: "2026-07-10",
-    image: "../images/shelves.png",
-    body:
-      "These shelves were easy to install and made the room feel much more organised. They hold books and small decorations well without taking up floor space."
-  },
-  {
-    id: 4,
-    title: "A useful service for older furniture",
-    product: "Furniture Reupholstery",
-    category: "Lifestyle",
-    rating: 4,
-    reviewer: "Bao Pham",
-    date: "2026-07-05",
-    image: "../images/reupholstery.png",
-    body:
-      "The service gave an old chair a second life and the fabric work was neat. Communication was good, but the completion time was a little longer than originally estimated."
-  }
+    name: "Alex Nguyen"
+};
+
+
+/* =====================================================
+   DEFAULT IMAGE
+===================================================== */
+
+const DEFAULT_IMAGE =
+    "data:image/svg+xml;charset=UTF-8," +
+    encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="900" height="600">
+            <defs>
+                <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+                    <stop stop-color="#263434"/>
+                    <stop offset="1" stop-color="#77b3f8"/>
+                </linearGradient>
+            </defs>
+
+            <rect width="100%" height="100%" fill="url(#g)"/>
+
+            <text
+                x="50%"
+                y="48%"
+                dominant-baseline="middle"
+                text-anchor="middle"
+                fill="white"
+                font-family="Arial"
+                font-size="58"
+                font-weight="700"
+            >
+                RShop
+            </text>
+
+            <text
+                x="50%"
+                y="60%"
+                dominant-baseline="middle"
+                text-anchor="middle"
+                fill="#dce8f2"
+                font-family="Arial"
+                font-size="25"
+            >
+                Product Review
+            </text>
+        </svg>
+    `);
+
+
+/* =====================================================
+   SAMPLE REVIEWS
+===================================================== */
+
+const sampleReviews = [
+    {
+        id: 1,
+        title: "Excellent everyday keyboard",
+        product: "Compact Mechanical Keyboard",
+        category: "Technology",
+        rating: 5,
+        summary:
+            "Responsive switches, solid build quality and a compact layout that works well for both study and gaming.",
+        description:
+            "I have used this keyboard every day for several weeks. The keys feel responsive, the frame feels sturdy and the compact layout saves a lot of desk space. It is particularly comfortable for long study sessions and gaming. The only small downside is that the keycaps can feel slightly smooth after long use, but overall the product offers excellent value.",
+        reviewerId: 1,
+        reviewerName: "Alex Nguyen",
+        dateAdded: "2026-07-18T08:30:00.000Z",
+        image:
+            "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=900&q=80"
+    },
+
+    {
+        id: 2,
+        title: "Comfortable chair for long sessions",
+        product: "Ergonomic Study Chair",
+        category: "Home",
+        rating: 4,
+        summary:
+            "Supportive and comfortable with useful adjustments, although assembly takes a little time.",
+        description:
+            "The chair provides very good back support and the adjustable height makes it easy to set up for different desks. The seat remains comfortable during long study sessions. Assembly was not difficult, but the instructions could have been clearer. I would still recommend it to students or anyone who spends several hours at a desk.",
+        reviewerId: 2,
+        reviewerName: "Linh Tran",
+        dateAdded: "2026-07-13T14:15:00.000Z",
+        image:
+            "https://images.unsplash.com/photo-1580480055273-228ff5388ef8?auto=format&fit=crop&w=900&q=80"
+    },
+
+    {
+        id: 3,
+        title: "Simple, fast and useful for class",
+        product: "Digital Study Planner",
+        category: "Education",
+        rating: 5,
+        summary:
+            "A clean planner that makes weekly tasks easier to organise without unnecessary complexity.",
+        description:
+            "The study planner is very easy to understand and does not overload the user with too many features. I mainly use it to organise assignment deadlines and weekly study goals. The interface is clean and the product does exactly what I need. It would be even better with more colour options, but the core experience is excellent.",
+        reviewerId: 3,
+        reviewerName: "Minh Pham",
+        dateAdded: "2026-07-09T10:20:00.000Z",
+        image:
+            "https://images.unsplash.com/photo-1456324504439-367cee3b3c32?auto=format&fit=crop&w=900&q=80"
+    },
+
+    {
+        id: 4,
+        title: "Good value for a small workspace",
+        product: "Minimal Desk Lamp",
+        category: "Lifestyle",
+        rating: 4,
+        summary:
+            "Bright enough for late-night work, easy to position and takes up very little desk space.",
+        description:
+            "This lamp is a good option for a small desk because the base does not take up much room. The brightness is sufficient for reading and coding at night, and the adjustable arm makes it easy to direct the light. The materials are not premium, but they feel reasonable for the price.",
+        reviewerId: 1,
+        reviewerName: "Alex Nguyen",
+        dateAdded: "2026-07-03T18:45:00.000Z",
+        image:
+            "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=900&q=80"
+    }
 ];
+
+
+/* =====================================================
+   STATE
+===================================================== */
 
 let reviews = loadReviews();
 
+let selectedRating = 0;
+
+let selectedReviewId = null;
+
+
+/* =====================================================
+   DOM
+===================================================== */
+
 const elements = {
-  container: document.getElementById("reviewContainer"),
-  emptyState: document.getElementById("emptyState"),
-  resultCount: document.getElementById("resultCount"),
+    reviewContainer:
+        document.getElementById("reviewContainer"),
 
-  searchInput: document.getElementById("searchInput"),
-  categoryFilter: document.getElementById("categoryFilter"),
-  ratingFilter: document.getElementById("ratingFilter"),
-  sortFilter: document.getElementById("sortFilter"),
+    emptyState:
+        document.getElementById("emptyState"),
 
-  form: document.getElementById("reviewForm"),
-  reviewId: document.getElementById("reviewId"),
-  reviewTitle: document.getElementById("reviewTitle"),
-  productName: document.getElementById("productName"),
-  reviewCategory: document.getElementById("reviewCategory"),
-  reviewRating: document.getElementById("reviewRating"),
-  reviewerName: document.getElementById("reviewerName"),
-  reviewImage: document.getElementById("reviewImage"),
-  reviewBody: document.getElementById("reviewBody"),
+    resultCount:
+        document.getElementById("resultCount"),
 
-  characterCount: document.getElementById("characterCount"),
-  formMessage: document.getElementById("formMessage"),
-  submitButton: document.getElementById("submitButton"),
-  cancelEdit: document.getElementById("cancelEdit"),
+    searchInput:
+        document.getElementById("searchInput"),
 
-  reviewDialog: document.getElementById("reviewDialog"),
-  dialogContent: document.getElementById("dialogContent"),
-  closeDialog: document.getElementById("closeDialog"),
+    categoryFilter:
+        document.getElementById("categoryFilter"),
 
-  averageRating: document.getElementById("averageRating"),
-  reviewCount: document.getElementById("reviewCount"),
-  ratingBars: document.getElementById("ratingBars")
+    ratingFilter:
+        document.getElementById("ratingFilter"),
+
+    sortFilter:
+        document.getElementById("sortFilter"),
+
+    clearFiltersButton:
+        document.getElementById("clearFiltersButton"),
+
+    averageRating:
+        document.getElementById("averageRating"),
+
+    averageStars:
+        document.getElementById("averageStars"),
+
+    totalReviewText:
+        document.getElementById("totalReviewText"),
+
+    ratingBars:
+        document.getElementById("ratingBars"),
+
+    reviewForm:
+        document.getElementById("reviewForm"),
+
+    reviewId:
+        document.getElementById("reviewId"),
+
+    reviewTitle:
+        document.getElementById("reviewTitle"),
+
+    productName:
+        document.getElementById("productName"),
+
+    reviewCategory:
+        document.getElementById("reviewCategory"),
+
+    reviewRating:
+        document.getElementById("reviewRating"),
+
+    starInput:
+        document.getElementById("starInput"),
+
+    ratingText:
+        document.getElementById("ratingText"),
+
+    imageUrl:
+        document.getElementById("imageUrl"),
+
+    imagePreviewWrap:
+        document.getElementById("imagePreviewWrap"),
+
+    imagePreview:
+        document.getElementById("imagePreview"),
+
+    summary:
+        document.getElementById("summary"),
+
+    description:
+        document.getElementById("description"),
+
+    titleCount:
+        document.getElementById("titleCount"),
+
+    summaryCount:
+        document.getElementById("summaryCount"),
+
+    descriptionCount:
+        document.getElementById("descriptionCount"),
+
+    submitButton:
+        document.getElementById("submitButton"),
+
+    cancelEditButton:
+        document.getElementById("cancelEditButton"),
+
+    formMessage:
+        document.getElementById("formMessage"),
+
+    formHeading:
+        document.getElementById("formHeading"),
+
+    heroWriteButton:
+        document.getElementById("heroWriteButton"),
+
+    reviewModal:
+        document.getElementById("reviewModal"),
+
+    closeModalButton:
+        document.getElementById("closeModalButton"),
+
+    modalImage:
+        document.getElementById("modalImage"),
+
+    modalCategory:
+        document.getElementById("modalCategory"),
+
+    modalStars:
+        document.getElementById("modalStars"),
+
+    modalTitle:
+        document.getElementById("modalTitle"),
+
+    modalProduct:
+        document.getElementById("modalProduct"),
+
+    modalDescription:
+        document.getElementById("modalDescription"),
+
+    modalAvatar:
+        document.getElementById("modalAvatar"),
+
+    modalReviewer:
+        document.getElementById("modalReviewer"),
+
+    modalDate:
+        document.getElementById("modalDate"),
+
+    modalActions:
+        document.getElementById("modalActions"),
+
+    toast:
+        document.getElementById("toast"),
+
+    currentUserName:
+        document.getElementById("currentUserName"),
+
+    userAvatar:
+        document.getElementById("userAvatar")
 };
 
-/*
-  Load saved reviews from localStorage.
-  If no saved reviews exist, use the sample reviews.
-*/
+
+const errors = {
+    title:
+        document.getElementById("titleError"),
+
+    product:
+        document.getElementById("productError"),
+
+    category:
+        document.getElementById("categoryError"),
+
+    rating:
+        document.getElementById("ratingError"),
+
+    image:
+        document.getElementById("imageError"),
+
+    summary:
+        document.getElementById("summaryError"),
+
+    description:
+        document.getElementById("descriptionError")
+};
+
+
+/* =====================================================
+   STORAGE
+===================================================== */
+
 function loadReviews() {
-  try {
-    const savedReviews = JSON.parse(
-      localStorage.getItem(STORAGE_KEY)
-    );
 
-    if (Array.isArray(savedReviews) && savedReviews.length > 0) {
-      return savedReviews;
+    try {
+
+        const saved =
+            JSON.parse(
+                localStorage.getItem(
+                    REVIEW_STORAGE_KEY
+                )
+            );
+
+
+        if (
+            Array.isArray(saved)
+        ) {
+            return saved;
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "Could not read saved reviews.",
+            error
+        );
     }
 
-    return seedReviews;
-  } catch (error) {
-    console.error("Unable to load reviews:", error);
-    return seedReviews;
-  }
-}
 
-/*
-  Save the current review list.
-*/
-function saveReviews() {
-  try {
     localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(reviews)
+        REVIEW_STORAGE_KEY,
+        JSON.stringify(sampleReviews)
     );
-  } catch (error) {
-    console.error("Unable to save reviews:", error);
-  }
+
+
+    return structuredClone(sampleReviews);
 }
 
-/*
-  Create star text such as ★★★★☆.
-*/
-function createStars(rating) {
-  return "★".repeat(rating) + "☆".repeat(5 - rating);
-}
 
-/*
-  Escape user-created text before adding it to HTML.
-*/
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
+function saveReviews() {
 
-/*
-  Display dates in a readable format.
-*/
-function formatDate(dateValue) {
-  const date = new Date(`${dateValue}T00:00:00`);
-
-  return date.toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric"
-  });
-}
-
-/*
-  Return reviews that match all search and filter settings.
-*/
-function getFilteredReviews() {
-  const searchValue =
-    elements.searchInput.value.trim().toLowerCase();
-
-  const selectedCategory =
-    elements.categoryFilter.value;
-
-  const selectedRating =
-    elements.ratingFilter.value;
-
-  const filtered = reviews.filter(function (review) {
-    const searchableText = `
-      ${review.title}
-      ${review.product}
-      ${review.body}
-      ${review.reviewer}
-      ${review.category}
-    `.toLowerCase();
-
-    const matchesSearch =
-      searchableText.includes(searchValue);
-
-    const matchesCategory =
-      selectedCategory === "all" ||
-      review.category === selectedCategory;
-
-    const matchesRating =
-      selectedRating === "all" ||
-      review.rating >= Number(selectedRating);
-
-    return (
-      matchesSearch &&
-      matchesCategory &&
-      matchesRating
+    localStorage.setItem(
+        REVIEW_STORAGE_KEY,
+        JSON.stringify(reviews)
     );
-  });
-
-  return filtered.sort(function (firstReview, secondReview) {
-    const selectedSort = elements.sortFilter.value;
-
-    if (selectedSort === "highest") {
-      return secondReview.rating - firstReview.rating;
-    }
-
-    if (selectedSort === "lowest") {
-      return firstReview.rating - secondReview.rating;
-    }
-
-    return (
-      new Date(secondReview.date) -
-      new Date(firstReview.date)
-    );
-  });
 }
 
-/*
-  Render all review cards.
-*/
-function renderReviews() {
-  const visibleReviews = getFilteredReviews();
 
-  elements.resultCount.textContent =
-    `${visibleReviews.length} review${
-      visibleReviews.length === 1 ? "" : "s"
-    }`;
+function saveDraft() {
 
-  elements.emptyState.hidden =
-    visibleReviews.length !== 0;
+    const draft = {
+        title:
+            elements.reviewTitle.value,
 
-  elements.container.innerHTML =
-    visibleReviews
-      .map(function (review) {
-        const shortBody =
-          review.body.length > 180
-            ? `${review.body.slice(0, 180)}…`
-            : review.body;
+        product:
+            elements.productName.value,
 
-        const imagePath =
-          review.image ||
-          "../images/ergonomic_wooden_desk.png";
+        category:
+            elements.reviewCategory.value,
 
-        return `
-          <article class="review-card">
+        rating:
+            selectedRating,
 
-            <img
-              class="review-image"
-              src="${escapeHtml(imagePath)}"
-              alt="${escapeHtml(review.product)}"
-              onerror="this.src='../images/ergonomic_wooden_desk.png'"
-            >
+        image:
+            elements.imageUrl.value,
 
-            <div class="review-content">
+        summary:
+            elements.summary.value,
 
-              <div class="review-topline">
-
-                <span class="badge">
-                  ${escapeHtml(review.category)}
-                </span>
-
-                <span
-                  class="rating"
-                  aria-label="${review.rating} out of 5 stars"
-                >
-                  ${createStars(review.rating)}
-                </span>
-
-              </div>
-
-              <h3>
-                ${escapeHtml(review.title)}
-              </h3>
-
-              <p class="product-name">
-                ${escapeHtml(review.product)}
-              </p>
-
-              <p class="review-text">
-                ${escapeHtml(shortBody)}
-              </p>
-
-              <div class="review-meta">
-
-                <span>
-                  By ${escapeHtml(review.reviewer)}
-                </span>
-
-                <span aria-hidden="true">•</span>
-
-                <time datetime="${escapeHtml(review.date)}">
-                  ${formatDate(review.date)}
-                </time>
-
-              </div>
-
-              <div class="review-actions">
-
-                <button
-                  class="button button-primary"
-                  type="button"
-                  data-action="view"
-                  data-id="${review.id}"
-                >
-                  Read full review
-                </button>
-
-                <button
-                  class="button button-ghost"
-                  type="button"
-                  data-action="edit"
-                  data-id="${review.id}"
-                >
-                  Edit
-                </button>
-
-                <button
-                  class="button button-danger"
-                  type="button"
-                  data-action="delete"
-                  data-id="${review.id}"
-                >
-                  Delete
-                </button>
-
-              </div>
-
-            </div>
-
-          </article>
-        `;
-      })
-      .join("");
-
-  renderReviewSummary();
-}
-
-/*
-  Calculate and display review statistics.
-*/
-function renderReviewSummary() {
-  const totalReviews = reviews.length;
-
-  const average =
-    totalReviews > 0
-      ? reviews.reduce(function (total, review) {
-          return total + review.rating;
-        }, 0) / totalReviews
-      : 0;
-
-  elements.averageRating.textContent =
-    average.toFixed(1);
-
-  elements.reviewCount.textContent =
-    `Based on ${totalReviews} review${
-      totalReviews === 1 ? "" : "s"
-    }`;
-
-  elements.ratingBars.innerHTML =
-    [5, 4, 3, 2, 1]
-      .map(function (ratingValue) {
-        const ratingCount =
-          reviews.filter(function (review) {
-            return review.rating === ratingValue;
-          }).length;
-
-        const percentage =
-          totalReviews > 0
-            ? (ratingCount / totalReviews) * 100
-            : 0;
-
-        return `
-          <div class="rating-row">
-
-            <span>
-              ${ratingValue} star
-            </span>
-
-            <div
-              class="rating-track"
-              aria-hidden="true"
-            >
-              <div
-                class="rating-fill"
-                style="width: ${percentage}%"
-              ></div>
-            </div>
-
-            <span>
-              ${ratingCount}
-            </span>
-
-          </div>
-        `;
-      })
-      .join("");
-}
-
-/*
-  Open the full review dialog.
-*/
-function openReviewDialog(reviewId) {
-  const review = reviews.find(function (item) {
-    return item.id === reviewId;
-  });
-
-  if (!review) {
-    return;
-  }
-
-  const imagePath =
-    review.image ||
-    "../images/ergonomic_wooden_desk.png";
-
-  elements.dialogContent.innerHTML = `
-    <img
-      class="dialog-image"
-      src="${escapeHtml(imagePath)}"
-      alt="${escapeHtml(review.product)}"
-      onerror="this.src='../images/ergonomic_wooden_desk.png'"
-    >
-
-    <div class="dialog-body">
-
-      <span class="badge">
-        ${escapeHtml(review.category)}
-      </span>
-
-      <h2>
-        ${escapeHtml(review.title)}
-      </h2>
-
-      <p class="product-name">
-        ${escapeHtml(review.product)}
-      </p>
-
-      <p
-        class="rating"
-        aria-label="${review.rating} out of 5 stars"
-      >
-        ${createStars(review.rating)}
-      </p>
-
-      <p>
-        ${escapeHtml(review.body)}
-      </p>
-
-      <div class="review-meta">
-
-        <span>
-          By ${escapeHtml(review.reviewer)}
-        </span>
-
-        <span aria-hidden="true">•</span>
-
-        <time datetime="${escapeHtml(review.date)}">
-          ${formatDate(review.date)}
-        </time>
-
-      </div>
-
-    </div>
-  `;
-
-  if (typeof elements.reviewDialog.showModal === "function") {
-    elements.reviewDialog.showModal();
-  } else {
-    elements.reviewDialog.setAttribute("open", "");
-  }
-}
-
-/*
-  Fill the form with an existing review.
-*/
-function startEditingReview(reviewId) {
-  const review = reviews.find(function (item) {
-    return item.id === reviewId;
-  });
-
-  if (!review) {
-    return;
-  }
-
-  elements.reviewId.value = review.id;
-  elements.reviewTitle.value = review.title;
-  elements.productName.value = review.product;
-  elements.reviewCategory.value = review.category;
-  elements.reviewRating.value = review.rating;
-  elements.reviewerName.value = review.reviewer;
-  elements.reviewImage.value = review.image;
-  elements.reviewBody.value = review.body;
-
-  elements.characterCount.textContent =
-    review.body.length;
-
-  elements.submitButton.textContent =
-    "Save changes";
-
-  elements.cancelEdit.hidden = false;
-
-  elements.formMessage.textContent =
-    "Editing review. Update the fields and save your changes.";
-
-  elements.formMessage.className =
-    "form-message";
-
-  document
-    .getElementById("write-review")
-    .scrollIntoView({
-      behavior: "smooth"
-    });
-
-  elements.reviewTitle.focus();
-}
-
-/*
-  Reset the review form.
-*/
-function resetReviewForm() {
-  elements.form.reset();
-
-  elements.reviewId.value = "";
-
-  elements.submitButton.textContent =
-    "Publish review";
-
-  elements.cancelEdit.hidden = true;
-
-  elements.characterCount.textContent =
-    "0";
-
-  elements.formMessage.textContent = "";
-
-  elements.formMessage.className =
-    "form-message";
-}
-
-/*
-  Delete a review.
-*/
-function deleteReview(reviewId) {
-  const review = reviews.find(function (item) {
-    return item.id === reviewId;
-  });
-
-  if (!review) {
-    return;
-  }
-
-  const confirmed = confirm(
-    `Delete the review for "${review.product}"?`
-  );
-
-  if (!confirmed) {
-    return;
-  }
-
-  reviews = reviews.filter(function (item) {
-    return item.id !== reviewId;
-  });
-
-  saveReviews();
-  renderReviews();
-
-  elements.formMessage.textContent =
-    "Review deleted successfully.";
-
-  elements.formMessage.className =
-    "form-message success";
-}
-
-/*
-  Handle form submission.
-*/
-elements.form.addEventListener(
-  "submit",
-  function (event) {
-    event.preventDefault();
-
-    const existingId =
-      Number(elements.reviewId.value);
-
-    const title =
-      elements.reviewTitle.value.trim();
-
-    const product =
-      elements.productName.value.trim();
-
-    const category =
-      elements.reviewCategory.value;
-
-    const rating =
-      Number(elements.reviewRating.value);
-
-    const reviewer =
-      elements.reviewerName.value.trim();
-
-    const image =
-      elements.reviewImage.value.trim();
-
-    const body =
-      elements.reviewBody.value.trim();
-
-    if (
-      !title ||
-      !product ||
-      !category ||
-      !rating ||
-      !reviewer ||
-      body.length < 20
-    ) {
-      elements.formMessage.textContent =
-        "Please complete all required fields. The review must contain at least 20 characters.";
-
-      elements.formMessage.className =
-        "form-message error";
-
-      return;
-    }
-
-    const oldReview =
-      reviews.find(function (item) {
-        return item.id === existingId;
-      });
-
-    const reviewData = {
-      id: existingId || Date.now(),
-      title: title,
-      product: product,
-      category: category,
-      rating: rating,
-      reviewer: reviewer,
-      image:
-        image ||
-        "../images/ergonomic_wooden_desk.png",
-      body: body,
-      date:
-        oldReview?.date ||
-        new Date().toISOString().slice(0, 10)
+        description:
+            elements.description.value
     };
 
-    if (existingId) {
-      reviews = reviews.map(function (review) {
-        return review.id === existingId
-          ? reviewData
-          : review;
-      });
-    } else {
-      reviews.unshift(reviewData);
+
+    localStorage.setItem(
+        DRAFT_STORAGE_KEY,
+        JSON.stringify(draft)
+    );
+}
+
+
+function restoreDraft() {
+
+    const saved =
+        localStorage.getItem(
+            DRAFT_STORAGE_KEY
+        );
+
+
+    if (!saved) {
+        return;
     }
+
+
+    try {
+
+        const draft =
+            JSON.parse(saved);
+
+
+        elements.reviewTitle.value =
+            draft.title || "";
+
+        elements.productName.value =
+            draft.product || "";
+
+        elements.reviewCategory.value =
+            draft.category || "";
+
+        elements.imageUrl.value =
+            draft.image || "";
+
+        elements.summary.value =
+            draft.summary || "";
+
+        elements.description.value =
+            draft.description || "";
+
+
+        setRating(
+            Number(draft.rating) || 0
+        );
+
+
+        updateCounters();
+
+        updateImagePreview();
+
+    } catch (error) {
+
+        localStorage.removeItem(
+            DRAFT_STORAGE_KEY
+        );
+    }
+}
+
+
+function clearDraft() {
+
+    localStorage.removeItem(
+        DRAFT_STORAGE_KEY
+    );
+}
+
+
+function saveFilterState() {
+
+    const state = {
+        search:
+            elements.searchInput.value,
+
+        category:
+            elements.categoryFilter.value,
+
+        rating:
+            elements.ratingFilter.value,
+
+        sort:
+            elements.sortFilter.value
+    };
+
+
+    localStorage.setItem(
+        FILTER_STORAGE_KEY,
+        JSON.stringify(state)
+    );
+}
+
+
+function restoreFilterState() {
+
+    const saved =
+        localStorage.getItem(
+            FILTER_STORAGE_KEY
+        );
+
+
+    if (!saved) {
+        return;
+    }
+
+
+    try {
+
+        const state =
+            JSON.parse(saved);
+
+
+        elements.searchInput.value =
+            state.search || "";
+
+        elements.categoryFilter.value =
+            state.category || "all";
+
+        elements.ratingFilter.value =
+            state.rating || "all";
+
+        elements.sortFilter.value =
+            state.sort || "newest";
+
+    } catch (error) {
+
+        localStorage.removeItem(
+            FILTER_STORAGE_KEY
+        );
+    }
+}
+
+
+/* =====================================================
+   HELPERS
+===================================================== */
+
+function createStars(rating) {
+
+    return (
+        "★".repeat(rating) +
+        "☆".repeat(5 - rating)
+    );
+}
+
+
+function getInitials(name) {
+
+    return name
+        .split(" ")
+        .filter(Boolean)
+        .slice(0, 2)
+        .map(
+            (part) =>
+                part[0].toUpperCase()
+        )
+        .join("");
+}
+
+
+function formatDate(value) {
+
+    return new Date(value)
+        .toLocaleDateString(
+            "en-GB",
+            {
+                day: "numeric",
+                month: "long",
+                year: "numeric"
+            }
+        );
+}
+
+
+function escapeHtml(value) {
+
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+
+function safeImage(value) {
+
+    return value || DEFAULT_IMAGE;
+}
+
+
+function showToast(message) {
+
+    elements.toast.textContent =
+        message;
+
+    elements.toast.hidden =
+        false;
+
+
+    clearTimeout(
+        showToast.timeoutId
+    );
+
+
+    showToast.timeoutId =
+        setTimeout(
+            function () {
+
+                elements.toast.hidden =
+                    true;
+
+            },
+            2800
+        );
+}
+
+
+function setFormMessage(
+    message = "",
+    type = ""
+) {
+
+    elements.formMessage.textContent =
+        message;
+
+
+    elements.formMessage.className =
+        `form-message full ${type}`.trim();
+}
+
+
+/* =====================================================
+   REVIEW STATISTICS
+===================================================== */
+
+function renderStatistics() {
+
+    const total =
+        reviews.length;
+
+
+    const average =
+        total
+            ? reviews.reduce(
+                (sum, review) =>
+                    sum + review.rating,
+                0
+            ) / total
+            : 0;
+
+
+    elements.averageRating.textContent =
+        average.toFixed(1);
+
+
+    elements.averageStars.textContent =
+        createStars(
+            Math.round(average)
+        );
+
+
+    elements.totalReviewText.textContent =
+        `Based on ${total} review${
+            total === 1
+                ? ""
+                : "s"
+        }`;
+
+
+    elements.ratingBars.innerHTML =
+        [5, 4, 3, 2, 1]
+            .map(
+                function (rating) {
+
+                    const count =
+                        reviews.filter(
+                            (review) =>
+                                review.rating === rating
+                        ).length;
+
+
+                    const percentage =
+                        total
+                            ? (
+                                count /
+                                total
+                            ) * 100
+                            : 0;
+
+
+                    return `
+                        <div class="rating-bar-row">
+
+                            <span>
+                                ${rating}
+                            </span>
+
+                            <div class="rating-track">
+                                <div
+                                    class="rating-fill"
+                                    style="width: ${percentage}%"
+                                ></div>
+                            </div>
+
+                            <span>
+                                ${count}
+                            </span>
+
+                        </div>
+                    `;
+                }
+            )
+            .join("");
+}
+
+
+/* =====================================================
+   SEARCH / FILTER / SORT
+===================================================== */
+
+function getVisibleReviews() {
+
+    const search =
+        elements.searchInput
+            .value
+            .trim()
+            .toLowerCase();
+
+
+    const category =
+        elements.categoryFilter.value;
+
+
+    const minimumRating =
+        elements.ratingFilter.value;
+
+
+    const sort =
+        elements.sortFilter.value;
+
+
+    const filtered =
+        reviews.filter(
+            function (review) {
+
+                const searchable =
+                    [
+                        review.title,
+                        review.product,
+                        review.category,
+                        review.summary,
+                        review.description,
+                        review.reviewerName
+                    ]
+                        .join(" ")
+                        .toLowerCase();
+
+
+                const matchesSearch =
+                    searchable.includes(
+                        search
+                    );
+
+
+                const matchesCategory =
+                    category === "all" ||
+                    review.category === category;
+
+
+                const matchesRating =
+                    minimumRating === "all" ||
+                    review.rating >=
+                        Number(minimumRating);
+
+
+                return (
+                    matchesSearch &&
+                    matchesCategory &&
+                    matchesRating
+                );
+            }
+        );
+
+
+    filtered.sort(
+        function (a, b) {
+
+            if (sort === "oldest") {
+                return (
+                    new Date(a.dateAdded) -
+                    new Date(b.dateAdded)
+                );
+            }
+
+
+            if (sort === "highest") {
+                return (
+                    b.rating -
+                    a.rating
+                );
+            }
+
+
+            if (sort === "lowest") {
+                return (
+                    a.rating -
+                    b.rating
+                );
+            }
+
+
+            if (sort === "az") {
+                return a.product.localeCompare(
+                    b.product
+                );
+            }
+
+
+            return (
+                new Date(b.dateAdded) -
+                new Date(a.dateAdded)
+            );
+        }
+    );
+
+
+    return filtered;
+}
+
+
+/* =====================================================
+   RENDER REVIEW CARDS
+===================================================== */
+
+function renderReviews() {
+
+    const visible =
+        getVisibleReviews();
+
+
+    elements.resultCount.textContent =
+        `${visible.length} review${
+            visible.length === 1
+                ? ""
+                : "s"
+        } found`;
+
+
+    elements.emptyState.hidden =
+        visible.length !== 0;
+
+
+    elements.reviewContainer.innerHTML =
+        visible
+            .map(
+                createReviewCard
+            )
+            .join("");
+
+
+    renderStatistics();
+}
+
+
+function createReviewCard(review) {
+
+    const isOwner =
+        review.reviewerId ===
+        currentUser.id;
+
+
+    const image =
+        safeImage(
+            review.image
+        );
+
+
+    return `
+        <article class="review-card">
+
+            <div class="review-card-image">
+
+                <img
+                    src="${escapeHtml(image)}"
+                    alt="${escapeHtml(review.product)}"
+                    onerror="this.src='${escapeHtml(DEFAULT_IMAGE)}'"
+                >
+
+            </div>
+
+
+            <div class="review-card-body">
+
+                <div class="review-card-topline">
+
+                    <span class="category-badge">
+                        ${escapeHtml(review.category)}
+                    </span>
+
+                    <span
+                        class="stars"
+                        aria-label="${review.rating} out of 5 stars"
+                    >
+                        ${createStars(review.rating)}
+                    </span>
+
+                </div>
+
+
+                <h3>
+                    ${escapeHtml(review.title)}
+                </h3>
+
+
+                <p class="product-title">
+                    ${escapeHtml(review.product)}
+                </p>
+
+
+                <p class="review-card-summary">
+                    ${escapeHtml(review.summary)}
+                </p>
+
+
+                <div class="review-author">
+
+                    <span class="avatar">
+                        ${getInitials(review.reviewerName)}
+                    </span>
+
+
+                    <span>
+
+                        <strong>
+                            ${escapeHtml(review.reviewerName)}
+                        </strong>
+
+                        <small>
+                            ${formatDate(review.dateAdded)}
+                        </small>
+
+                    </span>
+
+
+                    ${
+                        isOwner
+                            ? `
+                                <span class="owner-badge">
+                                    Your review
+                                </span>
+                            `
+                            : ""
+                    }
+
+                </div>
+
+
+                <div class="review-card-actions">
+
+                    <button
+                        type="button"
+                        class="card-action"
+                        data-action="view"
+                        data-id="${review.id}"
+                    >
+                        View Details
+                    </button>
+
+
+                    ${
+                        isOwner
+                            ? `
+                                <button
+                                    type="button"
+                                    class="card-action"
+                                    data-action="edit"
+                                    data-id="${review.id}"
+                                >
+                                    Edit
+                                </button>
+
+
+                                <button
+                                    type="button"
+                                    class="card-action danger"
+                                    data-action="delete"
+                                    data-id="${review.id}"
+                                >
+                                    Delete
+                                </button>
+                            `
+                            : ""
+                    }
+
+                </div>
+
+            </div>
+
+        </article>
+    `;
+}
+
+
+/* =====================================================
+   DETAIL MODAL
+===================================================== */
+
+function openReviewModal(review) {
+
+    selectedReviewId =
+        review.id;
+
+
+    elements.modalImage.src =
+        safeImage(
+            review.image
+        );
+
+
+    elements.modalImage.onerror =
+        function () {
+
+            this.src =
+                DEFAULT_IMAGE;
+        };
+
+
+    elements.modalCategory.textContent =
+        review.category;
+
+
+    elements.modalStars.textContent =
+        createStars(
+            review.rating
+        );
+
+
+    elements.modalTitle.textContent =
+        review.title;
+
+
+    elements.modalProduct.textContent =
+        review.product;
+
+
+    elements.modalDescription.textContent =
+        review.description;
+
+
+    elements.modalAvatar.textContent =
+        getInitials(
+            review.reviewerName
+        );
+
+
+    elements.modalReviewer.textContent =
+        review.reviewerName;
+
+
+    elements.modalDate.textContent =
+        formatDate(
+            review.dateAdded
+        );
+
+
+    const isOwner =
+        review.reviewerId ===
+        currentUser.id;
+
+
+    elements.modalActions.innerHTML =
+        isOwner
+            ? `
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    data-modal-action="edit"
+                >
+                    Edit Review
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-modal-action="delete"
+                >
+                    Delete Review
+                </button>
+            `
+            : "";
+
+
+    elements.reviewModal.hidden =
+        false;
+
+
+    document.body.style.overflow =
+        "hidden";
+
+
+    elements.closeModalButton.focus();
+}
+
+
+function closeReviewModal() {
+
+    elements.reviewModal.hidden =
+        true;
+
+
+    document.body.style.overflow =
+        "";
+
+
+    selectedReviewId =
+        null;
+}
+
+
+/* =====================================================
+   RATING INPUT
+===================================================== */
+
+function setRating(value) {
+
+    selectedRating =
+        Number(value) || 0;
+
+
+    elements.reviewRating.value =
+        selectedRating || "";
+
+
+    const buttons =
+        elements.starInput
+            .querySelectorAll("button");
+
+
+    buttons.forEach(
+        function (button) {
+
+            const buttonValue =
+                Number(
+                    button.dataset.value
+                );
+
+
+            button.classList.toggle(
+                "active",
+                buttonValue <=
+                    selectedRating
+            );
+        }
+    );
+
+
+    const ratingLabels = {
+        1: "Poor",
+        2: "Fair",
+        3: "Good",
+        4: "Very good",
+        5: "Excellent"
+    };
+
+
+    elements.ratingText.textContent =
+        selectedRating
+            ? `${selectedRating}/5 · ${ratingLabels[selectedRating]}`
+            : "Select a rating";
+
+
+    validateRating();
+}
+
+
+/* =====================================================
+   VALIDATION
+===================================================== */
+
+function validateTitle() {
+
+    const value =
+        elements.reviewTitle
+            .value
+            .trim();
+
+
+    let message = "";
+
+
+    if (!value) {
+        message =
+            "Review title is required.";
+    } else if (
+        value.length < 3
+    ) {
+        message =
+            "Use at least 3 characters.";
+    } else if (
+        value.length > 80
+    ) {
+        message =
+            "Use 80 characters or fewer.";
+    }
+
+
+    return applyValidation(
+        elements.reviewTitle,
+        errors.title,
+        message
+    );
+}
+
+
+function validateProduct() {
+
+    const value =
+        elements.productName
+            .value
+            .trim();
+
+
+    let message = "";
+
+
+    if (!value) {
+        message =
+            "Product name is required.";
+    } else if (
+        value.length < 2
+    ) {
+        message =
+            "Use at least 2 characters.";
+    }
+
+
+    return applyValidation(
+        elements.productName,
+        errors.product,
+        message
+    );
+}
+
+
+function validateCategory() {
+
+    const valid =
+        [
+            "Technology",
+            "Education",
+            "Shopping",
+            "Home",
+            "Lifestyle"
+        ]
+            .includes(
+                elements.reviewCategory.value
+            );
+
+
+    return applyValidation(
+        elements.reviewCategory,
+        errors.category,
+        valid
+            ? ""
+            : "Please choose a category."
+    );
+}
+
+
+function validateRating() {
+
+    const valid =
+        selectedRating >= 1 &&
+        selectedRating <= 5;
+
+
+    errors.rating.textContent =
+        valid
+            ? ""
+            : "Please choose a star rating.";
+
+
+    elements.starInput.classList.toggle(
+        "invalid",
+        !valid
+    );
+
+
+    return valid;
+}
+
+
+function validateImage() {
+
+    const value =
+        elements.imageUrl
+            .value
+            .trim();
+
+
+    let message = "";
+
+
+    if (value) {
+
+        try {
+
+            const url =
+                new URL(value);
+
+
+            if (
+                ![
+                    "http:",
+                    "https:"
+                ].includes(
+                    url.protocol
+                )
+            ) {
+                message =
+                    "Use an http:// or https:// URL.";
+            }
+
+        } catch (error) {
+
+            message =
+                "Please enter a valid image URL.";
+        }
+    }
+
+
+    return applyValidation(
+        elements.imageUrl,
+        errors.image,
+        message
+    );
+}
+
+
+function validateSummary() {
+
+    const value =
+        elements.summary
+            .value
+            .trim();
+
+
+    let message = "";
+
+
+    if (!value) {
+        message =
+            "Short summary is required.";
+    } else if (
+        value.length < 10
+    ) {
+        message =
+            "Use at least 10 characters.";
+    } else if (
+        value.length > 200
+    ) {
+        message =
+            "Use 200 characters or fewer.";
+    }
+
+
+    return applyValidation(
+        elements.summary,
+        errors.summary,
+        message
+    );
+}
+
+
+function validateDescription() {
+
+    const value =
+        elements.description
+            .value
+            .trim();
+
+
+    let message = "";
+
+
+    if (!value) {
+        message =
+            "Full review is required.";
+    } else if (
+        value.length < 20
+    ) {
+        message =
+            "Use at least 20 characters.";
+    } else if (
+        value.length > 2000
+    ) {
+        message =
+            "Use 2000 characters or fewer.";
+    }
+
+
+    return applyValidation(
+        elements.description,
+        errors.description,
+        message
+    );
+}
+
+
+function applyValidation(
+    input,
+    errorElement,
+    message
+) {
+
+    errorElement.textContent =
+        message;
+
+
+    input.classList.toggle(
+        "invalid",
+        Boolean(message)
+    );
+
+
+    input.classList.toggle(
+        "valid",
+        !message &&
+        input.value.trim() !== ""
+    );
+
+
+    return !message;
+}
+
+
+function validateForm() {
+
+    return [
+        validateTitle(),
+        validateProduct(),
+        validateCategory(),
+        validateRating(),
+        validateImage(),
+        validateSummary(),
+        validateDescription()
+    ]
+        .every(Boolean);
+}
+
+
+/* =====================================================
+   FORM / COUNTERS / IMAGE PREVIEW
+===================================================== */
+
+function updateCounters() {
+
+    elements.titleCount.textContent =
+        elements.reviewTitle
+            .value
+            .length;
+
+
+    elements.summaryCount.textContent =
+        elements.summary
+            .value
+            .length;
+
+
+    elements.descriptionCount.textContent =
+        elements.description
+            .value
+            .length;
+}
+
+
+function updateImagePreview() {
+
+    const url =
+        elements.imageUrl
+            .value
+            .trim();
+
+
+    if (!url) {
+
+        elements.imagePreviewWrap.hidden =
+            true;
+
+        return;
+    }
+
+
+    if (!validateImage()) {
+
+        elements.imagePreviewWrap.hidden =
+            true;
+
+        return;
+    }
+
+
+    elements.imagePreviewWrap.hidden =
+        false;
+
+
+    elements.imagePreview.src =
+        url;
+
+
+    elements.imagePreview.onerror =
+        function () {
+
+            elements.imagePreview.src =
+                DEFAULT_IMAGE;
+        };
+}
+
+
+function getFormData() {
+
+    return {
+        title:
+            elements.reviewTitle
+                .value
+                .trim(),
+
+        product:
+            elements.productName
+                .value
+                .trim(),
+
+        category:
+            elements.reviewCategory.value,
+
+        rating:
+            selectedRating,
+
+        image:
+            elements.imageUrl
+                .value
+                .trim(),
+
+        summary:
+            elements.summary
+                .value
+                .trim(),
+
+        description:
+            elements.description
+                .value
+                .trim()
+    };
+}
+
+
+function resetForm() {
+
+    elements.reviewForm.reset();
+
+
+    elements.reviewId.value =
+        "";
+
+
+    setRating(0);
+
+
+    elements.submitButton.textContent =
+        "Publish Review";
+
+
+    elements.cancelEditButton.hidden =
+        true;
+
+
+    elements.formHeading.textContent =
+        "Write a Product Review";
+
+
+    Object
+        .values(errors)
+        .forEach(
+            (element) =>
+                element.textContent = ""
+        );
+
+
+    elements.reviewForm
+        .querySelectorAll(
+            ".valid, .invalid"
+        )
+        .forEach(
+            function (element) {
+
+                element.classList.remove(
+                    "valid",
+                    "invalid"
+                );
+            }
+        );
+
+
+    elements.imagePreviewWrap.hidden =
+        true;
+
+
+    updateCounters();
+
+    clearDraft();
+}
+
+
+/* =====================================================
+   CREATE / EDIT
+===================================================== */
+
+function saveReview(event) {
+
+    event.preventDefault();
+
+
+    if (!validateForm()) {
+
+        setFormMessage(
+            "Please correct the highlighted fields before publishing.",
+            "error"
+        );
+
+
+        const firstInvalid =
+            elements.reviewForm
+                .querySelector(
+                    ".invalid"
+                );
+
+
+        if (firstInvalid) {
+            firstInvalid.focus();
+        }
+
+
+        return;
+    }
+
+
+    const formData =
+        getFormData();
+
+
+    const editId =
+        Number(
+            elements.reviewId.value
+        );
+
+
+    if (editId) {
+
+        reviews =
+            reviews.map(
+                function (review) {
+
+                    if (
+                        review.id !== editId
+                    ) {
+                        return review;
+                    }
+
+
+                    if (
+                        review.reviewerId !==
+                        currentUser.id
+                    ) {
+                        return review;
+                    }
+
+
+                    return {
+                        ...review,
+                        ...formData
+                    };
+                }
+            );
+
+
+        showToast(
+            "Review updated successfully."
+        );
+
+
+        setFormMessage(
+            "Review updated successfully.",
+            "success"
+        );
+
+    } else {
+
+        const newReview = {
+            id:
+                Date.now(),
+
+            ...formData,
+
+            reviewerId:
+                currentUser.id,
+
+            reviewerName:
+                currentUser.name,
+
+            dateAdded:
+                new Date()
+                    .toISOString()
+        };
+
+
+        reviews.unshift(
+            newReview
+        );
+
+
+        showToast(
+            "Your review has been published."
+        );
+
+
+        setFormMessage(
+            "Your review has been published.",
+            "success"
+        );
+    }
+
 
     saveReviews();
+
+    resetForm();
+
     renderReviews();
-    resetReviewForm();
 
-    elements.formMessage.textContent =
-      existingId
-        ? "Review updated successfully."
-        : "Review published successfully.";
-
-    elements.formMessage.className =
-      "form-message success";
 
     document
-      .getElementById("review-list")
-      .scrollIntoView({
-        behavior: "smooth"
-      });
-  }
-);
+        .getElementById(
+            "review-list"
+        )
+        .scrollIntoView({
+            behavior: "smooth"
+        });
+}
 
-/*
-  Handle buttons inside review cards.
-*/
-elements.container.addEventListener(
-  "click",
-  function (event) {
-    const button =
-      event.target.closest(
-        "button[data-action]"
-      );
 
-    if (!button) {
-      return;
-    }
+function editReview(reviewId) {
 
-    const reviewId =
-      Number(button.dataset.id);
+    const review =
+        reviews.find(
+            (item) =>
+                item.id === reviewId
+        );
 
-    const action =
-      button.dataset.action;
 
-    if (action === "view") {
-      openReviewDialog(reviewId);
-    }
-
-    if (action === "edit") {
-      startEditingReview(reviewId);
-    }
-
-    if (action === "delete") {
-      deleteReview(reviewId);
-    }
-  }
-);
-
-/*
-  Search and filter event listeners.
-*/
-elements.searchInput.addEventListener(
-  "input",
-  renderReviews
-);
-
-elements.categoryFilter.addEventListener(
-  "change",
-  renderReviews
-);
-
-elements.ratingFilter.addEventListener(
-  "change",
-  renderReviews
-);
-
-elements.sortFilter.addEventListener(
-  "change",
-  renderReviews
-);
-
-/*
-  Update character counter.
-*/
-elements.reviewBody.addEventListener(
-  "input",
-  function () {
-    elements.characterCount.textContent =
-      elements.reviewBody.value.length;
-  }
-);
-
-/*
-  Cancel editing.
-*/
-elements.cancelEdit.addEventListener(
-  "click",
-  function () {
-    resetReviewForm();
-
-    elements.formMessage.textContent =
-      "Editing cancelled.";
-
-    elements.formMessage.className =
-      "form-message";
-  }
-);
-
-/*
-  Close modal using the close button.
-*/
-elements.closeDialog.addEventListener(
-  "click",
-  function () {
-    elements.reviewDialog.close();
-  }
-);
-
-/*
-  Close modal when clicking outside its content.
-*/
-elements.reviewDialog.addEventListener(
-  "click",
-  function (event) {
-    if (event.target === elements.reviewDialog) {
-      elements.reviewDialog.close();
-    }
-  }
-);
-
-/*
-  Close modal with Escape on browsers
-  that need manual handling.
-*/
-document.addEventListener(
-  "keydown",
-  function (event) {
     if (
-      event.key === "Escape" &&
-      elements.reviewDialog.open
+        !review ||
+        review.reviewerId !==
+            currentUser.id
     ) {
-      elements.reviewDialog.close();
+        return;
     }
-  }
+
+
+    closeReviewModal();
+
+
+    elements.reviewId.value =
+        review.id;
+
+
+    elements.reviewTitle.value =
+        review.title;
+
+
+    elements.productName.value =
+        review.product;
+
+
+    elements.reviewCategory.value =
+        review.category;
+
+
+    elements.imageUrl.value =
+        review.image || "";
+
+
+    elements.summary.value =
+        review.summary;
+
+
+    elements.description.value =
+        review.description;
+
+
+    setRating(
+        review.rating
+    );
+
+
+    elements.submitButton.textContent =
+        "Save Changes";
+
+
+    elements.cancelEditButton.hidden =
+        false;
+
+
+    elements.formHeading.textContent =
+        "Edit Your Review";
+
+
+    updateCounters();
+
+    updateImagePreview();
+
+    saveDraft();
+
+
+    document
+        .getElementById(
+            "write-review"
+        )
+        .scrollIntoView({
+            behavior: "smooth"
+        });
+
+
+    elements.reviewTitle.focus();
+}
+
+
+/* =====================================================
+   DELETE
+===================================================== */
+
+function deleteReview(reviewId) {
+
+    const review =
+        reviews.find(
+            (item) =>
+                item.id === reviewId
+        );
+
+
+    if (
+        !review ||
+        review.reviewerId !==
+            currentUser.id
+    ) {
+        return;
+    }
+
+
+    const confirmed =
+        window.confirm(
+            `Delete your review "${review.title}"? This action cannot be undone.`
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    reviews =
+        reviews.filter(
+            (item) =>
+                item.id !== reviewId
+        );
+
+
+    saveReviews();
+
+    renderReviews();
+
+    closeReviewModal();
+
+
+    showToast(
+        "Review deleted."
+    );
+
+
+    if (
+        Number(
+            elements.reviewId.value
+        ) === reviewId
+    ) {
+        resetForm();
+    }
+}
+
+
+/* =====================================================
+   FILTER RESET
+===================================================== */
+
+function clearFilters() {
+
+    elements.searchInput.value =
+        "";
+
+
+    elements.categoryFilter.value =
+        "all";
+
+
+    elements.ratingFilter.value =
+        "all";
+
+
+    elements.sortFilter.value =
+        "newest";
+
+
+    saveFilterState();
+
+    renderReviews();
+}
+
+
+/* =====================================================
+   EVENT LISTENERS
+===================================================== */
+
+[
+    elements.searchInput,
+    elements.categoryFilter,
+    elements.ratingFilter,
+    elements.sortFilter
+]
+    .forEach(
+        function (control) {
+
+            control.addEventListener(
+                "input",
+                function () {
+
+                    saveFilterState();
+
+                    renderReviews();
+                }
+            );
+
+
+            control.addEventListener(
+                "change",
+                function () {
+
+                    saveFilterState();
+
+                    renderReviews();
+                }
+            );
+        }
+    );
+
+
+elements.clearFiltersButton
+    .addEventListener(
+        "click",
+        clearFilters
+    );
+
+
+elements.starInput
+    .addEventListener(
+        "click",
+        function (event) {
+
+            const button =
+                event.target.closest(
+                    "button[data-value]"
+                );
+
+
+            if (!button) {
+                return;
+            }
+
+
+            setRating(
+                Number(
+                    button.dataset.value
+                )
+            );
+
+
+            saveDraft();
+        }
+    );
+
+
+elements.reviewContainer
+    .addEventListener(
+        "click",
+        function (event) {
+
+            const button =
+                event.target.closest(
+                    "button[data-action]"
+                );
+
+
+            if (!button) {
+                return;
+            }
+
+
+            const reviewId =
+                Number(
+                    button.dataset.id
+                );
+
+
+            const review =
+                reviews.find(
+                    (item) =>
+                        item.id === reviewId
+                );
+
+
+            if (!review) {
+                return;
+            }
+
+
+            if (
+                button.dataset.action ===
+                "view"
+            ) {
+                openReviewModal(
+                    review
+                );
+            }
+
+
+            if (
+                button.dataset.action ===
+                "edit"
+            ) {
+                editReview(
+                    reviewId
+                );
+            }
+
+
+            if (
+                button.dataset.action ===
+                "delete"
+            ) {
+                deleteReview(
+                    reviewId
+                );
+            }
+        }
+    );
+
+
+elements.reviewForm
+    .addEventListener(
+        "submit",
+        saveReview
+    );
+
+
+elements.cancelEditButton
+    .addEventListener(
+        "click",
+        function () {
+
+            resetForm();
+
+            setFormMessage(
+                "Editing cancelled."
+            );
+        }
+    );
+
+
+elements.heroWriteButton
+    .addEventListener(
+        "click",
+        function () {
+
+            document
+                .getElementById(
+                    "write-review"
+                )
+                .scrollIntoView({
+                    behavior:
+                        "smooth"
+                });
+
+
+            elements.reviewTitle.focus();
+        }
+    );
+
+
+elements.closeModalButton
+    .addEventListener(
+        "click",
+        closeReviewModal
+    );
+
+
+elements.reviewModal
+    .addEventListener(
+        "click",
+        function (event) {
+
+            if (
+                event.target ===
+                elements.reviewModal
+            ) {
+                closeReviewModal();
+            }
+        }
+    );
+
+
+elements.modalActions
+    .addEventListener(
+        "click",
+        function (event) {
+
+            const button =
+                event.target.closest(
+                    "[data-modal-action]"
+                );
+
+
+            if (!button) {
+                return;
+            }
+
+
+            const reviewId =
+                selectedReviewId;
+
+
+            if (!reviewId) {
+                return;
+            }
+
+
+            if (
+                button.dataset.modalAction ===
+                "edit"
+            ) {
+                editReview(
+                    reviewId
+                );
+            }
+
+
+            if (
+                button.dataset.modalAction ===
+                "delete"
+            ) {
+                deleteReview(
+                    reviewId
+                );
+            }
+        }
+    );
+
+
+document.addEventListener(
+    "keydown",
+    function (event) {
+
+        if (
+            event.key ===
+                "Escape" &&
+            !elements.reviewModal.hidden
+        ) {
+            closeReviewModal();
+        }
+    }
 );
 
-/*
-  Initial page render.
-*/
-renderReviews();
+
+/* =====================================================
+   LIVE VALIDATION + AUTO DRAFT
+===================================================== */
+
+const liveValidationMap = [
+    [
+        elements.reviewTitle,
+        validateTitle
+    ],
+
+    [
+        elements.productName,
+        validateProduct
+    ],
+
+    [
+        elements.reviewCategory,
+        validateCategory
+    ],
+
+    [
+        elements.imageUrl,
+        function () {
+            validateImage();
+            updateImagePreview();
+        }
+    ],
+
+    [
+        elements.summary,
+        validateSummary
+    ],
+
+    [
+        elements.description,
+        validateDescription
+    ]
+];
+
+
+liveValidationMap
+    .forEach(
+        function (
+            [
+                input,
+                validator
+            ]
+        ) {
+
+            input.addEventListener(
+                "input",
+                function () {
+
+                    validator();
+
+                    updateCounters();
+
+                    saveDraft();
+                }
+            );
+
+
+            input.addEventListener(
+                "change",
+                function () {
+
+                    validator();
+
+                    saveDraft();
+                }
+            );
+
+
+            input.addEventListener(
+                "blur",
+                validator
+            );
+        }
+    );
+
+
+/* =====================================================
+   INITIALIZE
+===================================================== */
+
+function initializePage() {
+
+    elements.currentUserName.textContent =
+        currentUser.name;
+
+
+    elements.userAvatar.textContent =
+        getInitials(
+            currentUser.name
+        );
+
+
+    restoreFilterState();
+
+    restoreDraft();
+
+    renderReviews();
+}
+
+
+initializePage();
