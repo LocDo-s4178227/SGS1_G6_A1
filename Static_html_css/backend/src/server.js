@@ -496,6 +496,254 @@ app.post("/api/orders/checkout/:sessionId", (req, res) => {
   return res.status(201).json({ success: true, order });
 });
 
+// ==========================================
+// --- DISCUSSION FORUM API ROUTES ---
+// ==========================================
+
+// 1. GET /api/threads - Fetch all threads (Supports Search by title/content, Filter by status, & Sorting)
+app.get("/api/threads", (req, res) => {
+  let results = [...(db.threads || [])];
+  const { title, content, status, sort } = req.query;
+
+  // Search by Title
+  if (isNonEmptyString(title)) {
+    results = results.filter((t) =>
+      t.title.toLowerCase().includes(title.trim().toLowerCase())
+    );
+  }
+
+  // Search by Content
+  if (isNonEmptyString(content)) {
+    results = results.filter((t) =>
+      t.content.toLowerCase().includes(content.trim().toLowerCase())
+    );
+  }
+
+  // Filter by Status (Open, Negotiating, Resolved, Closed, etc.)
+  if (isNonEmptyString(status)) {
+    results = results.filter(
+      (t) => t.status.toLowerCase() === status.trim().toLowerCase()
+    );
+  }
+
+  // Sorting logic
+  if (sort === "oldest") {
+    results.sort((a, b) => new Date(a.posted_at) - new Date(b.posted_at));
+  } else if (sort === "title_asc") {
+    results.sort((a, b) => a.title.localeCompare(b.title));
+  } else if (sort === "title_desc") {
+    results.sort((a, b) => b.title.localeCompare(a.title));
+  } else {
+    // Default: Newest first
+    results.sort((a, b) => new Date(b.posted_at) - new Date(a.posted_at));
+  }
+
+  res.json({ success: true, count: results.length, threads: results });
+});
+
+// 2. GET /api/threads/:id - Fetch single thread details along with its replies
+app.get("/api/threads/:id", (req, res) => {
+  const thread = (db.threads || []).find((t) => t.id === req.params.id);
+  if (!thread) {
+    return res.status(404).json({ success: false, message: "Thread not found" });
+  }
+
+  const threadReplies = (db.replies || []).filter(
+    (r) => r.threadId === req.params.id
+  );
+  
+  // Sort replies chronologically (oldest to newest for smooth reading)
+  threadReplies.sort((a, b) => new Date(a.posted_at) - new Date(b.posted_at));
+
+  res.json({
+    success: true,
+    thread: {
+      ...thread,
+      replies: threadReplies
+    }
+  });
+});
+
+// 3. POST /api/threads - Create a new thread (Validation: Title >= 5 chars, Content >= 10 chars)
+app.post("/api/threads", (req, res) => {
+  const { author, title, content, image, status } = req.body || {};
+
+  if (!isNonEmptyString(author)) {
+    return res.status(400).json({ success: false, message: "Author is required" });
+  }
+  if (!isNonEmptyString(title) || title.trim().length < 5) {
+    return res.status(400).json({ success: false, message: "Title must be at least 5 characters" });
+  }
+  if (!isNonEmptyString(content) || content.trim().length < 10) {
+    return res.status(400).json({ success: false, message: "Content must be at least 10 characters" });
+  }
+
+  const id = generateId("thread");
+  const newThread = {
+    id,
+    author: author.trim(),
+    title: title.trim(),
+    content: content.trim(),
+    posted_at: new Date().toISOString(),
+    image: image || "",
+    status: status || "Open",
+    replyCount: 0
+  };
+
+  if (!db.threads) db.threads = [];
+  db.threads.push(newThread);
+  saveDb(db);
+
+  return res.status(201).json({ success: true, thread: newThread });
+});
+
+// 4. PUT /api/threads/:id - Update an existing thread
+app.put("/api/threads/:id", (req, res) => {
+  const thread = (db.threads || []).find((t) => t.id === req.params.id);
+  if (!thread) {
+    return res.status(404).json({ success: false, message: "Thread not found" });
+  }
+
+  const { title, content, image, status } = req.body || {};
+
+  if (typeof title !== "undefined") {
+    if (!isNonEmptyString(title) || title.trim().length < 5) {
+      return res.status(400).json({ success: false, message: "Title must be at least 5 characters" });
+    }
+    thread.title = title.trim();
+  }
+
+  if (typeof content !== "undefined") {
+    if (!isNonEmptyString(content) || content.trim().length < 10) {
+      return res.status(400).json({ success: false, message: "Content must be at least 10 characters" });
+    }
+    thread.content = content.trim();
+  }
+
+  if (typeof image !== "undefined") thread.image = image;
+  if (typeof status !== "undefined") thread.status = status;
+
+  saveDb(db);
+  return res.json({ success: true, thread });
+});
+
+// 5. DELETE /api/threads/:id - Delete a thread and cascade delete all its associated replies
+app.delete("/api/threads/:id", (req, res) => {
+  const initialLength = (db.threads || []).length;
+  db.threads = (db.threads || []).filter((t) => t.id !== req.params.id);
+
+  if (db.threads.length === initialLength) {
+    return res.status(404).json({ success: false, message: "Thread not found" });
+  }
+
+  // Cascade delete related replies
+  db.replies = (db.replies || []).filter((r) => r.threadId !== req.params.id);
+
+  saveDb(db);
+  return res.json({ success: true, message: "Thread and all associated replies deleted successfully" });
+});
+
+// 6. POST /api/threads/:id/replies - Post a reply / quote offer under a thread
+app.post("/api/threads/:id/replies", (req, res) => {
+  const thread = (db.threads || []).find((t) => t.id === req.params.id);
+  if (!thread) {
+    return res.status(404).json({ success: false, message: "Thread not found" });
+  }
+
+  const { author, title, content, price, image } = req.body || {};
+
+  if (!isNonEmptyString(author)) {
+    return res.status(400).json({ success: false, message: "Author is required" });
+  }
+  if (!isNonEmptyString(title)) {
+    return res.status(400).json({ success: false, message: "Reply title is required" });
+  }
+  if (!isNonEmptyString(content)) {
+    return res.status(400).json({ success: false, message: "Reply content is required" });
+  }
+
+  const parsedPrice = price !== undefined ? Number(price) : 0;
+  if (Number.isNaN(parsedPrice) || parsedPrice < 0) {
+    return res.status(400).json({ success: false, message: "Price must be a valid non-negative number" });
+  }
+
+  const newReply = {
+    id: generateId("reply"),
+    threadId: req.params.id,
+    author: author.trim(),
+    title: title.trim(),
+    content: content.trim(),
+    price: parsedPrice,
+    posted_at: new Date().toISOString(),
+    image: image || ""
+  };
+
+  if (!db.replies) db.replies = [];
+  db.replies.push(newReply);
+  
+  // Increment thread reply count
+  thread.replyCount = (thread.replyCount || 0) + 1;
+
+  saveDb(db);
+  return res.status(201).json({ success: true, reply: newReply });
+});
+
+// 7. PUT /api/replies/:replyId - Update a reply / quote offer
+app.put("/api/replies/:replyId", (req, res) => {
+  const reply = (db.replies || []).find((r) => r.id === req.params.replyId);
+  if (!reply) {
+    return res.status(404).json({ success: false, message: "Reply not found" });
+  }
+
+  const { title, content, price, image } = req.body || {};
+
+  if (typeof title !== "undefined") {
+    if (!isNonEmptyString(title)) {
+      return res.status(400).json({ success: false, message: "Reply title cannot be empty" });
+    }
+    reply.title = title.trim();
+  }
+
+  if (typeof content !== "undefined") {
+    if (!isNonEmptyString(content)) {
+      return res.status(400).json({ success: false, message: "Reply content cannot be empty" });
+    }
+    reply.content = content.trim();
+  }
+
+  if (typeof price !== "undefined") {
+    const parsedPrice = Number(price);
+    if (Number.isNaN(parsedPrice) || parsedPrice < 0) {
+      return res.status(400).json({ success: false, message: "Price must be a valid non-negative number" });
+    }
+    reply.price = parsedPrice;
+  }
+
+  if (typeof image !== "undefined") reply.image = image;
+
+  saveDb(db);
+  return res.json({ success: true, reply });
+});
+
+// 8. DELETE /api/replies/:replyId - Delete a single reply
+app.delete("/api/replies/:replyId", (req, res) => {
+  const reply = (db.replies || []).find((r) => r.id === req.params.replyId);
+  if (!reply) {
+    return res.status(404).json({ success: false, message: "Reply not found" });
+  }
+
+  // Decrement thread reply count
+  const thread = (db.threads || []).find((t) => t.id === reply.threadId);
+  if (thread && thread.replyCount > 0) {
+    thread.replyCount -= 1;
+  }
+
+  db.replies = db.replies.filter((r) => r.id !== req.params.replyId);
+
+  saveDb(db);
+  return res.json({ success: true, message: "Reply deleted successfully" });
+});
+
 app.use((_req, res) => {
   res.status(404).json({ success: false, message: "Route not found" });
 });
