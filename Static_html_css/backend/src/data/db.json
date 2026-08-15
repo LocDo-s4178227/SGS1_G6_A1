@@ -125,5 +125,39 @@
     }
   },
   "carts": {},
-  "orders": []
+  "orders": [],
+  "threads": [
+    {
+      "id": "desk-001",
+      "author": "Alex",
+      "title": "Need a custom ergonomic wooden desk",
+      "content": "I'm looking for a carpenter or design student who can build an L-shaped wooden desk for my home office. I need it to be exactly 160cm x 120cm to fit my corner space. Solid wood preferred, open to material suggestions like oak or walnut. Budget is around $400.",
+      "posted_at": "2026-10-25T10:30:00.000Z",
+      "image": "../images/ergonomic_wooden_desk.png",
+      "status": "Open",
+      "replyCount": 1
+    },
+    {
+      "id": "kbd-002",
+      "author": "SarahM",
+      "title": "3D Printed Mechanical Keyboard Case",
+      "content": "I have the STL files but need someone with a resin printer to print a 60% keyboard case in matte black...",
+      "posted_at": "2026-10-24T14:15:00.000Z",
+      "image": "../images/mechanical_keyboard_case.png",
+      "status": "Negotiating",
+      "replyCount": 5
+    }
+  ],
+  "replies": [
+    {
+      "id": "reply-001",
+      "threadId": "desk-001",
+      "author": "MakerJohn",
+      "title": "Re: Can build this in solid oak",
+      "content": "Hi Alex, I'm an industrial design student and have access to the workshop. I can definitely build this using solid oak. Would you be open to a digital 3D mockup first?",
+      "price": 420.00,
+      "posted_at": "2026-10-25T11:15:00.000Z",
+      "image": ""
+    }
+  ]
 }

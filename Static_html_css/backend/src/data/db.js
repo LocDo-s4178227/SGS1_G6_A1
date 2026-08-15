@@ -24,7 +24,9 @@ const DEFAULT_DB = {
     }
   },
   carts: {},
-  orders: []
+  orders: [],
+  threads: [],
+  replies: []
 };
 
 const DATA_FILE = path.join(__dirname, "db.json");
@@ -42,7 +44,9 @@ function loadDb() {
       ...parsed,
       users: { ...structuredClone(DEFAULT_DB).users, ...(parsed.users || {}) },
       carts: parsed.carts || {},
-      orders: parsed.orders || []
+      orders: parsed.orders || [],
+      threads: parsed.threads || [],
+      replies: parsed.replies || []
     };
   } catch (_error) {
     return structuredClone(DEFAULT_DB);
