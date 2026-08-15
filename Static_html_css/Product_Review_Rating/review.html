@@ -1,200 +1,494 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Browse, search and publish product reviews on Rshop Marketplace.">
-  <title>Reviews & Ratings | Rshop</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link rel="stylesheet" href="../css/top-nav.css">
-  <link rel="stylesheet" href="style.css">
-  <script src="review.js" defer></script>
+    <title>RShop - Product Reviews & Ratings</title>
+
+    <link rel="stylesheet" href="style.css">
+    <script src="review.js" defer></script>
 </head>
+
 <body>
-  <div id="rshop-shared-nav"></div>
-  
 
-  <main>
-    <section class="review-hero" aria-labelledby="hero-title">
-      <div class="hero-content">
-        <p class="eyebrow">Community feedback</p>
-        <h1 id="hero-title">Reviews that help people buy with confidence</h1>
-        <p class="hero-copy">Explore customer experiences, compare ratings and share helpful feedback about products listed on Rshop.</p>
-        <div class="hero-actions">
-          <a class="button button-primary" href="#write-review">Write a review</a>
-          <a class="button button-secondary" href="#review-list">Browse reviews</a>
-        </div>
-      </div>
+<!-- =====================================================
+     TOP NAVIGATION
+===================================================== -->
 
-      <div class="hero-summary" aria-label="Review summary">
-        <div class="summary-score">
-          <strong id="averageRating">4.5</strong>
-          <span class="summary-stars" aria-hidden="true">★★★★★</span>
-          <span id="reviewCount">Based on 4 reviews</span>
+<header class="site-header">
+    <div class="nav-shell">
+
+        <a href="#" class="brand" aria-label="RShop home">
+            <span class="brand-mark">R</span>
+            <span>RShop</span>
+        </a>
+
+        <nav class="main-nav" aria-label="Main navigation">
+            <a href="#">Home</a>
+            <a href="#" class="active">Reviews</a>
+            <a href="#write-review">Write a Review</a>
+        </nav>
+
+        <div class="user-pill" title="Current signed-in user">
+            <span class="avatar" id="userAvatar">AN</span>
+            <span>
+                <small>Signed in as</small>
+                <strong id="currentUserName">Alex Nguyen</strong>
+            </span>
         </div>
-        <div class="summary-bars" id="ratingBars"></div>
-      </div>
+
+    </div>
+</header>
+
+
+<main>
+
+    <!-- =================================================
+         HERO
+    ================================================== -->
+
+    <section class="hero">
+
+        <div class="hero-copy">
+            <span class="eyebrow">COMMUNITY REVIEWS</span>
+
+            <h1>Make better choices with real product experiences.</h1>
+
+            <p>
+                Explore ratings from other users, compare feedback,
+                and share your own experience with the community.
+            </p>
+
+            <div class="hero-actions">
+                <button type="button" class="btn btn-primary" id="heroWriteButton">
+                    Write a Review
+                </button>
+
+                <a href="#review-list" class="btn btn-secondary">
+                    Browse Reviews
+                </a>
+            </div>
+        </div>
+
+
+        <div class="hero-rating-card" aria-label="Review summary">
+
+            <p class="hero-rating-label">Community rating</p>
+
+            <div class="hero-rating-number">
+                <strong id="averageRating">0.0</strong>
+                <span>/ 5</span>
+            </div>
+
+            <div class="stars large" id="averageStars" aria-hidden="true">
+                ☆☆☆☆☆
+            </div>
+
+            <p id="totalReviewText">Based on 0 reviews</p>
+
+            <div class="rating-bars" id="ratingBars"></div>
+
+        </div>
+
     </section>
 
-    <section class="toolbar" aria-labelledby="find-reviews-title">
-      <div>
-        <p class="section-kicker">Discover feedback</p>
-        <h2 id="find-reviews-title">Find reviews</h2>
-      </div>
 
-      <div class="toolbar-controls">
-        <label class="field search-field">
-          <span>Search</span>
-          <input id="searchInput" type="search" placeholder="Product, title or keyword">
-        </label>
+    <!-- =================================================
+         SEARCH / FILTER / SORT
+    ================================================== -->
 
-        <label class="field">
-          <span>Category</span>
-          <select id="categoryFilter">
-            <option value="all">All categories</option>
-            <option value="Furniture">Furniture</option>
-            <option value="Technology">Technology</option>
-            <option value="Home">Home</option>
-            <option value="Lifestyle">Lifestyle</option>
-          </select>
-        </label>
+    <section class="toolbar-section" aria-labelledby="browseHeading">
 
-        <label class="field">
-          <span>Rating</span>
-          <select id="ratingFilter">
-            <option value="all">All ratings</option>
-            <option value="5">5 stars</option>
-            <option value="4">4 stars & up</option>
-            <option value="3">3 stars & up</option>
-          </select>
-        </label>
+        <div class="section-heading">
+            <div>
+                <span class="eyebrow dark">EXPLORE</span>
+                <h2 id="browseHeading">Browse Reviews</h2>
+            </div>
 
-        <label class="field">
-          <span>Sort</span>
-          <select id="sortFilter">
-            <option value="newest">Newest first</option>
-            <option value="highest">Highest rated</option>
-            <option value="lowest">Lowest rated</option>
-          </select>
-        </label>
-      </div>
+            <p id="resultCount" class="result-count" aria-live="polite"></p>
+        </div>
+
+
+        <div class="review-toolbar">
+
+            <div class="search-control">
+                <label for="searchInput">Search reviews</label>
+
+                <div class="input-with-icon">
+                    <span aria-hidden="true">⌕</span>
+
+                    <input
+                        type="search"
+                        id="searchInput"
+                        placeholder="Search product, title, reviewer..."
+                        autocomplete="off"
+                    >
+                </div>
+            </div>
+
+
+            <div>
+                <label for="categoryFilter">Category</label>
+
+                <select id="categoryFilter">
+                    <option value="all">All Categories</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Education">Education</option>
+                    <option value="Shopping">Shopping</option>
+                    <option value="Home">Home</option>
+                    <option value="Lifestyle">Lifestyle</option>
+                </select>
+            </div>
+
+
+            <div>
+                <label for="ratingFilter">Rating</label>
+
+                <select id="ratingFilter">
+                    <option value="all">All Ratings</option>
+                    <option value="5">5 stars only</option>
+                    <option value="4">4 stars & above</option>
+                    <option value="3">3 stars & above</option>
+                    <option value="2">2 stars & above</option>
+                    <option value="1">1 star & above</option>
+                </select>
+            </div>
+
+
+            <div>
+                <label for="sortFilter">Sort by</label>
+
+                <select id="sortFilter">
+                    <option value="newest">Newest first</option>
+                    <option value="oldest">Oldest first</option>
+                    <option value="highest">Highest rating</option>
+                    <option value="lowest">Lowest rating</option>
+                    <option value="az">Product A-Z</option>
+                </select>
+            </div>
+
+        </div>
+
     </section>
 
-    <div class="page-grid">
-      <section class="reviews-panel" id="review-list" aria-labelledby="latest-reviews-title">
-        <div class="section-heading-row">
-          <div>
-            <p class="section-kicker">Verified community opinions</p>
-            <h2 id="latest-reviews-title">Latest reviews</h2>
-          </div>
-          <p id="resultCount" class="result-count" aria-live="polite"></p>
-        </div>
+
+    <!-- =================================================
+         REVIEW LIST
+    ================================================== -->
+
+    <section class="review-section" id="review-list">
 
         <div id="emptyState" class="empty-state" hidden>
-          <h3>No reviews found</h3>
-          <p>Try changing the search term or filter options.</p>
+            <div class="empty-icon">☆</div>
+            <h3>No reviews found</h3>
+            <p>Try changing your search or filters.</p>
+            <button type="button" class="btn btn-secondary" id="clearFiltersButton">
+                Clear Filters
+            </button>
         </div>
 
-        <div id="reviewContainer" class="review-list"></div>
-      </section>
+        <div class="review-grid" id="reviewContainer"></div>
 
-      <aside class="review-sidebar">
-        <section class="form-card" id="write-review" aria-labelledby="write-review-title">
-          <p class="section-kicker">Share your experience</p>
-          <h2 id="write-review-title">Write a review</h2>
-          <p class="form-intro">Helpful reviews are specific, respectful and based on real product experience.</p>
+    </section>
 
-          <form id="reviewForm">
-            <input id="reviewId" type="hidden">
 
-            <label class="field">
-              <span>Review title</span>
-              <input id="reviewTitle" type="text" maxlength="80" required placeholder="What stood out?">
-            </label>
+    <!-- =================================================
+         WRITE / EDIT REVIEW
+    ================================================== -->
 
-            <label class="field">
-              <span>Product name</span>
-              <input id="productName" type="text" maxlength="80" required placeholder="Example: Ergonomic Wooden Desk">
-            </label>
+    <section class="form-section" id="write-review">
 
-            <div class="form-row">
-              <label class="field">
-                <span>Category</span>
+        <div class="form-intro">
+            <span class="eyebrow dark">YOUR EXPERIENCE MATTERS</span>
+            <h2 id="formHeading">Write a Product Review</h2>
+
+            <p>
+                Share useful, honest feedback to help other customers
+                make informed decisions.
+            </p>
+
+            <div class="form-tips">
+                <p><strong>Good reviews are specific.</strong></p>
+                <ul>
+                    <li>Explain what you liked or disliked.</li>
+                    <li>Describe how you used the product.</li>
+                    <li>Keep feedback respectful and relevant.</li>
+                </ul>
+            </div>
+        </div>
+
+
+        <form id="reviewForm" class="review-form" novalidate>
+
+            <input type="hidden" id="reviewId">
+
+
+            <div class="field full">
+                <label for="reviewTitle">
+                    Review title
+                    <span>*</span>
+                </label>
+
+                <input
+                    type="text"
+                    id="reviewTitle"
+                    placeholder="Review title"
+                    minlength="3"
+                    maxlength="80"
+                    required
+                >
+
+                <div class="field-meta">
+                    <small class="error-text" id="titleError"></small>
+                    <small><span id="titleCount">0</span>/80</small>
+                </div>
+            </div>
+
+
+            <div class="field">
+                <label for="productName">
+                    Product name
+                    <span>*</span>
+                </label>
+
+                <input
+                    type="text"
+                    id="productName"
+                    placeholder="Product name"
+                    minlength="2"
+                    maxlength="100"
+                    required
+                >
+
+                <small class="error-text" id="productError"></small>
+            </div>
+
+
+            <div class="field">
+                <label for="reviewCategory">
+                    Category
+                    <span>*</span>
+                </label>
+
                 <select id="reviewCategory" required>
-                  <option value="">Select</option>
-                  <option value="Furniture">Furniture</option>
-                  <option value="Technology">Technology</option>
-                  <option value="Home">Home</option>
-                  <option value="Lifestyle">Lifestyle</option>
+                    <option value="">Choose a category</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Education">Education</option>
+                    <option value="Shopping">Shopping</option>
+                    <option value="Home">Home</option>
+                    <option value="Lifestyle">Lifestyle</option>
                 </select>
-              </label>
 
-              <label class="field">
-                <span>Rating</span>
-                <select id="reviewRating" required>
-                  <option value="">Select</option>
-                  <option value="5">5 - Excellent</option>
-                  <option value="4">4 - Very good</option>
-                  <option value="3">3 - Good</option>
-                  <option value="2">2 - Fair</option>
-                  <option value="1">1 - Poor</option>
-                </select>
-              </label>
+                <small class="error-text" id="categoryError"></small>
             </div>
 
-            <label class="field">
-              <span>Your name</span>
-              <input id="reviewerName" type="text" maxlength="60" required placeholder="Display name">
-            </label>
 
-            <label class="field">
-              <span>Image path or URL <small>(optional)</small></span>
-              <input id="reviewImage" type="text" placeholder="../images/product.png">
-            </label>
+            <fieldset class="field full rating-field">
+                <legend>
+                    Star rating
+                    <span>*</span>
+                </legend>
 
-            <label class="field">
-              <span>Review</span>
-              <textarea id="reviewBody" minlength="20" maxlength="900" required placeholder="Describe quality, value, usability and your overall experience."></textarea>
-              <small class="character-count"><span id="characterCount">0</span>/900</small>
-            </label>
+                <div class="star-input" id="starInput" aria-label="Choose star rating">
 
-            <div class="form-actions">
-              <button class="button button-primary" type="submit" id="submitButton">Publish review</button>
-              <button class="button button-ghost" type="button" id="cancelEdit" hidden>Cancel edit</button>
+                    <button type="button" data-value="1" aria-label="1 star">★</button>
+                    <button type="button" data-value="2" aria-label="2 stars">★</button>
+                    <button type="button" data-value="3" aria-label="3 stars">★</button>
+                    <button type="button" data-value="4" aria-label="4 stars">★</button>
+                    <button type="button" data-value="5" aria-label="5 stars">★</button>
+
+                    <span id="ratingText">Select a rating</span>
+
+                </div>
+
+                <input type="hidden" id="reviewRating" value="">
+
+                <small class="error-text" id="ratingError"></small>
+            </fieldset>
+
+
+            <div class="field full">
+                <label for="imageUrl">Thumbnail image URL</label>
+
+                <input
+                    type="url"
+                    id="imageUrl"
+                    placeholder="Thumbnail image URL"
+                >
+
+                <small class="helper-text">
+                    Optional. Use an http:// or https:// image URL.
+                </small>
+
+                <small class="error-text" id="imageError"></small>
+
+                <div class="image-preview-wrap" id="imagePreviewWrap" hidden>
+                    <img id="imagePreview" alt="Review image preview">
+                </div>
             </div>
-            <p id="formMessage" class="form-message" aria-live="polite"></p>
-          </form>
-        </section>
 
-        <section class="guidelines-card" aria-labelledby="guidelines-title">
-          <h2 id="guidelines-title">Review guidelines</h2>
-          <ul>
-            <li>Focus on your direct product experience.</li>
-            <li>Explain both strengths and limitations.</li>
-            <li>Do not include private or offensive information.</li>
-          </ul>
-        </section>
-      </aside>
+
+            <div class="field full">
+                <label for="summary">
+                    Short summary
+                    <span>*</span>
+                </label>
+
+                <textarea
+                    id="summary"
+                    placeholder="Short summary"
+                    minlength="10"
+                    maxlength="200"
+                    required
+                ></textarea>
+
+                <div class="field-meta">
+                    <small class="error-text" id="summaryError"></small>
+                    <small><span id="summaryCount">0</span>/200</small>
+                </div>
+            </div>
+
+
+            <div class="field full">
+                <label for="description">
+                    Full review
+                    <span>*</span>
+                </label>
+
+                <textarea
+                    id="description"
+                    class="large-textarea"
+                    placeholder="Full review"
+                    minlength="20"
+                    maxlength="2000"
+                    required
+                ></textarea>
+
+                <div class="field-meta">
+                    <small class="error-text" id="descriptionError"></small>
+                    <small><span id="descriptionCount">0</span>/2000</small>
+                </div>
+            </div>
+
+
+            <div class="draft-note full" id="draftNote">
+                Your unfinished review is saved automatically in this browser.
+            </div>
+
+
+            <div class="form-buttons full">
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                    id="submitButton"
+                >
+                    Publish Review
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    id="cancelEditButton"
+                    hidden
+                >
+                    Cancel Edit
+                </button>
+
+            </div>
+
+
+            <p
+                id="formMessage"
+                class="form-message full"
+                aria-live="polite"
+            ></p>
+
+        </form>
+
+    </section>
+
+</main>
+
+
+<!-- =====================================================
+     REVIEW DETAIL MODAL
+===================================================== -->
+
+<div
+    class="modal-backdrop"
+    id="reviewModal"
+    hidden
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modalTitle"
+>
+
+    <div class="modal">
+
+        <button
+            type="button"
+            class="modal-close"
+            id="closeModalButton"
+            aria-label="Close review detail"
+        >
+            ×
+        </button>
+
+
+        <div class="modal-image-wrap">
+            <img id="modalImage" alt="Review image">
+        </div>
+
+
+        <div class="modal-content">
+
+            <div class="review-card-topline">
+                <span class="category-badge" id="modalCategory"></span>
+                <div class="stars" id="modalStars"></div>
+            </div>
+
+            <h2 id="modalTitle"></h2>
+
+            <p class="product-title" id="modalProduct"></p>
+
+            <p class="modal-description" id="modalDescription"></p>
+
+            <div class="review-author">
+                <span class="avatar" id="modalAvatar"></span>
+
+                <span>
+                    <strong id="modalReviewer"></strong>
+                    <small id="modalDate"></small>
+                </span>
+            </div>
+
+            <div class="modal-actions" id="modalActions"></div>
+
+        </div>
+
     </div>
-  </main>
 
-  <dialog id="reviewDialog" class="review-dialog">
-    <button id="closeDialog" class="dialog-close" type="button" aria-label="Close review">×</button>
-    <div id="dialogContent"></div>
-  </dialog>
+</div>
 
-  <footer class="site-footer">
-    <div>
-      <strong>Rshop</strong>
-      <p>Community-powered product discovery.</p>
-    </div>
-    <nav aria-label="Footer navigation">
-      <a href="../homepage/homepage.html">Home</a>
-      <a href="../shopping_cart/products.html">Marketplace</a>
-      <a href="../sitemap/sitemap.html">Sitemap</a>
-    </nav>
-    <p>© 2026 Rshop. RMIT Studio Project.</p>
-  </footer>
-  <script src="../components/shared-nav.js"></script>
+
+<!-- =====================================================
+     TOAST
+===================================================== -->
+
+<div
+    class="toast"
+    id="toast"
+    role="status"
+    aria-live="polite"
+    hidden
+></div>
+
+
+<footer class="site-footer">
+    <p>© 2026 RShop. Product reviews from our community.</p>
+</footer>
+
 </body>
 </html>
