@@ -72,7 +72,7 @@
 
                     <div class="form-group">
                         <label for="regPassword">Password</label>
-                        <input type="password" id="regPassword" required placeholder="Min 8 chars" minlength="8">
+                        <input type="password" id="regPassword" required placeholder="8+ chars with upper, lower, number, symbol" minlength="8">
                         <div class="password-strength">
                             <div class="password-strength-bar" id="strengthBar"></div>
                         </div>
@@ -166,7 +166,7 @@
         </div>
     </div>
 
-    <script src="js/main.js"></script>
+    <script src="js/user-account.js"></script>
     <script>
         // Form Toggle Functions
         function showLoginForm() {
@@ -251,6 +251,10 @@
             else bar.classList.add('strength-strong');
         }
 
+        function isStrongPasswordMatch(password) {
+            return UserAccountAPI.isStrongPassword(password);
+        }
+
         // Event Listeners for Form Toggle
         document.getElementById('toRegisterLink').addEventListener('click', showRegisterForm);
         document.getElementById('toLoginLink').addEventListener('click', showLoginForm);
@@ -285,19 +289,18 @@
             document.getElementById('loginLoading').style.display = 'block';
 
             try {
-                const response = await fetch('/api/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: usernameOrEmail, email: usernameOrEmail, password })
+                const data = await UserAccountAPI.login({
+                    username: usernameOrEmail,
+                    email: usernameOrEmail,
+                    password
                 });
-
-                const data = await response.json();
 
                 if (data.success) {
                     const userId = data.user.id || data.user._id;
                     const userRole = Array.isArray(data.user.userType) ? data.user.userType[0] : (data.user.role || 'poster');
+                    localStorage.setItem('authToken', data.token || '');
                     localStorage.setItem('userId', userId);
-                    localStorage.setItem('username', data.user.username);
+                    localStorage.setItem('username', data.user.username || data.user.email || '');
                     localStorage.setItem('userType', userRole);
                     localStorage.setItem('user', JSON.stringify(data.user));
                     showAlert('loginAlert', 'Login successful! Redirecting...', 'success');
@@ -340,8 +343,8 @@
                 hasErrors = true;
             }
 
-            if (!/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9])/.test(password)) {
-                showError('regPasswordError', 'Password must include uppercase, lowercase, number, and special character');
+            if (!isStrongPasswordMatch(password)) {
+                showError('regPasswordError', 'Password must be at least 8 chars and include uppercase, lowercase, number, and special character');
                 hasErrors = true;
             }
 
@@ -362,13 +365,13 @@
             document.getElementById('registerLoading').style.display = 'block';
 
             try {
-                const response = await fetch('/api/auth/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, email, password, role, userType: role })
+                const data = await UserAccountAPI.register({
+                    username,
+                    email,
+                    password,
+                    role,
+                    userType: role
                 });
-
-                const data = await response.json();
 
                 if (data.success) {
                     showAlert('registerAlert', 'Account created successfully! Redirecting to login...', 'success');
@@ -402,13 +405,7 @@
             document.getElementById('forgotLoading').style.display = 'block';
 
             try {
-                const response = await fetch('/api/auth/forgot-password', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email })
-                });
-
-                const data = await response.json();
+                const data = await UserAccountAPI.forgotPassword(email);
 
                 if (data.success) {
                     showAlert('forgotAlert', 'Reset token issued. Continue to set your new password.', 'success');
@@ -440,8 +437,8 @@
             // Validation
             let hasErrors = false;
 
-            if (!/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9])/.test(newPassword)) {
-                showError('resetPasswordError', 'Password must include uppercase, lowercase, number, and special character');
+            if (!isStrongPasswordMatch(newPassword)) {
+                showError('resetPasswordError', 'Password must be at least 8 chars and include uppercase, lowercase, number, and special character');
                 hasErrors = true;
             }
 
@@ -457,13 +454,7 @@
             document.getElementById('resetLoading').style.display = 'block';
 
             try {
-                const response = await fetch('/api/auth/reset-password', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token, newPassword })
-                });
-
-                const data = await response.json();
+                const data = await UserAccountAPI.resetPassword(token, newPassword);
 
                 if (data.success) {
                     showAlert('resetAlert', 'Password reset successfully! Redirecting to login...', 'success');

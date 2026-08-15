@@ -23,9 +23,9 @@
     </div>
 
     <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('profile')">Profile</button>
-      <button class="tab-btn" onclick="switchTab('security')">Security</button>
-      <button class="tab-btn" onclick="switchTab('account')">Account</button>
+      <button class="tab-btn active" onclick="switchTab('profile', event)">Profile</button>
+      <button class="tab-btn" onclick="switchTab('security', event)">Security</button>
+      <button class="tab-btn" onclick="switchTab('account', event)">Account</button>
     </div>
 
     <!-- Profile Tab -->
@@ -93,7 +93,7 @@
         <div class="section-title">Change Password</div>
 
         <div class="info-box">
-          <div class="info-text">Use a strong password with at least 6 characters including letters, numbers, and symbols.</div>
+          <div class="info-text">Use a strong password with at least 8 characters, including uppercase, lowercase, numbers, and special characters.</div>
         </div>
 
         <div id="passwordMessage"></div>
@@ -106,12 +106,12 @@
 
           <div class="form-group">
             <label>New Password</label>
-            <input type="password" id="newPassword" minlength="6" required />
+            <input type="password" id="newPassword" minlength="8" required />
           </div>
 
           <div class="form-group">
             <label>Confirm New Password</label>
-            <input type="password" id="confirmPassword" minlength="6" required />
+            <input type="password" id="confirmPassword" minlength="8" required />
           </div>
 
           <div class="button-group">
@@ -201,7 +201,7 @@
   </div>
 
 
-  <script src="../shopping_cart/js/main.js"></script>
+  <script src="js/user-account.js"></script>
   <script>
     let currentUser = null;
 
@@ -211,9 +211,11 @@
 
     // Initialize
     (async () => {
-      const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-      const currentUserId = localStorage.getItem("userId") || storedUser.id;
-      if (!currentUserId) {
+      const storedUser = JSON.parse(localStorage.getItem("user") || "null");
+      const currentUserId = localStorage.getItem("userId") || storedUser?.id || storedUser?._id;
+      const authToken = localStorage.getItem("authToken");
+      if (!currentUserId || !authToken) {
+        UserAccountAPI.logout();
         window.location.href = "auth.html";
         return;
       }
@@ -223,7 +225,7 @@
 
     async function loadUserProfile(userId) {
       try {
-        const user = await getUserProfile(userId);
+        const user = await UserAccountAPI.getUserProfile(userId);
         currentUser = user;
 
         // Update header
@@ -252,7 +254,7 @@
       }
     }
 
-    function switchTab(tab) {
+    function switchTab(tab, event) {
       // Hide all tabs
       document.querySelectorAll(".tab-content").forEach((el) => {
         el.classList.remove("active");
@@ -263,7 +265,13 @@
 
       // Show selected tab
       document.getElementById(tab).classList.add("active");
-      event.currentTarget.classList.add("active");
+      if (event && event.currentTarget) {
+        event.currentTarget.classList.add("active");
+      }
+      const selectedButton = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
+      if (selectedButton) {
+        selectedButton.classList.add("active");
+      }
     }
 
     // Profile Form
@@ -281,7 +289,7 @@
       };
 
       try {
-        await updateUserProfile(currentUserIdValue(), profileData);
+        await UserAccountAPI.updateUserProfile(currentUserIdValue(), profileData);
         showMessage("profileMessage", "Profile updated successfully!", "success");
         await loadUserProfile(currentUserIdValue());
       } catch (error) {
@@ -305,15 +313,17 @@
         return;
       }
 
+      if (!UserAccountAPI.isStrongPassword(newPassword)) {
+        showMessage("passwordMessage", "Password must be at least 8 chars and include uppercase, lowercase, number, and special character", "error");
+        return;
+      }
+
       try {
-        await apiCall("/api/auth/change-password", {
-          method: "POST",
-          body: JSON.stringify({
-            userId: currentUserIdValue(),
-            currentPassword: document.getElementById("currentPassword").value,
-            newPassword: newPassword,
-          }),
-        });
+        await UserAccountAPI.changePassword(
+          currentUserIdValue(),
+          document.getElementById("currentPassword").value,
+          newPassword
+        );
 
         showMessage("passwordMessage", "Password changed successfully!", "success");
         resetPasswordForm();
@@ -329,7 +339,7 @@
     // Notification preferences
     async function saveNotificationPreferences() {
       try {
-        await updateUserProfile(currentUserIdValue(), {
+        await UserAccountAPI.updateUserProfile(currentUserIdValue(), {
           preferences: {
             emailNotifications: document.getElementById("emailNotifications").checked,
             messageNotifications: document.getElementById("messageNotifications").checked,
@@ -349,9 +359,7 @@
 
     async function deactivateAccount() {
       try {
-        await apiCall(`/api/auth/user/${currentUserIdValue()}/deactivate`, {
-          method: "PUT",
-        });
+        await UserAccountAPI.deactivateUser(currentUserIdValue());
 
         showNotification("Account deactivated. You can reactivate it anytime by logging in.", "success");
         setTimeout(() => {
@@ -379,10 +387,7 @@
       if (!password) return;
 
       try {
-        await apiCall(`/api/auth/user/${currentUserIdValue()}`, {
-          method: "DELETE",
-          body: JSON.stringify({ password }),
-        });
+        await UserAccountAPI.deleteUser(currentUserIdValue(), password);
 
         showNotification("Account deleted permanently.", "success");
         setTimeout(() => {
@@ -421,10 +426,7 @@
     }
 
     function logout() {
-      localStorage.removeItem("user");
-      localStorage.removeItem("userId");
-      localStorage.removeItem("userName");
-      localStorage.removeItem("userType");
+      UserAccountAPI.logout();
       window.location.href = "auth.html";
     }
 
