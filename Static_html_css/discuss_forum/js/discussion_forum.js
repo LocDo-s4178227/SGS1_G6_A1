@@ -4,6 +4,36 @@
  * client-side search, sort, and filter features.
  */
 
+// --- BẮT ĐẦU: GIẢ LẬP USER ĐĂNG NHẬP (Chờ ghép chung với nhóm sau) ---
+const MOCK_USER = {
+    userId: "u001",
+    username: "Alex_Student",
+    role: "student"
+};
+// Lưu tạm vào localStorage
+localStorage.setItem('loggedInUser', JSON.stringify(MOCK_USER));
+
+// Hàm lấy thông tin user hiện tại
+function getCurrentUser() {
+    const userStr = localStorage.getItem('loggedInUser');
+    return userStr ? JSON.parse(userStr) : null;
+}
+// --- KẾT THÚC: GIẢ LẬP USER ---
+
+document.addEventListener('DOMContentLoaded', () => {
+    const userDisplay = document.getElementById('currentUserDisplay');
+    const currentUser = getCurrentUser();
+    
+    if (userDisplay) {
+        if (currentUser) {
+            userDisplay.textContent = currentUser.username; // sign Alex_Student into HTML
+        } else {
+            userDisplay.textContent = "Guest (Please login first)";
+            userDisplay.style.color = "red";
+        }
+    }
+});
+
 document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     // 1. CREATE / EDIT THREAD FORM LOGIC
