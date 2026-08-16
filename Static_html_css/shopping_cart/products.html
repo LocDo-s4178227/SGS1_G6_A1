@@ -193,6 +193,18 @@
         budgetMax: 320,
         image: "../images/ergonomic_wooden_desk.png",
         alt: "Reference image for a round oak coffee table request"
+      },
+      {
+        threadId: "kbd-002",
+        title: "3D Printed Mechanical Keyboard Case",
+        postedBy: "SarahM",
+        offers: 5,
+        status: "negotiating",
+        statusLabel: "Negotiating",
+        budgetMin: 180,
+        budgetMax: 260,
+        image: "../images/mechanical_keyboard_case.png",
+        alt: "Reference render of the requested keyboard case"
       }
     ];
 
@@ -200,14 +212,54 @@
       return JSON.parse(localStorage.getItem("savedMarketThreads") || "[]");
     }
 
-    function saveToWishlist(threadId) {
+    async function saveToWishlist(threadId) {
+      const item = MARKET_REQUESTS.find((request) => request.threadId === threadId);
+      const userId = localStorage.getItem("userId");
+      if (!item) return;
+      if (!userId) {
+        alert("Please sign in before saving an item to your wishlist.");
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://localhost:5000/api/wishlist/${encodeURIComponent(userId)}/items`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-user-id": userId },
+          body: JSON.stringify({
+            productId: item.threadId,
+            title: item.title,
+            price: item.budgetMin,
+            image: item.image
+          })
+        });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.message || "Unable to save wishlist item");
+
       const saved = getSavedThreads();
       if (!saved.includes(threadId)) {
         saved.push(threadId);
         localStorage.setItem("savedMarketThreads", JSON.stringify(saved));
       }
-      alert(`Saved ${threadId} to wishlist`);
-      renderMarketRequests();
+        alert(`${item.title} saved to wishlist.`);
+        renderMarketRequests();
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    async function loadSavedWishlist() {
+      const userId = localStorage.getItem("userId");
+      if (!userId) return;
+      try {
+        const response = await fetch(`http://localhost:5000/api/wishlist/${encodeURIComponent(userId)}`, {
+          headers: { "x-user-id": userId }
+        });
+        if (!response.ok) return;
+        const payload = await response.json();
+        localStorage.setItem("savedMarketThreads", JSON.stringify((payload.items || []).map((item) => item.productId)));
+      } catch (_error) {
+        // Keep the local saved state available while the API is offline.
+      }
     }
 
     function applyFiltersAndSort(list) {
@@ -275,7 +327,7 @@
         }
       });
 
-      renderMarketRequests();
+      loadSavedWishlist().finally(renderMarketRequests);
     });
   </script>
   <script src="../components/shared-nav.js"></script>
