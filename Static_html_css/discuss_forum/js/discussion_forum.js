@@ -4,20 +4,21 @@
  * client-side search, sort, and filter features.
  */
 
+// --- BẮT ĐẦU: GIẢ LẬP USER ĐĂNG NHẬP (Chờ ghép chung với nhóm sau) ---
+const MOCK_USER = {
+    userId: "u001",
+    username: "Alex_Student",
+    role: "student"
+};
+// Lưu tạm vào localStorage
+localStorage.setItem('loggedInUser', JSON.stringify(MOCK_USER));
+
+// Hàm lấy thông tin user hiện tại
 function getCurrentUser() {
-    try {
-        const stored = JSON.parse(localStorage.getItem('user') || 'null');
-        const userId = localStorage.getItem('userId') || stored?.id || stored?._id;
-        if (!userId) return null;
-        return {
-            userId,
-            username: stored?.username || stored?.email || 'Signed-in user',
-            role: Array.isArray(stored?.userType) ? stored.userType[0] : stored?.role
-        };
-    } catch (_error) {
-        return null;
-    }
+    const userStr = localStorage.getItem('loggedInUser');
+    return userStr ? JSON.parse(userStr) : null;
 }
+// --- KẾT THÚC: GIẢ LẬP USER ---
 
 document.addEventListener('DOMContentLoaded', () => {
     const userDisplay = document.getElementById('currentUserDisplay');
@@ -37,9 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     // 1. CREATE / EDIT THREAD FORM LOGIC
     // ==========================================
-    const threadForm = document.getElementById('forum-form') || document.querySelector('form[data-forum-form]');
-    const titleInput = document.getElementById('title') || document.getElementById('edit-title');
-    const contentInput = document.getElementById('content') || document.getElementById('edit-content');
+    const threadForm = document.getElementById('forum-form') || document.querySelector('form#forum-form');
+    const titleInput = document.getElementById('title');
+    const contentInput = document.getElementById('content');
     const categorySelect = document.getElementById('category');
     const draftStatus = document.getElementById('draft-status');
 
@@ -202,12 +203,6 @@ document.addEventListener('DOMContentLoaded', () => {
         threadForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const currentUser = getCurrentUser();
-            if (!currentUser) {
-                alert('Please sign in before publishing a forum post.');
-                return;
-            }
-
             const isTitleValid = validateTitle();
             const isContentValid = validateContent();
             const isCategoryValid = validateCategory();
@@ -218,8 +213,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const payload = {
-                userId: currentUser.userId,
-                author: currentUser.username,
                 title: titleInput ? titleInput.value.trim() : '',
                 content: contentInput ? contentInput.value.trim() : '',
                 category: categorySelect ? categorySelect.value : ''

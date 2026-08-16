@@ -22,23 +22,13 @@ const FILTER_STORAGE_KEY = "rshop.reviewFilters.v3";
 
 /* =====================================================
    CURRENT USER
+   Replace this object later with your shared login module.
 ===================================================== */
 
-function getSharedCurrentUser() {
-    try {
-        const stored = JSON.parse(localStorage.getItem("user") || "null");
-        const id = localStorage.getItem("userId") || stored?.id || stored?._id;
-        if (!id) return null;
-        const name = stored?.firstName && stored?.lastName
-            ? `${stored.firstName} ${stored.lastName}`
-            : (stored?.username || stored?.email || "Signed-in user");
-        return { id, name };
-    } catch (_error) {
-        return null;
-    }
-}
-
-let currentUser = getSharedCurrentUser() || { id: null, name: "Guest" };
+const currentUser = {
+    id: 1,
+    name: "Alex Nguyen"
+};
 
 
 /* =====================================================
@@ -394,25 +384,6 @@ function saveReviews() {
         REVIEW_STORAGE_KEY,
         JSON.stringify(reviews)
     );
-}
-
-async function loadReviewsFromApi() {
-    try {
-        const response = await fetch("http://localhost:5000/api/reviews");
-        if (!response.ok) return;
-        const payload = await response.json();
-        if (Array.isArray(payload.reviews)) {
-            reviews = payload.reviews;
-            saveReviews();
-            renderReviews();
-        }
-    } catch (_error) {
-        // Keep the cached localStorage reviews available when the API is offline.
-    }
-}
-
-function getCurrentUserHeaders() {
-    return currentUser.id ? { "x-user-id": String(currentUser.id) } : {};
 }
 
 
@@ -1666,11 +1637,6 @@ function saveReview(event) {
 
     event.preventDefault();
 
-    if (!currentUser.id) {
-        setFormMessage("Please sign in before publishing a review.", "error");
-        return;
-    }
-
 
     if (!validateForm()) {
 
@@ -1700,43 +1666,93 @@ function saveReview(event) {
         getFormData();
 
 
-    const editId = elements.reviewId.value.trim();
+    const editId =
+        Number(
+            elements.reviewId.value
+        );
 
 
     if (editId) {
 
-        fetch(`http://localhost:5000/api/reviews/${encodeURIComponent(editId)}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json", ...getCurrentUserHeaders() },
-            body: JSON.stringify(formData)
-        }).then(async (response) => {
-            if (!response.ok) throw new Error((await response.json()).message || "Unable to update review");
-            const payload = await response.json();
-            reviews = reviews.map((review) => String(review.id) === String(editId) ? payload.review : review);
-            saveReviews();
-            resetForm();
-            renderReviews();
-            showToast("Review updated successfully.");
-        }).catch((error) => setFormMessage(error.message, "error"));
-        return;
+        reviews =
+            reviews.map(
+                function (review) {
+
+                    if (
+                        review.id !== editId
+                    ) {
+                        return review;
+                    }
+
+
+                    if (
+                        review.reviewerId !==
+                        currentUser.id
+                    ) {
+                        return review;
+                    }
+
+
+                    return {
+                        ...review,
+                        ...formData
+                    };
+                }
+            );
+
+
+        showToast(
+            "Review updated successfully."
+        );
+
+
+        setFormMessage(
+            "Review updated successfully.",
+            "success"
+        );
 
     } else {
 
-        fetch("http://localhost:5000/api/reviews", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", ...getCurrentUserHeaders() },
-            body: JSON.stringify(formData)
-        }).then(async (response) => {
-            if (!response.ok) throw new Error((await response.json()).message || "Unable to publish review");
-            const payload = await response.json();
-            reviews.unshift(payload.review);
-            saveReviews();
-            resetForm();
-            renderReviews();
-            showToast("Your review has been published.");
-        }).catch((error) => setFormMessage(error.message, "error"));
-        return;
+        const newReview = {
+            id:
+                Date.now(),
+
+            ...formData,
+
+            reviewerId:
+                currentUser.id,
+
+            reviewerName:
+                currentUser.name,
+
+            dateAdded:
+                new Date()
+                    .toISOString()
+        };
+
+
+        reviews.unshift(
+            newReview
+        );
+
+
+        showToast(
+            "Your review has been published."
+        );
+
+
+        setFormMessage(
+            "Your review has been published.",
+            "success"
+        );
     }
+
+
+    saveReviews();
+
+    resetForm();
+
+    renderReviews();
 
 
     document
@@ -1848,11 +1864,10 @@ function deleteReview(reviewId) {
         );
 
 
-    const isLegacyLocalReview = review && typeof review.id === "number";
-
     if (
         !review ||
-        (!isLegacyLocalReview && review.reviewerId !== currentUser.id)
+        review.reviewerId !==
+            currentUser.id
     ) {
         return;
     }
@@ -1868,35 +1883,24 @@ function deleteReview(reviewId) {
         return;
     }
 
-    if (!currentUser.id) {
-        showToast("Please sign in before deleting a review.");
-        return;
-    }
 
-    fetch(`http://localhost:5000/api/reviews/${encodeURIComponent(reviewId)}`, {
-        method: "DELETE",
-        headers: getCurrentUserHeaders()
-    }).then(async (response) => {
-        if (!response.ok && response.status !== 404) {
-            throw new Error((await response.json()).message || "Unable to delete review");
-        }
-        reviews = reviews.filter((item) => String(item.id) !== String(reviewId));
-        saveReviews();
-        renderReviews();
-        closeReviewModal();
-        showToast("Review deleted.");
-    }).catch((error) => {
-        if (isLegacyLocalReview) {
-            reviews = reviews.filter((item) => String(item.id) !== String(reviewId));
-            saveReviews();
-            renderReviews();
-            closeReviewModal();
-            showToast("Review deleted from the offline cache.");
-            return;
-        }
-        showToast(error.message);
-    });
-    return;
+    reviews =
+        reviews.filter(
+            (item) =>
+                item.id !== reviewId
+        );
+
+
+    saveReviews();
+
+    renderReviews();
+
+    closeReviewModal();
+
+
+    showToast(
+        "Review deleted."
+    );
 
 
     if (
@@ -2302,8 +2306,6 @@ function initializePage() {
     restoreDraft();
 
     renderReviews();
-
-    loadReviewsFromApi();
 }
 
 

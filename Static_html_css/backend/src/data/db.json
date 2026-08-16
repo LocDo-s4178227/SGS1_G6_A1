@@ -18,27 +18,6 @@
       },
       "active": true
     },
-    "admin_001": {
-      "id": "admin_001",
-      "firstName": "System",
-      "lastName": "Administrator",
-      "username": "admin",
-      "email": "admin@webreview.vn",
-      "password": "Admin#Pass1",
-      "phone": "",
-      "location": "",
-      "description": "Platform administrator",
-      "profilePicture": "",
-      "userType": [
-        "admin"
-      ],
-      "preferences": {
-        "emailNotifications": true,
-        "messageNotifications": true,
-        "newRequestNotifications": true
-      },
-      "active": true
-    },
     "user_1786521860353_110": {
       "id": "user_1786521860353_110",
       "firstName": "E2E",
@@ -145,24 +124,7 @@
       "active": false
     }
   },
-  "carts": {
-    "597ad891-d9ed-4d70-bb8c-e470c51eae15": {
-      "sessionId": "597ad891-d9ed-4d70-bb8c-e470c51eae15",
-      "items": [
-        {
-          "id": "cartitem_1786862857943_604",
-          "productId": "desk-001",
-          "quantity": 1,
-          "textDetails": {
-            "title": "Need a custom ergonomic wooden desk",
-            "maker": "MakerJohn",
-            "status": "Accepted Offer"
-          },
-          "unitPrice": 420
-        }
-      ]
-    }
-  },
+  "carts": {},
   "orders": [],
   "threads": [
     {
@@ -193,41 +155,9 @@
       "author": "MakerJohn",
       "title": "Re: Can build this in solid oak",
       "content": "Hi Alex, I'm an industrial design student and have access to the workshop. I can definitely build this using solid oak. Would you be open to a digital 3D mockup first?",
-      "price": 420,
+      "price": 420.00,
       "posted_at": "2026-10-25T11:15:00.000Z",
       "image": ""
     }
-  ],
-  "blogs": [
-    {
-      "id": "blog_001",
-      "title": "Shopee Vietnam UX Review",
-      "authorId": "user_001",
-      "author": "Demo User",
-      "date": "2026-07-18",
-      "category": "design",
-      "tags": [
-        "ux",
-        "ecommerce"
-      ],
-      "image": "https://picsum.photos/seed/shopee-ux/900/420",
-      "summary": "A bilingual look at navigation patterns, checkout friction, and mobile-first design choices.",
-      "content": "Shopee delivers a polished mobile-first experience tuned for the Vietnamese market.",
-      "createdAt": "2026-07-18T10:45:00.000Z",
-      "updatedAt": "2026-07-18T10:45:00.000Z"
-    }
-  ],
-  "reviews": [],
-  "wishlists": {
-    "user_001": [
-      {
-        "id": "wishlist_1786863156357_589",
-        "productId": "shelf-003",
-        "title": "Walnut Wall-Mounted Shelves",
-        "price": 500,
-        "image": "../images/shelves.png",
-        "addedAt": "2026-08-16T06:52:36.357Z"
-      }
-    ]
-  }
+  ]
 }

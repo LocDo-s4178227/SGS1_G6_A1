@@ -21,49 +21,12 @@ const DEFAULT_DB = {
         newRequestNotifications: true
       },
       active: true
-    },
-    admin_001: {
-      id: "admin_001",
-      firstName: "System",
-      lastName: "Administrator",
-      username: "admin",
-      email: "admin@webreview.vn",
-      password: "Admin#Pass1",
-      phone: "",
-      location: "",
-      description: "Platform administrator",
-      profilePicture: "",
-      userType: ["admin"],
-      preferences: {
-        emailNotifications: true,
-        messageNotifications: true,
-        newRequestNotifications: true
-      },
-      active: true
     }
   },
   carts: {},
   orders: [],
   threads: [],
-  replies: [],
-  blogs: [
-    {
-      id: "blog_001",
-      title: "Shopee Vietnam UX Review",
-      authorId: "user_001",
-      author: "Demo User",
-      date: "2026-07-18",
-      category: "design",
-      tags: ["ux", "ecommerce"],
-      image: "https://picsum.photos/seed/shopee-ux/900/420",
-      summary: "A bilingual look at navigation patterns, checkout friction, and mobile-first design choices.",
-      content: "Shopee delivers a polished mobile-first experience tuned for the Vietnamese market.",
-      createdAt: "2026-07-18T10:45:00.000Z",
-      updatedAt: "2026-07-18T10:45:00.000Z"
-    }
-  ],
-  reviews: [],
-  wishlists: {}
+  replies: []
 };
 
 const DATA_FILE = path.join(__dirname, "db.json");
@@ -83,10 +46,7 @@ function loadDb() {
       carts: parsed.carts || {},
       orders: parsed.orders || [],
       threads: parsed.threads || [],
-      replies: parsed.replies || [],
-      blogs: parsed.blogs || structuredClone(DEFAULT_DB).blogs,
-      reviews: parsed.reviews || [],
-      wishlists: parsed.wishlists || {}
+      replies: parsed.replies || []
     };
   } catch (_error) {
     return structuredClone(DEFAULT_DB);

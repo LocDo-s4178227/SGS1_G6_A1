@@ -49,7 +49,7 @@
         <div class="summary-row"><span>Tax (10%)</span><span id="taxValue">$0.00</span></div>
         <div class="summary-row total"><span>Total</span><span id="totalValue">$0.00</span></div>
 
-        <a id="checkoutLink" href="checkout.html" class="btn btn-primary" style="display:block; text-align:center; margin-top:var(--spacing-md);">
+        <a href="checkout.html" class="btn btn-primary" style="display:block; text-align:center; margin-top:var(--spacing-md);">
           Proceed to Checkout
         </a>
       </aside>
@@ -69,8 +69,11 @@
         // Load items from forumCart (items added from discussion forum)
         let forumCart = JSON.parse(localStorage.getItem('forumCart') || '[]');
 
-        // Legacy compatibility only; active rendering is handled by cart-page.js.
-        const defaultItems = [];
+        // Default static items (can be removed/replaced)
+        const defaultItems = [
+          { id: 'desk-001', title: 'Custom Ergonomic Wooden Desk', threadId: 'desk-001', price: 420.00, maker: 'MakerJohn', status: 'Accepted Offer' },
+          { id: 'shelf-003', title: 'Walnut Wall-Mounted Shelves', threadId: 'shelf-003', price: 380.00, maker: 'CraftPro', status: 'Accepted Offer' }
+        ];
 
         // Merge forum items with defaults (forum items take priority)
         let allItems = [...defaultItems];
@@ -149,7 +152,8 @@
       }
     }
 
-    // Dynamic cart loading is handled by cart-page.js.
+    // Load items when page loads
+    document.addEventListener('DOMContentLoaded', loadCartItems);
 
     /**
      * Highlight the active navigation link based on current page
@@ -177,7 +181,6 @@
     // Highlight active link when page loads
     document.addEventListener('DOMContentLoaded', highlightActiveLink);
   </script>
-  <script src="cart-page.js"></script>
   <script src="../components/shared-nav.js"></script>
 </body>
 </html>
