@@ -1,25 +1,22 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Browse open custom-make requests posted by the community.">
-    <title>Request Board - Custom Makers Marketplace</title>
-    <link rel="stylesheet" href="../css/module-base.css">
-    <link rel="stylesheet" href="css/discussion_forum.css">
-    <link rel="stylesheet" href="../css/top-nav.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Browse open custom-make requests posted by the community.">
+<title>Request Board - Custom Makers Marketplace</title>
+<link rel="stylesheet" href="../css/module-base.css">
+<link rel="stylesheet" href="css/discussion_forum.css">
+<link rel="stylesheet" href="../css/top-nav.css">
 </head>
 <body class="with-rshop-nav">
   <div id="rshop-shared-nav"></div>
-
-    
 
     <main class="container">
         <div class="page-header">
             <h1>Custom Makers Request Board</h1>
             <p>Browse open requests from the community and offer your craftsmanship.</p>
         </div>
-
         <div class="forum-layout">
             <aside id="forum-filters">
                 <h3>Filter &amp; Sort</h3>
@@ -44,47 +41,19 @@
                     <button type="submit" class="btn btn-primary">Apply Filters</button>
                 </form>
             </aside>
-
+            <!--
+                NOTE: thread cards below are no longer hardcoded.
+                They are rendered dynamically by initForumBoard() in js/discussion_forum.js
+                using data fetched live from GET /api/threads.
+            -->
             <section class="thread-list" aria-label="Open requests">
-                <!-- Thread 1 -->
-                <article class="card thread-card">
-                    <div class="card-header thread-card-header">
-                        <img class="thread-thumb" src="../images/ergonomic_wooden_desk.png" alt="Reference sketch of the requested corner desk">
-                        <div>
-                            <a href="thread-detail.html?threadId=desk-001" class="card-title">Need a custom ergonomic wooden desk</a>
-                            <div class="meta-info mt-1">Posted by: <strong>Alex</strong> | Oct 25, 2026, 10:30 AM</div>
-                        </div>
-                    </div>
-                    <p>I'm looking for a carpenter who can build an L-shaped wooden desk for my home office. Needs to be 160x120cm...</p>
-                    <div class="mt-1" style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
-                        <span class="meta-info">3 Replies | Status: Open</span>
-                        <button class="btn btn-secondary btn-sm" onclick="saveThreadToWishlist('desk-001', 'Need a custom ergonomic wooden desk', '../images/ergonomic_wooden_desk.png', 'Open')">Save to Wishlist</button>
-                    </div>
-                </article>
-
-                <!-- Thread 2 -->
-                <article class="card thread-card">
-                    <div class="card-header thread-card-header">
-                        <img class="thread-thumb" src="../images/mechanical_keyboard_case.png" alt="Reference render of the requested keyboard case">
-                        <div>
-                            <a href="thread-detail.html?threadId=keyboard-002" class="card-title">3D Printed Mechanical Keyboard Case</a>
-                            <div class="meta-info mt-1">Posted by: <strong>SarahM</strong> | Oct 24, 2026, 02:15 PM</div>
-                        </div>
-                    </div>
-                    <p>I have the STL files but need someone with a resin printer to print a 60% keyboard case in matte black...</p>
-                    <div class="mt-1" style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
-                        <span class="meta-info">5 Replies | Status: Negotiating</span>
-                        <button class="btn btn-secondary btn-sm" onclick="saveThreadToWishlist('keyboard-002', '3D Printed Mechanical Keyboard Case', '../images/mechanical_keyboard_case.png', 'Negotiating')">Save to Wishlist</button>
-                    </div>
-                </article>
+                <p class="loading-state" style="text-align:center; color:#666; padding: 20px 0;">Loading requests…</p>
             </section>
         </div>
     </main>
-
     <footer>
         <p>&copy; 2026 Rshop Marketplace</p>
     </footer>
-
     <script>
       function normalizeSavedWishlist(items) {
         if (!Array.isArray(items)) return [];
@@ -100,7 +69,6 @@
                 image: '../images/ergonomic_wooden_desk.png'
               };
             }
-
             return {
               threadId: item.threadId || item.id || '',
               title: item.title || 'Saved item',
@@ -112,7 +80,6 @@
           })
           .filter(item => item.threadId);
       }
-
       function getSavedWishlist() {
         try {
           const saved = JSON.parse(localStorage.getItem('savedMarketThreads') || '[]');
@@ -124,7 +91,6 @@
           return [];
         }
       }
-
       function saveThreadToWishlist(threadId, title, image, statusLabel) {
         const saved = getSavedWishlist();
         const exists = saved.some(item => item.threadId === threadId);
@@ -139,16 +105,10 @@
           });
           localStorage.setItem('savedMarketThreads', JSON.stringify(saved));
         }
-
         alert(`Saved "${title}" to wishlist`);
       }
     </script>
   <script src="../components/shared-nav.js"></script>
-  <script src="js/discussion_forum.js"></script>
+  <script src="js/discussion_forum.js?=v3"></script>
 </body>
 </html>
-
-
-
-
-

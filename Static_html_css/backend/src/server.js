@@ -564,13 +564,26 @@ app.get("/api/threads/:id", (req, res) => {
   });
 });
 
-// 3. POST /api/threads - Create a new thread (Validation: Title >= 5 chars, Content >= 10 chars)
-app.post("/api/threads", (req, res) => {
-  const { author, title, content, image, status } = req.body || {};
+// Temporary login middleware for the Discussion Forum.
+// Later, replace this with the real User Account authentication.
+function requireLogin(req, res, next) {
+    req.user = {
+        userId: "u001",
+        username: "Alex_Student"
+    };
 
-  if (!isNonEmptyString(author)) {
-    return res.status(400).json({ success: false, message: "Author is required" });
-  }
+    next();
+}
+
+app.use("/api/threads", requireLogin);
+
+// 3. POST /api/threads - Create a new thread
+app.post("/api/threads", (req, res) => {
+  const { title, content, image, status } = req.body || {};
+  
+  // Lấy author từ req.body.author HOẶC req.body.authorName (mặc định "Anonymous" nếu trống)
+  const author = String(req.body.author || req.body.authorName || "Anonymous").trim();
+
   if (!isNonEmptyString(title) || title.trim().length < 5) {
     return res.status(400).json({ success: false, message: "Title must be at least 5 characters" });
   }
@@ -581,7 +594,7 @@ app.post("/api/threads", (req, res) => {
   const id = generateId("thread");
   const newThread = {
     id,
-    author: author.trim(),
+    author,
     title: title.trim(),
     content: content.trim(),
     posted_at: new Date().toISOString(),
