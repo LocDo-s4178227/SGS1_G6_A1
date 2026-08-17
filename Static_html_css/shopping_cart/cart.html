@@ -61,47 +61,39 @@
   </footer>
   
   <script>
-    /**
-     * Load cart items from localStorage and display them
-     */
+    function readStorageArray(key) {
+      try {
+        const value = JSON.parse(localStorage.getItem(key) || '[]');
+        return Array.isArray(value) ? value : [];
+      } catch (error) {
+        console.error(`Error reading ${key}:`, error);
+        return [];
+      }
+    }
+
     function loadCartItems() {
       try {
-        // Load items from forumCart (items added from discussion forum)
-        let forumCart = JSON.parse(localStorage.getItem('forumCart') || '[]');
-
-        // Default static items (can be removed/replaced)
-        const defaultItems = [
-          { id: 'desk-001', title: 'Custom Ergonomic Wooden Desk', threadId: 'desk-001', price: 420.00, maker: 'MakerJohn', status: 'Accepted Offer' },
-          { id: 'shelf-003', title: 'Walnut Wall-Mounted Shelves', threadId: 'shelf-003', price: 380.00, maker: 'CraftPro', status: 'Accepted Offer' }
-        ];
-
-        // Merge forum items with defaults (forum items take priority)
-        let allItems = [...defaultItems];
-        forumCart.forEach(forumItem => {
-          const existingIndex = allItems.findIndex(item => item.threadId === forumItem.threadId);
-          if (existingIndex >= 0) {
-            allItems[existingIndex] = forumItem;
-          } else {
-            allItems.push(forumItem);
-          }
-        });
-
-        // Render table
+        const allItems = readStorageArray('forumCart');
         const tbody = document.getElementById('cartTableBody');
+
+        if (!allItems.length) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#666;">Your cart is empty.</td></tr>';
+          updateOrderSummary([]);
+          updateCartBadge(0);
+          return;
+        }
+
         tbody.innerHTML = allItems.map(item => `
           <tr>
-            <td><strong>${item.title}</strong></td>
-            <td><a href="../discuss_forum/thread-detail.html?threadId=${item.threadId}">${item.threadId}</a></td>
-            <td>$${item.price.toFixed(2)}</td>
-            <td>${item.status}</td>
-            <td><button class="btn btn-link btn-small" onclick="removeItemFromCart('${item.threadId}')">Remove</button></td>
+            <td><strong>${item.title || 'Item'}</strong></td>
+            <td>${item.threadId ? `<a href="../discuss_forum/thread-detail.html?threadId=${item.threadId}">${item.threadId}</a>` : '—'}</td>
+            <td>$${Number(item.price || 0).toFixed(2)}</td>
+            <td>${item.status || 'Accepted Offer'}</td>
+            <td><button class="btn btn-link btn-small" onclick="removeItemFromCart('${item.threadId || item.id || ''}')">Remove</button></td>
           </tr>
         `).join('');
 
-        // Update summary
         updateOrderSummary(allItems);
-
-        // Update cart badge
         updateCartBadge(allItems.length);
       } catch (error) {
         console.error('Error loading cart items:', error);
@@ -109,11 +101,8 @@
       }
     }
 
-    /**
-     * Update the order summary totals
-     */
     function updateOrderSummary(items) {
-      const subtotal = items.reduce((sum, item) => sum + (item.price || 0), 0);
+      const subtotal = items.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
       const serviceFee = Math.max(items.length * 10, 0);
       const tax = (subtotal + serviceFee) * 0.10;
       const total = subtotal + serviceFee + tax;
@@ -125,9 +114,6 @@
       document.getElementById('totalValue').textContent = `$${total.toFixed(2)}`;
     }
 
-    /**
-     * Update cart badge in navigation
-     */
     function updateCartBadge(count) {
       const badge = document.querySelector('.cart-badge');
       if (badge) {
@@ -135,16 +121,14 @@
       }
     }
 
-    /**
-     * Remove item from cart
-     */
     function removeItemFromCart(threadId) {
+      if (!threadId) return;
       if (confirm('Remove this item from cart?')) {
         try {
-          let forumCart = JSON.parse(localStorage.getItem('forumCart') || '[]');
-          forumCart = forumCart.filter(item => item.threadId !== threadId);
+          let forumCart = readStorageArray('forumCart');
+          forumCart = forumCart.filter(item => (item.threadId || item.id) !== threadId);
           localStorage.setItem('forumCart', JSON.stringify(forumCart));
-          loadCartItems(); // Reload display
+          loadCartItems();
         } catch (error) {
           console.error('Error removing item:', error);
           alert('Error removing item from cart.');
@@ -152,22 +136,17 @@
       }
     }
 
-    // Load items when page loads
     document.addEventListener('DOMContentLoaded', loadCartItems);
 
-    /**
-     * Highlight the active navigation link based on current page
-     */
     function highlightActiveLink() {
       const currentPage = window.location.pathname.split('/').pop() || 'index.html';
       const navLinks = document.querySelectorAll('nav a');
 
-      // Keep Cart and Review unhighlighted on their own pages.
       if (currentPage === 'cart.html' || currentPage === 'review.html') {
         navLinks.forEach(link => link.classList.remove('active'));
         return;
       }
-      
+
       navLinks.forEach(link => {
         const linkPage = link.getAttribute('href').split('/').pop();
         if (linkPage === currentPage) {
@@ -178,7 +157,6 @@
       });
     }
 
-    // Highlight active link when page loads
     document.addEventListener('DOMContentLoaded', highlightActiveLink);
   </script>
   <script src="../components/shared-nav.js"></script>

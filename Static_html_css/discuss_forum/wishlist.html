@@ -20,53 +20,7 @@
             <p class="meta-info">View and manage the custom requests and products you are interested in.</p>
         </div>
 
-        <div class="wishlist-list">
-            <!-- Wishlist Item 1 -->
-            <article class="card wishlist-item">
-                <img class="wishlist-img" src="../images/ergonomic_wooden_desk.png" alt="Reference sketch of the requested corner desk">
-
-                <div class="wishlist-content">
-                    <a href="thread-detail.html?threadId=desk-001" class="card-title">Need a custom ergonomic wooden desk</a>
-                    <p class="mt-1 mb-1">Solid oak L-shaped desk (160cm x 120cm) for home office setup.</p>
-
-                    <div class="meta-info">
-                        <strong>Wishlist Stats:</strong><br>
-                        â€¢ 14 users added to wishlist<br>
-                        â€¢ 5 times moved to cart<br>
-                        â€¢ 2 times bought
-                    </div>
-                </div>
-
-                <div class="wishlist-actions">
-                    <button class="btn btn-primary btn-sm" onclick="moveItemToCart('Need a custom ergonomic wooden desk', 'desk-001', 420.00)">Move to Cart</button>
-                    <button class="btn btn-success btn-sm" onclick="alert('Mark as purchased coming soon!')">Mark as Purchased</button>
-                    <button class="btn btn-danger btn-sm" onclick="return confirm('Remove this product from your wishlist?') && alert('Item removed from wishlist.')">Remove</button>
-                </div>
-            </article>
-
-            <!-- Wishlist Item 2 -->
-            <article class="card wishlist-item">
-                <img class="wishlist-img" src="../images/mechanical_keyboard_case.png" alt="Reference render of the requested keyboard case">
-
-                <div class="wishlist-content">
-                    <span class="card-title card-title-static">3D Printed Mechanical Keyboard Case</span>
-                    <p class="mt-1 mb-1">Matte black resin print for a 60% mechanical keyboard PCB.</p>
-
-                    <div class="meta-info">
-                        <strong>Wishlist Stats:</strong><br>
-                        â€¢ 8 users added to wishlist<br>
-                        â€¢ 3 times moved to cart<br>
-                        â€¢ 1 time bought
-                    </div>
-                </div>
-
-                <div class="wishlist-actions">
-                    <button class="btn btn-primary btn-sm" onclick="moveItemToCart('3D Printed Mechanical Keyboard Case', 'keyboard-002', 180.00)">Move to Cart</button>
-                    <button class="btn btn-success btn-sm" onclick="alert('Mark as purchased coming soon!')">Mark as Purchased</button>
-                    <button class="btn btn-danger btn-sm" onclick="return confirm('Remove this product from your wishlist?') && alert('Item removed from wishlist.')">Remove</button>
-                </div>
-            </article>
-        </div>
+        <div class="wishlist-list" id="wishlistList"></div>
     </main>
 
     <footer>
@@ -74,9 +28,76 @@
     </footer>
 
     <script>
-      /**
-       * Move wishlist item to cart
-       */
+      function normalizeSavedWishlistItems(items) {
+        if (!Array.isArray(items)) return [];
+        return items
+          .map((item) => {
+            if (typeof item === 'string') {
+              return {
+                threadId: item,
+                title: item,
+                description: 'Saved from the marketplace.',
+                price: 0,
+                statusLabel: 'Open',
+                image: '../images/ergonomic_wooden_desk.png'
+              };
+            }
+
+            return {
+              threadId: item.threadId || item.id || '',
+              title: item.title || 'Saved item',
+              description: item.description || 'Saved from the marketplace.',
+              price: Number(item.price || 0),
+              statusLabel: item.statusLabel || 'Open',
+              image: item.image || '../images/ergonomic_wooden_desk.png'
+            };
+          })
+          .filter(item => item.threadId);
+      }
+
+      function getSavedWishlistItems() {
+        try {
+          const items = JSON.parse(localStorage.getItem('savedMarketThreads') || '[]');
+          const normalized = normalizeSavedWishlistItems(items);
+          localStorage.setItem('savedMarketThreads', JSON.stringify(normalized));
+          return normalized;
+        } catch (error) {
+          console.error('Error reading wishlist items:', error);
+          return [];
+        }
+      }
+
+      function renderWishlist() {
+        const container = document.getElementById('wishlistList');
+        const items = getSavedWishlistItems();
+
+        if (!items.length) {
+          container.innerHTML = '<article class="card wishlist-item"><div class="wishlist-content"><p class="meta-info">No saved items yet. Save a request from the market to see it here.</p></div></article>';
+          return;
+        }
+
+        container.innerHTML = items.map(item => `
+          <article class="card wishlist-item">
+            <img class="wishlist-img" src="${item.image || '../images/ergonomic_wooden_desk.png'}" alt="${item.title || 'Saved wishlist item'}">
+
+            <div class="wishlist-content">
+              <a href="thread-detail.html?threadId=${item.threadId}" class="card-title">${item.title}</a>
+              <p class="mt-1 mb-1">${item.description || 'Saved from the marketplace.'}</p>
+              <div class="meta-info">
+                <strong>Wishlist Stats:</strong><br>
+                • Price: $${Number(item.price || 0).toFixed(2)}<br>
+                • Status: ${item.statusLabel || 'Open'}
+              </div>
+            </div>
+
+            <div class="wishlist-actions">
+              <button class="btn btn-primary btn-sm" onclick="moveItemToCart('${item.title.replace(/'/g, "\\'")}', '${item.threadId}', ${Number(item.price || 0)})">Move to Cart</button>
+              <button class="btn btn-danger btn-sm" onclick="removeWishlistItem('${item.threadId}')">Remove</button>
+            </div>
+          </article>
+        `).join('');
+      }
+
       function moveItemToCart(title, threadId, price) {
         try {
           let forumCart = JSON.parse(localStorage.getItem('forumCart') || '[]');
@@ -85,12 +106,12 @@
             id: threadId,
             title: title,
             threadId: threadId,
-            price: price,
+            price: Number(price) || 0,
             status: 'Accepted Offer',
             movedAt: new Date().toISOString()
           };
 
-          const existingIndex = forumCart.findIndex(item => item.threadId === threadId);
+          const existingIndex = forumCart.findIndex(item => (item.threadId || item.id) === threadId);
           if (existingIndex >= 0) {
             if (confirm(`"${title}" is already in your cart. Do you want to update it?`)) {
               forumCart[existingIndex] = cartItem;
@@ -102,7 +123,7 @@
           }
 
           localStorage.setItem('forumCart', JSON.stringify(forumCart));
-          alert(`âœ“ "${title}" has been added to your cart.\n\nRedirecting to cart...`);
+          alert(`✓ "${title}" has been added to your cart.\n\nRedirecting to cart...`);
 
           setTimeout(() => {
             window.location.href = '../shopping_cart/cart.html';
@@ -112,6 +133,19 @@
           alert('Error adding item to cart. Please try again.');
         }
       }
+
+      function removeWishlistItem(threadId) {
+        try {
+          const items = getSavedWishlistItems().filter(item => item.threadId !== threadId);
+          localStorage.setItem('savedMarketThreads', JSON.stringify(items));
+          renderWishlist();
+        } catch (error) {
+          console.error('Error removing wishlist item:', error);
+          alert('Error removing item from wishlist.');
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', renderWishlist);
     </script>
   <script src="../components/shared-nav.js"></script>
 </body>

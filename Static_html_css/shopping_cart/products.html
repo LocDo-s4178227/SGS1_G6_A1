@@ -150,6 +150,8 @@
         threadId: "desk-001",
         title: "Custom Ergonomic Wooden Desk",
         postedBy: "Alex",
+        offerAuthor: "MakerJohn",
+        price: 420,
         offers: 3,
         status: "open",
         statusLabel: "Open",
@@ -159,9 +161,25 @@
         alt: "Reference sketch of the requested corner desk"
       },
       {
+        threadId: "keyboard-002",
+        title: "3D Printed Mechanical Keyboard Case",
+        postedBy: "Sam",
+        offerAuthor: "MakerRae",
+        price: 180,
+        offers: 2,
+        status: "negotiating",
+        statusLabel: "Negotiating",
+        budgetMin: 120,
+        budgetMax: 220,
+        image: "../images/mechanical_keyboard_case.png",
+        alt: "Reference render of the requested keyboard case"
+      },
+      {
         threadId: "sofa-002",
         title: "Sofa Reupholstery Project",
         postedBy: "Nina",
+        offerAuthor: "MakerLena",
+        price: 320,
         offers: 5,
         status: "negotiating",
         statusLabel: "Negotiating",
@@ -174,6 +192,8 @@
         threadId: "shelf-003",
         title: "Walnut Wall-Mounted Shelves",
         postedBy: "Mark",
+        offerAuthor: "CraftPro",
+        price: 380,
         offers: 2,
         status: "open",
         statusLabel: "Open",
@@ -186,6 +206,8 @@
         threadId: "table-004",
         title: "Round Oak Coffee Table",
         postedBy: "Priya",
+        offerAuthor: "OakWorks",
+        price: 260,
         offers: 1,
         status: "accepted",
         statusLabel: "Accepted Offer",
@@ -196,18 +218,99 @@
       }
     ];
 
+    function normalizeSavedThreads(items) {
+      if (!Array.isArray(items)) return [];
+      return items
+        .map((item) => {
+          if (typeof item === "string") {
+            return {
+              threadId: item,
+              title: item,
+              description: "Saved from the marketplace.",
+              price: 0,
+              statusLabel: "Open",
+              image: "../images/ergonomic_wooden_desk.png"
+            };
+          }
+
+          return {
+            threadId: item.threadId || item.id || "",
+            title: item.title || "Saved item",
+            description: item.description || "Saved from the marketplace.",
+            price: Number(item.price || 0),
+            statusLabel: item.statusLabel || "Open",
+            image: item.image || "../images/ergonomic_wooden_desk.png"
+          };
+        })
+        .filter(item => item.threadId);
+    }
+
     function getSavedThreads() {
-      return JSON.parse(localStorage.getItem("savedMarketThreads") || "[]");
+      try {
+        const saved = JSON.parse(localStorage.getItem("savedMarketThreads") || "[]");
+        const normalized = normalizeSavedThreads(saved);
+        localStorage.setItem("savedMarketThreads", JSON.stringify(normalized));
+        return normalized;
+      } catch (error) {
+        console.error("Error reading wishlist:", error);
+        return [];
+      }
     }
 
     function saveToWishlist(threadId) {
+      const request = MARKET_REQUESTS.find(item => item.threadId === threadId);
+      if (!request) return;
+
       const saved = getSavedThreads();
-      if (!saved.includes(threadId)) {
-        saved.push(threadId);
+      const existing = saved.some(item => item.threadId === threadId);
+      if (!existing) {
+        saved.push({
+          threadId: request.threadId,
+          title: request.title,
+          image: request.image,
+          description: `${request.title} request from ${request.postedBy}.`,
+          price: request.price,
+          offerAuthor: request.offerAuthor,
+          budgetMin: request.budgetMin,
+          budgetMax: request.budgetMax,
+          statusLabel: request.statusLabel
+        });
         localStorage.setItem("savedMarketThreads", JSON.stringify(saved));
       }
-      alert(`Saved ${threadId} to wishlist`);
+
+      alert(`Saved "${request.title}" to wishlist`);
       renderMarketRequests();
+    }
+
+    function addThreadToCart(threadId) {
+      const request = MARKET_REQUESTS.find(item => item.threadId === threadId);
+      if (!request) return;
+
+      try {
+        const cart = JSON.parse(localStorage.getItem("forumCart") || "[]");
+        const cartItem = {
+          id: request.threadId,
+          title: request.title,
+          threadId: request.threadId,
+          maker: request.offerAuthor,
+          price: Number(request.price) || 0,
+          status: "Accepted Offer",
+          agreedAt: new Date().toISOString()
+        };
+
+        const existingIndex = cart.findIndex(item => (item.threadId || item.id) === threadId);
+        if (existingIndex >= 0) {
+          cart[existingIndex] = cartItem;
+        } else {
+          cart.push(cartItem);
+        }
+
+        localStorage.setItem("forumCart", JSON.stringify(cart));
+        alert(`"${request.title}" has been added to your cart for $${Number(request.price).toFixed(2)}.`);
+      } catch (error) {
+        console.error("Error adding item to cart:", error);
+        alert("Error adding item to cart. Please try again.");
+      }
     }
 
     function applyFiltersAndSort(list) {
@@ -245,7 +348,7 @@
       }
 
       grid.innerHTML = list.map((item) => {
-        const isSaved = saved.includes(item.threadId);
+        const isSaved = saved.some(savedItem => savedItem.threadId === item.threadId);
         return `
           <article class="market-card">
             <div class="market-image">
@@ -257,7 +360,7 @@
               <div class="market-budget">Budget: $${item.budgetMin} - $${item.budgetMax}</div>
               <div class="market-actions">
                 <a href="../discuss_forum/thread-detail.html?threadId=${item.threadId}" class="btn btn-primary btn-sm">View Discussion</a>
-                <a href="../discuss_forum/thread-detail.html?threadId=${item.threadId}#reply-form" class="btn btn-success btn-sm">Make Offer</a>
+                <button class="btn btn-success btn-sm" onclick="addThreadToCart('${item.threadId}')">Agree Price</button>
                 <button class="btn btn-secondary btn-sm" onclick="saveToWishlist('${item.threadId}')">${isSaved ? "Saved" : "♡ Save"}</button>
               </div>
             </div>

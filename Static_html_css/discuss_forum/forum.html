@@ -56,8 +56,9 @@
                         </div>
                     </div>
                     <p>I'm looking for a carpenter who can build an L-shaped wooden desk for my home office. Needs to be 160x120cm...</p>
-                    <div class="mt-1">
+                    <div class="mt-1" style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
                         <span class="meta-info">3 Replies | Status: Open</span>
+                        <button class="btn btn-secondary btn-sm" onclick="saveThreadToWishlist('desk-001', 'Need a custom ergonomic wooden desk', '../images/ergonomic_wooden_desk.png', 'Open')">Save to Wishlist</button>
                     </div>
                 </article>
 
@@ -66,13 +67,14 @@
                     <div class="card-header thread-card-header">
                         <img class="thread-thumb" src="../images/mechanical_keyboard_case.png" alt="Reference render of the requested keyboard case">
                         <div>
-                            <span class="card-title card-title-static">3D Printed Mechanical Keyboard Case</span>
+                            <a href="thread-detail.html?threadId=keyboard-002" class="card-title">3D Printed Mechanical Keyboard Case</a>
                             <div class="meta-info mt-1">Posted by: <strong>SarahM</strong> | Oct 24, 2026, 02:15 PM</div>
                         </div>
                     </div>
                     <p>I have the STL files but need someone with a resin printer to print a 60% keyboard case in matte black...</p>
-                    <div class="mt-1">
+                    <div class="mt-1" style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
                         <span class="meta-info">5 Replies | Status: Negotiating</span>
+                        <button class="btn btn-secondary btn-sm" onclick="saveThreadToWishlist('keyboard-002', '3D Printed Mechanical Keyboard Case', '../images/mechanical_keyboard_case.png', 'Negotiating')">Save to Wishlist</button>
                     </div>
                 </article>
             </section>
@@ -82,6 +84,65 @@
     <footer>
         <p>&copy; 2026 Rshop Marketplace</p>
     </footer>
+
+    <script>
+      function normalizeSavedWishlist(items) {
+        if (!Array.isArray(items)) return [];
+        return items
+          .map((item) => {
+            if (typeof item === 'string') {
+              return {
+                threadId: item,
+                title: item,
+                description: 'Saved from the forum board.',
+                price: 0,
+                statusLabel: 'Open',
+                image: '../images/ergonomic_wooden_desk.png'
+              };
+            }
+
+            return {
+              threadId: item.threadId || item.id || '',
+              title: item.title || 'Saved item',
+              description: item.description || 'Saved from the forum board.',
+              price: Number(item.price || 0),
+              statusLabel: item.statusLabel || 'Open',
+              image: item.image || '../images/ergonomic_wooden_desk.png'
+            };
+          })
+          .filter(item => item.threadId);
+      }
+
+      function getSavedWishlist() {
+        try {
+          const saved = JSON.parse(localStorage.getItem('savedMarketThreads') || '[]');
+          const normalized = normalizeSavedWishlist(saved);
+          localStorage.setItem('savedMarketThreads', JSON.stringify(normalized));
+          return normalized;
+        } catch (error) {
+          console.error('Error reading wishlist:', error);
+          return [];
+        }
+      }
+
+      function saveThreadToWishlist(threadId, title, image, statusLabel) {
+        const saved = getSavedWishlist();
+        const exists = saved.some(item => item.threadId === threadId);
+        if (!exists) {
+          saved.push({
+            threadId,
+            title,
+            image,
+            description: `${title} request from the forum board.`,
+            price: 0,
+            statusLabel
+          });
+          localStorage.setItem('savedMarketThreads', JSON.stringify(saved));
+        }
+
+        alert(`Saved "${title}" to wishlist`);
+      }
+    </script>
   <script src="../components/shared-nav.js"></script>
 </body>
 </html>
