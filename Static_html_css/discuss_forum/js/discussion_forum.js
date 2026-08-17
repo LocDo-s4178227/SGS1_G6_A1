@@ -315,3 +315,166 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+    // 1. Grab our form elements
+    const titleInput = document.getElementById("edit-title");
+    const contentInput = document.getElementById("edit-content");
+    const submitBtn = document.querySelector("button[type='submit']");
+    const titleError = document.getElementById("title-error");
+    const contentError = document.getElementById("content-error");
+
+    // Only run this if we are on the create/edit thread page
+    if (titleInput && contentInput) {
+        
+        // ==========================================
+        // NEW: Load Draft from Web Storage on Page Load
+        // ==========================================
+        if (localStorage.getItem("draft_thread_title")) {
+            titleInput.value = localStorage.getItem("draft_thread_title");
+        }
+        if (localStorage.getItem("draft_thread_content")) {
+            contentInput.value = localStorage.getItem("draft_thread_content");
+        }
+
+        // 2. The Validation Function
+        function validateForm() {
+            let isValid = true;
+            
+            // Validate Title (Must be >= 5 chars)
+            if (titleInput.value.trim().length < 5) {
+                titleError.textContent = "Title must be at least 5 characters.";
+                titleError.style.display = "block";
+                titleInput.style.border = "1px solid red";
+                isValid = false;
+            } else {
+                titleError.style.display = "none";
+                titleInput.style.border = "1px solid #ccc";
+            }
+
+            // Validate Content (Must be >= 10 chars)
+            if (contentInput.value.trim().length < 10) {
+                contentError.textContent = "Description must be at least 10 characters.";
+                contentError.style.display = "block";
+                contentInput.style.border = "1px solid red";
+                isValid = false;
+            } else {
+                contentError.style.display = "none";
+                contentInput.style.border = "1px solid #ccc";
+            }
+
+            // Error Prevention: Disable submit button if form is invalid
+            submitBtn.disabled = !isValid;
+            submitBtn.style.opacity = isValid ? "1" : "0.5";
+            submitBtn.style.cursor = isValid ? "pointer" : "not-allowed";
+
+            // ==========================================
+            // NEW: Save to Web Storage as the user types
+            // ==========================================
+            localStorage.setItem("draft_thread_title", titleInput.value);
+            localStorage.setItem("draft_thread_content", contentInput.value);
+        }
+
+        // 3. Attach 'input' event listeners
+        titleInput.addEventListener("input", validateForm);
+        contentInput.addEventListener("input", validateForm);
+
+        // Run once on load to disable the button initially AND validate any loaded drafts
+        validateForm();
+
+        // ==========================================
+        // NEW: Clear Web Storage upon successful submission
+        // ==========================================
+        const form = titleInput.closest("form");
+        if (form) {
+            form.addEventListener("submit", (e) => {
+                // If the form submits successfully, we don't need the draft anymore
+                localStorage.removeItem("draft_thread_title");
+                localStorage.removeItem("draft_thread_content");
+            });
+        }
+    }
+    // ==========================================
+        // NEW: Client-side Search, Sort, and Filter (forum.html)
+        // ==========================================
+        const filterForm = document.querySelector("#forum-filters form");
+        const threadList = document.querySelector(".thread-list");
+
+        if (filterForm && threadList) {
+            
+            function applyFiltersAndSort() {
+            const searchTitle = document.getElementById("search-title").value.toLowerCase();
+            const searchContent = document.getElementById("search-content").value.toLowerCase();
+            const sortBy = document.getElementById("sort-by").value;
+
+            // 1. Convert HTML node list to an array
+            let cards = Array.from(threadList.querySelectorAll(".thread-card"));
+
+            // 2. Filter & Extract Data for Sorting
+            cards.forEach(card => {
+                // Get Title text
+                const titleElement = card.querySelector(".card-title, .card-title-static");
+                const titleText = titleElement ? titleElement.textContent.toLowerCase() : "";
+
+                // Get Content text
+                const contentElement = card.querySelector("p");
+                const contentText = contentElement ? contentElement.textContent.toLowerCase() : "";
+
+                // Get Date from meta-info
+                const metaInfo = card.querySelector(".card-header .meta-info")?.textContent || "";
+                const dateString = metaInfo.includes("|") ? metaInfo.split("|")[1].trim() : "";
+                const postDate = new Date(dateString).getTime() || 0;
+
+                // Store clean data on the DOM element
+                card.dataset.title = titleText;
+                card.dataset.date = postDate;
+
+                // Apply Search Filters
+                const matchesTitle = titleText.includes(searchTitle);
+                const matchesContent = contentText.includes(searchContent);
+
+                // Show or hide based on match (Dùng "" để giữ nguyên CSS mặc định thay vì ép "flex")
+                if (matchesTitle && matchesContent) {
+                    card.style.display = ""; 
+                    card.classList.remove("hidden-by-filter");
+                } else {
+                    card.style.display = "none";
+                    card.classList.add("hidden-by-filter");
+                }
+            });
+
+            // 3. Sort the array of cards
+            cards.sort((a, b) => {
+                const dateA = parseInt(a.dataset.date);
+                const dateB = parseInt(b.dataset.date);
+                const titleA = a.dataset.title;
+                const titleB = b.dataset.title;
+
+                if (sortBy === "newest") {
+                    return dateB - dateA;
+                } else if (sortBy === "oldest") {
+                    return dateA - dateB;
+                } else if (sortBy === "title_asc") {
+                    return titleA.localeCompare(titleB);
+                } else if (sortBy === "title_desc") {
+                    return titleB.localeCompare(titleA);
+                }
+                return 0;
+            });
+
+            // 4. Re-append sorted cards to the container
+            cards.forEach(card => threadList.appendChild(card));
+        }
+
+            // Prevent default form submission (stops page reload)
+            filterForm.addEventListener("submit", (e) => {
+                e.preventDefault(); 
+                applyFiltersAndSort();
+            });
+
+            // Make it LIVE! Listen to inputs and dropdown changes directly
+            document.getElementById("search-title").addEventListener("input", applyFiltersAndSort);
+            document.getElementById("search-content").addEventListener("input", applyFiltersAndSort);
+            document.getElementById("sort-by").addEventListener("change", applyFiltersAndSort);
+        }
+});
