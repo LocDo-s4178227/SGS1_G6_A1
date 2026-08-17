@@ -496,6 +496,30 @@ app.post("/api/orders/checkout/:sessionId", (req, res) => {
   return res.status(201).json({ success: true, order });
 });
 
+app.get("/api/marketplace", (_req, res) => {
+  const listings = (db.threads || []).map((thread) => {
+    const replies = (db.replies || []).filter((reply) => reply.threadId === thread.id);
+    const priceOffers = replies
+      .filter((reply) => Number.isFinite(Number(reply.price)) && Number(reply.price) > 0)
+      .sort((a, b) => new Date(b.posted_at) - new Date(a.posted_at));
+    const latestOffer = priceOffers[0];
+
+    return {
+      id: thread.id,
+      title: thread.title,
+      description: thread.content,
+      author: thread.author,
+      image: thread.image || "",
+      status: thread.status || "Open",
+      postedAt: thread.posted_at,
+      offerCount: replies.length,
+      price: latestOffer ? Number(latestOffer.price) : null
+    };
+  });
+
+  res.json({ success: true, listings });
+});
+
 // ==========================================
 // --- DISCUSSION FORUM API ROUTES ---
 // ==========================================

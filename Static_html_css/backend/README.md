@@ -32,6 +32,7 @@ npm start
 - `PUT /api/cart/:sessionId/items/:itemId`
 - `DELETE /api/cart/:sessionId/items/:itemId`
 - `POST /api/orders/checkout/:sessionId`
+- `GET /api/marketplace`
 
 ## Data Model Diagram
 

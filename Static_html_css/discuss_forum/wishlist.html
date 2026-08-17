@@ -98,31 +98,27 @@
         `).join('');
       }
 
-      function moveItemToCart(title, threadId, price) {
+      async function moveItemToCart(title, threadId, price) {
+        if (!Number.isFinite(Number(price)) || Number(price) <= 0) {
+          alert('This item does not have a valid agreed price to add to the cart.');
+          return;
+        }
         try {
-          let forumCart = JSON.parse(localStorage.getItem('forumCart') || '[]');
-
-          const cartItem = {
-            id: threadId,
-            title: title,
-            threadId: threadId,
-            price: Number(price) || 0,
-            status: 'Accepted Offer',
-            movedAt: new Date().toISOString()
-          };
-
-          const existingIndex = forumCart.findIndex(item => (item.threadId || item.id) === threadId);
-          if (existingIndex >= 0) {
-            if (confirm(`"${title}" is already in your cart. Do you want to update it?`)) {
-              forumCart[existingIndex] = cartItem;
-            } else {
-              return;
-            }
-          } else {
-            forumCart.push(cartItem);
+          const cart = await apiCall(`/cart/${SESSION_ID}`);
+          if (cart.items.some(item => item.productId === threadId)) {
+            alert(`"${title}" is already in your cart.`);
+            return;
           }
-
-          localStorage.setItem('forumCart', JSON.stringify(forumCart));
+          await apiCall(`/cart/${SESSION_ID}/items`, {
+            method: 'POST',
+            body: JSON.stringify({
+              productId: threadId,
+              quantity: 1,
+              unitPrice: Number(price),
+              textDetails: { title, threadId, status: 'Accepted Offer' }
+            })
+          });
+          await updateCartBadge();
           alert(`✓ "${title}" has been added to your cart.\n\nRedirecting to cart...`);
 
           setTimeout(() => {
@@ -147,6 +143,7 @@
 
       document.addEventListener('DOMContentLoaded', renderWishlist);
     </script>
+  <script src="../shopping_cart/js/main.js"></script>
   <script src="../components/shared-nav.js"></script>
 </body>
 </html>
