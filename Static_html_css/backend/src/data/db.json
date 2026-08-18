@@ -172,6 +172,16 @@
       "image": "../images/mechanical_keyboard_case.png",
       "status": "Negotiating",
       "replyCount": 5
+    },
+    {
+      "id": "thread_1787040112505_365",
+      "author": "pikachu",
+      "title": "pokemonchu",
+      "content": "pikachufinfin",
+      "posted_at": "2026-08-18T08:01:52.505Z",
+      "image": "",
+      "status": "Open",
+      "replyCount": 1
     }
   ],
   "replies": [
@@ -183,6 +193,16 @@
       "content": "Hi Alex, I'm an industrial design student and have access to the workshop. I can definitely build this using solid oak. Would you be open to a digital 3D mockup first?",
       "price": 420,
       "posted_at": "2026-10-25T11:15:00.000Z",
+      "image": ""
+    },
+    {
+      "id": "reply_1787040162996_171",
+      "threadId": "thread_1787040112505_365",
+      "author": "pikachu",
+      "title": "hahahahihihi",
+      "content": "hohohohoho",
+      "price": 0,
+      "posted_at": "2026-08-18T08:02:42.996Z",
       "image": ""
     }
   ]
