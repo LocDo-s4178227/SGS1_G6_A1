@@ -139,6 +139,45 @@ alert(message);
 }
 }
 // ==========================================
+// WEB STORAGE DRAFT HELPERS
+// Generic save/restore/clear so every form in this module (create-thread,
+// edit-thread, edit-reply, post-reply) can keep in-progress input across
+// a page refresh, not just the create-thread form.
+// `fields` is an object like { title: titleInput, content: contentInput }.
+// ==========================================
+function saveDraftToStorage(key, fields) {
+const payload = {};
+Object.keys(fields).forEach((fieldName) => {
+const el = fields[fieldName];
+if (el) payload[fieldName] = el.value;
+});
+localStorage.setItem(key, JSON.stringify(payload));
+}
+function restoreDraftFromStorage(key, fields) {
+const saved = localStorage.getItem(key);
+if (!saved) return false;
+try {
+const draft = JSON.parse(saved);
+Object.keys(fields).forEach((fieldName) => {
+const el = fields[fieldName];
+if (el && draft[fieldName]) el.value = draft[fieldName];
+});
+return true;
+} catch (e) {
+console.error('Failed to parse saved draft:', e);
+return false;
+}
+}
+function clearDraftFromStorage(key) {
+localStorage.removeItem(key);
+}
+function bindDraftAutoSave(key, fields) {
+Object.values(fields).forEach((el) => {
+if (!el) return;
+el.addEventListener('input', () => saveDraftToStorage(key, fields));
+});
+}
+// ==========================================
 // BOOTSTRAP
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -241,12 +280,19 @@ const titleInput = document.getElementById('edit-title');
 const contentInput = document.getElementById('edit-content');
 const submitBtn = form.querySelector('button[type="submit"]');
 const threadId = getQueryParam('threadId') || 'desk-001';
+// Web Storage draft key is scoped to this specific thread, so editing
+// two different threads never mixes up their unsaved drafts.
+const DRAFT_KEY = `forum_edit_thread_draft_${threadId}`;
+const draftFields = { title: titleInput, content: contentInput };
 // --- Load current thread data from the server ---
 (async () => {
 try {
 const data = await apiRequest(`/api/threads/${threadId}`);
 if (titleInput) titleInput.value = data.thread.title;
 if (contentInput) contentInput.value = data.thread.content;
+// If the user had unsaved edits in progress (e.g. the page was
+// refreshed by accident), restore those over the server values.
+restoreDraftFromStorage(DRAFT_KEY, draftFields);
 // Ownership check: only the original author may edit this thread.
 // (The server enforces this too on submit - this just gives the user
 // immediate feedback instead of letting them fill out the whole form first.)
@@ -264,6 +310,7 @@ console.error('Could not load thread for editing:', err);
 showFormError('Could not load this request from the server.');
 }
 })();
+bindDraftAutoSave(DRAFT_KEY, draftFields);
 [titleInput, contentInput].forEach((el) => {
 el.addEventListener('input', () => {
 if (el === titleInput) validateTitleField(titleInput);
@@ -289,6 +336,7 @@ title: titleInput.value.trim(),
 content: contentInput.value.trim()
 })
 });
+clearDraftFromStorage(DRAFT_KEY);
 alert('Changes saved successfully!');
 window.location.href = `thread-detail.html?threadId=${threadId}`;
 } catch (err) {
@@ -311,6 +359,9 @@ const contentInput = document.getElementById('edit-reply-content');
 const submitBtn = form.querySelector('button[type="submit"]');
 const replyId = getQueryParam('replyId') || 'reply-001';
 const threadId = getQueryParam('threadId') || 'desk-001';
+// Web Storage draft key is scoped to this specific reply.
+const DRAFT_KEY = `forum_edit_reply_draft_${replyId}`;
+const draftFields = { title: titleInput, content: contentInput };
 // --- Load current reply data from the server ---
 (async () => {
 try {
@@ -319,6 +370,9 @@ const reply = (data.thread.replies || []).find((r) => r.id === replyId);
 if (reply) {
 if (titleInput) titleInput.value = reply.title;
 if (contentInput) contentInput.value = reply.content;
+// If the user had unsaved edits in progress (e.g. the page was
+// refreshed by accident), restore those over the server values.
+restoreDraftFromStorage(DRAFT_KEY, draftFields);
 // Ownership check: only the original author may edit this reply.
 // (The server enforces this too on submit - this just gives the user
 // immediate feedback instead of letting them fill out the whole form first.)
@@ -339,6 +393,7 @@ console.error('Could not load reply for editing:', err);
 showFormError('Could not load this reply from the server.');
 }
 })();
+bindDraftAutoSave(DRAFT_KEY, draftFields);
 [titleInput, contentInput].forEach((el) => {
 el.addEventListener('input', () => {
 if (el === titleInput) validateRequiredField(titleInput, 'Reply title');
@@ -364,6 +419,7 @@ title: titleInput.value.trim(),
 content: contentInput.value.trim()
 })
 });
+clearDraftFromStorage(DRAFT_KEY);
 alert('Reply updated successfully!');
 window.location.href = `thread-detail.html?threadId=${threadId}`;
 } catch (err) {
@@ -384,6 +440,12 @@ const titleInput = document.getElementById('reply-title');
 const contentInput = document.getElementById('reply-content');
 const submitBtn = form.querySelector('button[type="submit"]');
 const threadId = getQueryParam('threadId') || 'desk-001';
+// Web Storage draft key is scoped to this specific thread, so a
+// half-written reply survives an accidental page refresh.
+const DRAFT_KEY = `forum_new_reply_draft_${threadId}`;
+const draftFields = { title: titleInput, content: contentInput };
+restoreDraftFromStorage(DRAFT_KEY, draftFields);
+bindDraftAutoSave(DRAFT_KEY, draftFields);
 [titleInput, contentInput].forEach((el) => {
 el.addEventListener('input', () => {
 if (el === titleInput) validateRequiredField(titleInput, 'Reply title');
@@ -411,6 +473,7 @@ title: titleInput.value.trim(),
 content: contentInput.value.trim()
 })
 });
+clearDraftFromStorage(DRAFT_KEY);
 alert('Reply posted successfully!');
 form.reset();
 window.location.href = `thread-detail.html?threadId=${threadId}`;
