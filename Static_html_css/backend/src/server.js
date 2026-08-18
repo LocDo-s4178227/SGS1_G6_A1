@@ -515,6 +515,31 @@ app.post("/api/orders/checkout/:sessionId", (req, res) => {
   return res.status(201).json({ success: true, order });
 });
 
+// GET /api/marketplace - Build request/proposal listings from threads + their replies
+app.get("/api/marketplace", (req, res) => {
+  const listings = (db.threads || []).map((thread) => {
+    const replies = (db.replies || []).filter((r) => r.threadId === thread.id);
+    const offers = replies.filter((r) => typeof r.price === "number");
+    const latestOffer = offers.length
+      ? offers.reduce((latest, r) => (new Date(r.posted_at) > new Date(latest.posted_at) ? r : latest))
+      : null;
+
+    return {
+      id: thread.id,
+      title: thread.title,
+      author: thread.author,
+      description: thread.content,
+      image: thread.image || "",
+      status: thread.status || "Open",
+      postedAt: thread.posted_at,
+      offerCount: replies.length,
+      price: latestOffer ? Number(latestOffer.price) : null
+    };
+  });
+
+  res.json({ success: true, listings });
+});
+
 // ==========================================
 // --- DISCUSSION FORUM API ROUTES ---
 // ==========================================
