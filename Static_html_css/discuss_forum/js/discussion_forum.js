@@ -43,9 +43,16 @@ function getQueryParam(name) {
 
 async function apiRequest(path, options = {}) {
   const url = path.startsWith('http') ? path : `${API_BASE}${path}`;
+  const currentUser = getCurrentUser();
   const response = await fetch(url, {
-    headers: { 'Content-Type': 'application/json' },
-    ...options
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      // Lets the backend identify the currently logged-in user so it can
+      // enforce "only the owner may edit/delete their own post" on the server.
+      ...(currentUser && currentUser.username ? { 'X-Username': currentUser.username } : {}),
+      ...(options.headers || {})
+    }
   });
   let data = null;
   try {
@@ -263,6 +270,19 @@ function initEditThreadForm() {
       const data = await apiRequest(`/api/threads/${threadId}`);
       if (titleInput) titleInput.value = data.thread.title;
       if (contentInput) contentInput.value = data.thread.content;
+
+      // Ownership check: only the original author may edit this thread.
+      // (The server enforces this too on submit - this just gives the user
+      // immediate feedback instead of letting them fill out the whole form first.)
+      const currentUser = getCurrentUser();
+      const isOwnerOfThread = currentUser &&
+        String(data.thread.author || '').trim().toLowerCase() === String(currentUser.username || '').trim().toLowerCase();
+      if (!isOwnerOfThread) {
+        showFormError('You can only edit your own posts.');
+        if (titleInput) titleInput.disabled = true;
+        if (contentInput) contentInput.disabled = true;
+        if (submitBtn) submitBtn.disabled = true;
+      }
     } catch (err) {
       console.error('Could not load thread for editing:', err);
       showFormError('Could not load this request from the server.');
@@ -327,6 +347,19 @@ function initEditReplyForm() {
       if (reply) {
         if (titleInput) titleInput.value = reply.title;
         if (contentInput) contentInput.value = reply.content;
+
+        // Ownership check: only the original author may edit this reply.
+        // (The server enforces this too on submit - this just gives the user
+        // immediate feedback instead of letting them fill out the whole form first.)
+        const currentUser = getCurrentUser();
+        const isOwnerOfReply = currentUser &&
+          String(reply.author || '').trim().toLowerCase() === String(currentUser.username || '').trim().toLowerCase();
+        if (!isOwnerOfReply) {
+          showFormError('You can only edit your own replies.');
+          if (titleInput) titleInput.disabled = true;
+          if (contentInput) contentInput.disabled = true;
+          if (submitBtn) submitBtn.disabled = true;
+        }
       } else {
         showFormError('Could not find this reply on the server.');
       }

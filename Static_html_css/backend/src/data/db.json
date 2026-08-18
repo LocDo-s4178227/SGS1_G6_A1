@@ -146,6 +146,16 @@
       "image": "../images/mechanical_keyboard_case.png",
       "status": "Negotiating",
       "replyCount": 5
+    },
+    {
+      "id": "thread_1787021476862_428",
+      "author": "Alex_Student",
+      "title": "hiiiiiiiii",
+      "content": "finfinfinfin",
+      "posted_at": "2026-08-18T02:51:16.862Z",
+      "image": "",
+      "status": "Open",
+      "replyCount": 0
     }
   ],
   "replies": [
@@ -155,7 +165,7 @@
       "author": "MakerJohn",
       "title": "Re: Can build this in solid oak",
       "content": "Hi Alex, I'm an industrial design student and have access to the workshop. I can definitely build this using solid oak. Would you be open to a digital 3D mockup first?",
-      "price": 420.00,
+      "price": 420,
       "posted_at": "2026-10-25T11:15:00.000Z",
       "image": ""
     }

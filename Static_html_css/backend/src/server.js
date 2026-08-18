@@ -565,17 +565,31 @@ app.get("/api/threads/:id", (req, res) => {
 });
 
 // Temporary login middleware for the Discussion Forum.
-// Later, replace this with the real User Account authentication.
+// Later, replace this with the real User Account authentication (shared module).
+// For now the client sends the currently logged-in user's username in the
+// "x-username" header (see apiRequest() in Discussion_forum.js), so that
+// ownership checks below can compare it against thread.author / reply.author.
 function requireLogin(req, res, next) {
+    const headerUsername = req.headers["x-username"];
     req.user = {
         userId: "u001",
-        username: "Alex_Student"
+        username: isNonEmptyString(headerUsername) ? headerUsername.trim() : "Alex_Student"
     };
 
     next();
 }
 
-app.use("/api/threads", requireLogin);
+// Applied to both /api/threads and /api/replies so req.user (and therefore
+// ownership checks) is available on every discussion-forum route.
+app.use(["/api/threads", "/api/replies"], requireLogin);
+
+// Helper: checks whether the currently logged-in user (req.user) owns the
+// given resource (a thread or a reply, both of which have an "author" field).
+function isOwner(req, resource) {
+    if (!resource || !req.user) return false;
+    return String(resource.author || "").trim().toLowerCase() ===
+        String(req.user.username || "").trim().toLowerCase();
+}
 
 // 3. POST /api/threads - Create a new thread
 app.post("/api/threads", (req, res) => {
@@ -617,6 +631,11 @@ app.put("/api/threads/:id", (req, res) => {
     return res.status(404).json({ success: false, message: "Thread not found" });
   }
 
+  // Ownership check: only the original author may edit their own thread.
+  if (!isOwner(req, thread)) {
+    return res.status(403).json({ success: false, message: "You can only edit your own posts" });
+  }
+
   const { title, content, image, status } = req.body || {};
 
   if (typeof title !== "undefined") {
@@ -642,12 +661,17 @@ app.put("/api/threads/:id", (req, res) => {
 
 // 5. DELETE /api/threads/:id - Delete a thread and cascade delete all its associated replies
 app.delete("/api/threads/:id", (req, res) => {
-  const initialLength = (db.threads || []).length;
-  db.threads = (db.threads || []).filter((t) => t.id !== req.params.id);
-
-  if (db.threads.length === initialLength) {
+  const thread = (db.threads || []).find((t) => t.id === req.params.id);
+  if (!thread) {
     return res.status(404).json({ success: false, message: "Thread not found" });
   }
+
+  // Ownership check: only the original author may delete their own thread.
+  if (!isOwner(req, thread)) {
+    return res.status(403).json({ success: false, message: "You can only delete your own posts" });
+  }
+
+  db.threads = (db.threads || []).filter((t) => t.id !== req.params.id);
 
   // Cascade delete related replies
   db.replies = (db.replies || []).filter((r) => r.threadId !== req.params.id);
@@ -708,6 +732,11 @@ app.put("/api/replies/:replyId", (req, res) => {
     return res.status(404).json({ success: false, message: "Reply not found" });
   }
 
+  // Ownership check: only the original author may edit their own reply.
+  if (!isOwner(req, reply)) {
+    return res.status(403).json({ success: false, message: "You can only edit your own replies" });
+  }
+
   const { title, content, price, image } = req.body || {};
 
   if (typeof title !== "undefined") {
@@ -743,6 +772,11 @@ app.delete("/api/replies/:replyId", (req, res) => {
   const reply = (db.replies || []).find((r) => r.id === req.params.replyId);
   if (!reply) {
     return res.status(404).json({ success: false, message: "Reply not found" });
+  }
+
+  // Ownership check: only the original author may delete their own reply.
+  if (!isOwner(req, reply)) {
+    return res.status(403).json({ success: false, message: "You can only delete your own replies" });
   }
 
   // Decrement thread reply count
