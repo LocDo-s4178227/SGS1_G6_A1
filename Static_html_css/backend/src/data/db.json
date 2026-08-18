@@ -122,6 +122,27 @@
         "newRequestNotifications": true
       },
       "active": false
+    },
+    "user_1787039548065_103": {
+      "id": "user_1787039548065_103",
+      "firstName": "pikachu",
+      "lastName": "User",
+      "username": "pikachu",
+      "email": "chadobun@gmail.com",
+      "password": "Finfin@2501",
+      "phone": "",
+      "location": "",
+      "description": "",
+      "profilePicture": "",
+      "userType": [
+        "poster"
+      ],
+      "preferences": {
+        "emailNotifications": true,
+        "messageNotifications": true,
+        "newRequestNotifications": true
+      },
+      "active": true
     }
   },
   "carts": {

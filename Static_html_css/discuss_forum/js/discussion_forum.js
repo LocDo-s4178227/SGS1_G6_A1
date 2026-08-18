@@ -1,26 +1,33 @@
 /**
 * Discussion Forum Module JavaScript
 * - Live form validation + error prevention
-* - Web Storage API draft persistence (create-thread page)
+* - Web Storage API draft persistence (all forms)
 * - Dynamic data retrieval + rendering (forum.html, thread list)
 * - Client-side search/sort/filter (forum.html) + backend search/sort/filter on "Apply Filters"
 * - Dynamic CRUD wired to the NodeJS API via fetch()
+* - Auth wired to the shared User Account module (window.UserAccountAPI)
 */
 // ==========================================
-// MOCK LOGGED-IN USER
-// (placeholder until the shared user-account module is merged in)
+// CURRENT LOGGED-IN USER
+// Reads from the real shared User Account module (user-account.js), which
+// stores the logged-in user under localStorage key "user" and their token
+// under "authToken" after a successful /api/auth/login or /api/auth/register.
+// Make sure <script src=".../user-account.js"></script> is loaded on the
+// page BEFORE this file, so window.UserAccountAPI is available.
 // ==========================================
-const MOCK_USER = {
-userId: 'u001',
-username: 'Alex_Student',
-role: 'student'
-};
-if (!localStorage.getItem('loggedInUser')) {
-localStorage.setItem('loggedInUser', JSON.stringify(MOCK_USER));
-}
 function getCurrentUser() {
-const userStr = localStorage.getItem('loggedInUser');
-return userStr ? JSON.parse(userStr) : null;
+if (window.UserAccountAPI && typeof window.UserAccountAPI.getCurrentUser === 'function') {
+return window.UserAccountAPI.getCurrentUser();
+}
+// Fallback in case user-account.js hasn't loaded on this page yet.
+try {
+return JSON.parse(localStorage.getItem('user') || 'null');
+} catch (e) {
+return null;
+}
+}
+function getAuthToken() {
+return localStorage.getItem('authToken') || '';
 }
 // ==========================================
 // API BASE URL
@@ -37,14 +44,16 @@ return new URLSearchParams(window.location.search).get(name);
 }
 async function apiRequest(path, options = {}) {
 const url = path.startsWith('http') ? path : `${API_BASE}${path}`;
-const currentUser = getCurrentUser();
+const token = getAuthToken();
 const response = await fetch(url, {
 ...options,
 headers: {
 'Content-Type': 'application/json',
-// Lets the backend identify the currently logged-in user so it can
-// enforce "only the owner may edit/delete their own post" on the server.
-...(currentUser && currentUser.username ? { 'X-Username': currentUser.username } : {}),
+// Sends the REAL login token issued by /api/auth/login (or /register).
+// The server looks this token up itself to find out who is making the
+// request - it does not trust any username the client claims to be,
+// so a request can't be spoofed into editing/deleting someone else's post.
+...(token ? { 'Authorization': `Bearer ${token}` } : {}),
 ...(options.headers || {})
 }
 });
@@ -53,6 +62,14 @@ try {
 data = await response.json();
 } catch (e) {
 // no JSON body (e.g. some DELETE responses) - ignore
+}
+if (response.status === 401) {
+// Token missing/expired/invalid - the server no longer recognizes this
+// session. Send the user to the login page instead of leaving them on
+// a broken form.
+alert('Your session has expired. Please log in again.');
+window.location.href = '../user_account/auth.html';
+throw new Error('Not authenticated');
 }
 if (!response.ok) {
 const message = (data && data.message) || `Request failed (${response.status})`;
@@ -208,6 +225,14 @@ userDisplay.style.color = 'red';
 function initCreateThreadForm() {
 const form = document.getElementById('create-thread-form');
 if (!form) return;
+// Guests can't create a thread - the server would reject it anyway (401),
+// so block it up front with a clear message instead of a confusing error
+// after they've already typed everything out.
+if (!getCurrentUser()) {
+showFormError('You must be logged in to create a post. Please log in first.');
+form.querySelectorAll('input, textarea, button').forEach((el) => { el.disabled = true; });
+return;
+}
 form.setAttribute('novalidate', 'true');
 const titleInput = document.getElementById('edit-title');
 const contentInput = document.getElementById('edit-content');
@@ -247,13 +272,13 @@ showFormError('');
 const isTitleValid = validateTitleField(titleInput);
 const isContentValid = validateContentField(contentInput);
 if (!isTitleValid || !isContentValid) return;
-const currentUser = getCurrentUser();
 if (submitBtn) submitBtn.disabled = true;
 try {
 const data = await apiRequest('/api/threads', {
 method: 'POST',
 body: JSON.stringify({
-author: currentUser ? currentUser.username : 'Guest',
+// No "author" field here - the server sets it from the authenticated
+// session (req.user.username), so a client can never claim to be someone else.
 title: titleInput.value.trim(),
 content: contentInput.value.trim()
 })
@@ -436,6 +461,12 @@ if (submitBtn) submitBtn.disabled = false;
 function initPostReplyForm() {
 const form = document.getElementById('post-reply-form');
 if (!form) return;
+// Guests can't post a reply - the server would reject it anyway (401).
+if (!getCurrentUser()) {
+showFormError('You must be logged in to reply. Please log in first.');
+form.querySelectorAll('input, textarea, button').forEach((el) => { el.disabled = true; });
+return;
+}
 const titleInput = document.getElementById('reply-title');
 const contentInput = document.getElementById('reply-content');
 const submitBtn = form.querySelector('button[type="submit"]');
@@ -462,13 +493,13 @@ showFormError('');
 const isTitleValid = validateRequiredField(titleInput, 'Reply title');
 const isContentValid = validateRequiredField(contentInput, 'Reply content');
 if (!isTitleValid || !isContentValid) return;
-const currentUser = getCurrentUser();
 if (submitBtn) submitBtn.disabled = true;
 try {
 await apiRequest(`/api/threads/${threadId}/replies`, {
 method: 'POST',
 body: JSON.stringify({
-author: currentUser ? currentUser.username : 'Guest',
+// No "author" field here - the server sets it from the authenticated
+// session (req.user.username), so a client can never claim to be someone else.
 title: titleInput.value.trim(),
 content: contentInput.value.trim()
 })

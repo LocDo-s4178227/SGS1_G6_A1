@@ -6,7 +6,7 @@ const { db, generateId, generateOrderNumber, saveDb } = require("./data/db");
 const app = express();
 const PORT = Number(process.env.PORT || 5000);
 const passwordResetTokens = new Map();
-
+const activeSessions = new Map();
 app.use(cors());
 app.use(express.json());
 
@@ -50,16 +50,28 @@ function normalizeUserTypes(value) {
 }
 
 function buildLoginResponse(user) {
-  const safeUser = sanitizeUser(user);
-  return {
-    success: true,
-    user: {
-      ...safeUser,
-      _id: safeUser.id,
-      role: safeUser.userType?.[0] || "poster"
-    },
-    token: `token_${user.id}_${Date.now()}`
-  };
+const safeUser = sanitizeUser(user);
+const token = `token_${user.id}_${Date.now()}`;
+// Remember which user this token belongs to, so any later request
+// carrying this token can be resolved back to a real, verified user.
+activeSessions.set(token, user.id);
+return {
+success: true,
+user: {
+...safeUser,
+_id: safeUser.id,
+role: safeUser.userType?.[0] || "poster"
+},
+token
+};
+}
+// Looks up the currently logged-in user from a bearer token.
+// Returns null if the token is missing, unknown, or the user no longer exists.
+function getUserByToken(token) {
+if (!isNonEmptyString(token)) return null;
+const userId = activeSessions.get(token.trim());
+if (!userId) return null;
+return db.users[userId] || null;
 }
 
 function getUserIdByResetToken(token) {
@@ -84,6 +96,13 @@ function getCart(sessionId) {
 
 app.get("/api/health", (_req, res) => {
   res.json({ success: true, status: "ok" });
+});
+
+app.post("/api/auth/logout", (req, res) => {
+const authHeader = req.headers["authorization"] || "";
+const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : authHeader.trim();
+if (token) activeSessions.delete(token);
+return res.json({ success: true });
 });
 
 app.post("/api/auth/login", (req, res) => {
@@ -496,30 +515,6 @@ app.post("/api/orders/checkout/:sessionId", (req, res) => {
   return res.status(201).json({ success: true, order });
 });
 
-app.get("/api/marketplace", (_req, res) => {
-  const listings = (db.threads || []).map((thread) => {
-    const replies = (db.replies || []).filter((reply) => reply.threadId === thread.id);
-    const priceOffers = replies
-      .filter((reply) => Number.isFinite(Number(reply.price)) && Number(reply.price) > 0)
-      .sort((a, b) => new Date(b.posted_at) - new Date(a.posted_at));
-    const latestOffer = priceOffers[0];
-
-    return {
-      id: thread.id,
-      title: thread.title,
-      description: thread.content,
-      author: thread.author,
-      image: thread.image || "",
-      status: thread.status || "Open",
-      postedAt: thread.posted_at,
-      offerCount: replies.length,
-      price: latestOffer ? Number(latestOffer.price) : null
-    };
-  });
-
-  res.json({ success: true, listings });
-});
-
 // ==========================================
 // --- DISCUSSION FORUM API ROUTES ---
 // ==========================================
@@ -593,14 +588,25 @@ app.get("/api/threads/:id", (req, res) => {
 // For now the client sends the currently logged-in user's username in the
 // "x-username" header (see apiRequest() in Discussion_forum.js), so that
 // ownership checks below can compare it against thread.author / reply.author.
+// Real login middleware for the Discussion Forum, wired to the shared
+// User Account module's login/register sessions (see activeSessions above).
+// The client sends "Authorization: Bearer <token>" (see apiRequest() in
+// Discussion_forum.js). The server looks the token up itself and resolves
+// req.user from its own database - it never trusts a username the client
+// claims to be, so a request can't be spoofed into editing/deleting someone
+// else's post just by sending a different header value.
 function requireLogin(req, res, next) {
-    const headerUsername = req.headers["x-username"];
-    req.user = {
-        userId: "u001",
-        username: isNonEmptyString(headerUsername) ? headerUsername.trim() : "Alex_Student"
-    };
-
-    next();
+const authHeader = req.headers["authorization"] || "";
+const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : authHeader.trim();
+const user = getUserByToken(token);
+if (!user) {
+return res.status(401).json({ success: false, message: "You must be logged in to do this." });
+}
+if (!user.active) {
+return res.status(403).json({ success: false, message: "Your account is deactivated." });
+}
+req.user = { userId: user.id, username: user.username };
+next();
 }
 
 // Applied to both /api/threads and /api/replies so req.user (and therefore
@@ -619,8 +625,10 @@ function isOwner(req, resource) {
 app.post("/api/threads", (req, res) => {
   const { title, content, image, status } = req.body || {};
   
-  // Lấy author từ req.body.author HOẶC req.body.authorName (mặc định "Anonymous" nếu trống)
-  const author = String(req.body.author || req.body.authorName || "Anonymous").trim();
+  // Author is always the currently authenticated user (from requireLogin),
+// never a value the client sends in the body - otherwise anyone could
+// post a thread pretending to be someone else.
+const author = req.user.username;
 
   if (!isNonEmptyString(title) || title.trim().length < 5) {
     return res.status(400).json({ success: false, message: "Title must be at least 5 characters" });
@@ -711,11 +719,10 @@ app.post("/api/threads/:id/replies", (req, res) => {
     return res.status(404).json({ success: false, message: "Thread not found" });
   }
 
-  const { author, title, content, price, image } = req.body || {};
-
-  if (!isNonEmptyString(author)) {
-    return res.status(400).json({ success: false, message: "Author is required" });
-  }
+  const { title, content, price, image } = req.body || {};
+// Author is always the currently authenticated user (from requireLogin),
+// never a value the client sends in the body.
+  const author = req.user.username;
   if (!isNonEmptyString(title)) {
     return res.status(400).json({ success: false, message: "Reply title is required" });
   }
