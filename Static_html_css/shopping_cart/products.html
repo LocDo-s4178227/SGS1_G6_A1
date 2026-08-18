@@ -67,8 +67,8 @@
         <label for="sortBy">Sort By</label>
         <select id="sortBy">
           <option value="offers-desc">Most offers</option>
-          <option value="budget-asc">Lowest budget min</option>
-          <option value="budget-desc">Highest budget max</option>
+          <option value="price-asc">Lowest agreed price</option>
+          <option value="price-desc">Highest agreed price</option>
           <option value="title-asc">Title A-Z</option>
         </select>
       </div>
@@ -144,79 +144,10 @@
     <p>&copy; 2026 Rshop Marketplace</p>
   </footer>
 
+  <script src="js/main.js"></script>
   <script>
-    const MARKET_REQUESTS = [
-      {
-        threadId: "desk-001",
-        title: "Custom Ergonomic Wooden Desk",
-        postedBy: "Alex",
-        offerAuthor: "MakerJohn",
-        price: 420,
-        offers: 3,
-        status: "open",
-        statusLabel: "Open",
-        budgetMin: 350,
-        budgetMax: 500,
-        image: "../images/ergonomic_wooden_desk.png",
-        alt: "Reference sketch of the requested corner desk"
-      },
-      {
-        threadId: "keyboard-002",
-        title: "3D Printed Mechanical Keyboard Case",
-        postedBy: "Sam",
-        offerAuthor: "MakerRae",
-        price: 180,
-        offers: 2,
-        status: "negotiating",
-        statusLabel: "Negotiating",
-        budgetMin: 120,
-        budgetMax: 220,
-        image: "../images/mechanical_keyboard_case.png",
-        alt: "Reference render of the requested keyboard case"
-      },
-      {
-        threadId: "sofa-002",
-        title: "Sofa Reupholstery Project",
-        postedBy: "Nina",
-        offerAuthor: "MakerLena",
-        price: 320,
-        offers: 5,
-        status: "negotiating",
-        statusLabel: "Negotiating",
-        budgetMin: 250,
-        budgetMax: 450,
-        image: "../images/reupholstery.png",
-        alt: "Reference image of the sofa to be reupholstered"
-      },
-      {
-        threadId: "shelf-003",
-        title: "Walnut Wall-Mounted Shelves",
-        postedBy: "Mark",
-        offerAuthor: "CraftPro",
-        price: 380,
-        offers: 2,
-        status: "open",
-        statusLabel: "Open",
-        budgetMin: 500,
-        budgetMax: 900,
-        image: "../images/shelves.png",
-        alt: "Reference image of the walnut wall-mounted shelves"
-      },
-      {
-        threadId: "table-004",
-        title: "Round Oak Coffee Table",
-        postedBy: "Priya",
-        offerAuthor: "OakWorks",
-        price: 260,
-        offers: 1,
-        status: "accepted",
-        statusLabel: "Accepted Offer",
-        budgetMin: 180,
-        budgetMax: 320,
-        image: "../images/ergonomic_wooden_desk.png",
-        alt: "Reference image for a round oak coffee table request"
-      }
-    ];
+    const MARKET_FILTER_STORAGE_KEY = "rshop.marketplaceFilters.v1";
+    let marketplaceListings = [];
 
     function normalizeSavedThreads(items) {
       if (!Array.isArray(items)) return [];
@@ -258,22 +189,20 @@
     }
 
     function saveToWishlist(threadId) {
-      const request = MARKET_REQUESTS.find(item => item.threadId === threadId);
+      const request = marketplaceListings.find(item => item.id === threadId);
       if (!request) return;
 
       const saved = getSavedThreads();
       const existing = saved.some(item => item.threadId === threadId);
       if (!existing) {
         saved.push({
-          threadId: request.threadId,
+          threadId: request.id,
           title: request.title,
           image: request.image,
-          description: `${request.title} request from ${request.postedBy}.`,
+          description: request.description,
           price: request.price,
-          offerAuthor: request.offerAuthor,
-          budgetMin: request.budgetMin,
-          budgetMax: request.budgetMax,
-          statusLabel: request.statusLabel
+          offerAuthor: request.author,
+          statusLabel: request.status
         });
         localStorage.setItem("savedMarketThreads", JSON.stringify(saved));
       }
@@ -282,34 +211,38 @@
       renderMarketRequests();
     }
 
-    function addThreadToCart(threadId) {
-      const request = MARKET_REQUESTS.find(item => item.threadId === threadId);
-      if (!request) return;
-
+    async function addThreadToCart(threadId) {
+      const request = marketplaceListings.find(item => item.id === threadId);
+      if (!request || !Number.isFinite(request.price) || request.price <= 0) {
+        alert("This request does not have a price offer to add to the cart yet.");
+        return;
+      }
       try {
-        const cart = JSON.parse(localStorage.getItem("forumCart") || "[]");
-        const cartItem = {
-          id: request.threadId,
-          title: request.title,
-          threadId: request.threadId,
-          maker: request.offerAuthor,
-          price: Number(request.price) || 0,
-          status: "Accepted Offer",
-          agreedAt: new Date().toISOString()
-        };
-
-        const existingIndex = cart.findIndex(item => (item.threadId || item.id) === threadId);
-        if (existingIndex >= 0) {
-          cart[existingIndex] = cartItem;
-        } else {
-          cart.push(cartItem);
+        const cart = await apiCall(`/cart/${SESSION_ID}`);
+        if (cart.items.some(item => item.productId === request.id)) {
+          alert(`"${request.title}" is already in your cart.`);
+          return;
         }
 
-        localStorage.setItem("forumCart", JSON.stringify(cart));
-        alert(`"${request.title}" has been added to your cart for $${Number(request.price).toFixed(2)}.`);
+        await apiCall(`/cart/${SESSION_ID}/items`, {
+          method: "POST",
+          body: JSON.stringify({
+            productId: request.id,
+            quantity: 1,
+            unitPrice: request.price,
+            textDetails: {
+              title: request.title,
+              threadId: request.id,
+              author: request.author,
+              status: request.status
+            }
+          })
+        });
+        await updateCartBadge();
+        alert(`"${request.title}" has been added to your cart for $${request.price.toFixed(2)}.`);
       } catch (error) {
-        console.error("Error adding item to cart:", error);
-        alert("Error adding item to cart. Please try again.");
+        console.error("Error adding item to the backend cart:", error);
+        alert(`Could not add this item to the cart: ${error.message}`);
       }
     }
 
@@ -319,16 +252,16 @@
       const sortBy = document.getElementById("sortBy")?.value || "offers-desc";
 
       let filtered = list.filter((item) => {
-        const matchesSearch = !query || item.title.toLowerCase().includes(query) || item.postedBy.toLowerCase().includes(query);
-        const matchesStatus = status === "all" || item.status === status;
+        const matchesSearch = !query || item.title.toLowerCase().includes(query) || item.author.toLowerCase().includes(query);
+        const matchesStatus = status === "all" || item.status.toLowerCase() === status;
         return matchesSearch && matchesStatus;
       });
 
       filtered.sort((a, b) => {
-        if (sortBy === "budget-asc") return a.budgetMin - b.budgetMin;
-        if (sortBy === "budget-desc") return b.budgetMax - a.budgetMax;
+        if (sortBy === "price-asc") return (a.price ?? Infinity) - (b.price ?? Infinity);
+        if (sortBy === "price-desc") return (b.price ?? -Infinity) - (a.price ?? -Infinity);
         if (sortBy === "title-asc") return a.title.localeCompare(b.title);
-        return b.offers - a.offers;
+        return b.offerCount - a.offerCount;
       });
 
       return filtered;
@@ -338,7 +271,7 @@
       const grid = document.getElementById("marketGrid");
       const countEl = document.getElementById("resultCount");
       const saved = getSavedThreads();
-      const list = applyFiltersAndSort(MARKET_REQUESTS);
+      const list = applyFiltersAndSort(marketplaceListings);
 
       countEl.textContent = `${list.length} request${list.length === 1 ? "" : "s"} found`;
 
@@ -348,20 +281,23 @@
       }
 
       grid.innerHTML = list.map((item) => {
-        const isSaved = saved.some(savedItem => savedItem.threadId === item.threadId);
+        const isSaved = saved.some(savedItem => savedItem.threadId === item.id);
+        const canAddToCart = Number.isFinite(item.price) && item.price > 0;
+        const image = item.image || "../images/ergonomic_wooden_desk.png";
+        const offerPrice = canAddToCart ? `Agreed price: $${item.price.toFixed(2)}` : "No price offer yet";
         return `
           <article class="market-card">
             <div class="market-image">
-              <img src="${item.image}" alt="${item.alt}" />
+              <img src="${image}" alt="Reference image for ${item.title}" />
             </div>
             <div class="market-info">
               <div class="market-title">${item.title}</div>
-              <div class="market-sub">Posted by ${item.postedBy} • ${item.offers} offer${item.offers === 1 ? "" : "s"} • ${item.statusLabel}</div>
-              <div class="market-budget">Budget: $${item.budgetMin} - $${item.budgetMax}</div>
+              <div class="market-sub">Posted by ${item.author} • ${item.offerCount} offer${item.offerCount === 1 ? "" : "s"} • ${item.status}</div>
+              <div class="market-budget">${offerPrice}</div>
               <div class="market-actions">
-                <a href="../discuss_forum/thread-detail.html?threadId=${item.threadId}" class="btn btn-primary btn-sm">View Discussion</a>
-                <button class="btn btn-success btn-sm" onclick="addThreadToCart('${item.threadId}')">Agree Price</button>
-                <button class="btn btn-secondary btn-sm" onclick="saveToWishlist('${item.threadId}')">${isSaved ? "Saved" : "♡ Save"}</button>
+                <a href="../discuss_forum/thread-detail.html?threadId=${item.id}" class="btn btn-primary btn-sm">View Discussion</a>
+                <button class="btn btn-success btn-sm" onclick="addThreadToCart('${item.id}')" ${canAddToCart ? "" : "disabled"}>Agree Price</button>
+                <button class="btn btn-secondary btn-sm" onclick="saveToWishlist('${item.id}')">${isSaved ? "Saved" : "♡ Save"}</button>
               </div>
             </div>
           </article>
@@ -369,16 +305,54 @@
       }).join("");
     }
 
+    function saveFilterState() {
+      localStorage.setItem(MARKET_FILTER_STORAGE_KEY, JSON.stringify({
+        search: document.getElementById("searchInput").value,
+        status: document.getElementById("statusFilter").value,
+        sort: document.getElementById("sortBy").value
+      }));
+    }
+
+    function restoreFilterState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(MARKET_FILTER_STORAGE_KEY) || "null");
+        if (!saved) return;
+        document.getElementById("searchInput").value = saved.search || "";
+        document.getElementById("statusFilter").value = saved.status || "all";
+        document.getElementById("sortBy").value = saved.sort || "offers-desc";
+      } catch (error) {
+        localStorage.removeItem(MARKET_FILTER_STORAGE_KEY);
+      }
+    }
+
+    async function loadMarketplaceListings() {
+      const grid = document.getElementById("marketGrid");
+      grid.innerHTML = '<div class="empty-state">Loading marketplace requests...</div>';
+      try {
+        const response = await apiCall("/marketplace");
+        marketplaceListings = response.listings || [];
+        renderMarketRequests();
+      } catch (error) {
+        console.error("Could not load marketplace listings:", error);
+        grid.innerHTML = `<div class="empty-state">Could not load marketplace requests: ${error.message}</div>`;
+        document.getElementById("resultCount").textContent = "Marketplace unavailable";
+      }
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
+      restoreFilterState();
       ["searchInput", "statusFilter", "sortBy"].forEach((id) => {
         const el = document.getElementById(id);
         if (el) {
-          el.addEventListener("input", renderMarketRequests);
-          el.addEventListener("change", renderMarketRequests);
+          const updateFilters = () => {
+            saveFilterState();
+            renderMarketRequests();
+          };
+          el.addEventListener("input", updateFilters);
+          el.addEventListener("change", updateFilters);
         }
       });
-
-      renderMarketRequests();
+      loadMarketplaceListings();
     });
   </script>
   <script src="../components/shared-nav.js"></script>

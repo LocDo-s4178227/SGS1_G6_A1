@@ -32,25 +32,24 @@ const API_CONFIG = {
  * @returns {Promise<object>} Response JSON
  */
 async function apiCall(endpoint, options = {}) {
-  try {
-    const url = `${API_CONFIG.BASE_URL}${endpoint}`;
-    const response = await fetch(url, {
-      headers: API_CONFIG.HEADERS,
-      ...options,
-      signal: AbortSignal.timeout(API_CONFIG.TIMEOUT)
-    });
+  const url = `${API_CONFIG.BASE_URL}${endpoint}`;
+  const response = await fetch(url, {
+    headers: API_CONFIG.HEADERS,
+    ...options,
+    signal: AbortSignal.timeout(API_CONFIG.TIMEOUT)
+  });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || `HTTP ${response.status}`);
+  if (!response.ok) {
+    let error = {};
+    try {
+      error = await response.json();
+    } catch (_parseError) {
+      // Use the status below when a server error has no JSON payload.
     }
-
-    return await response.json();
-  } catch (error) {
-    console.warn("Backend unavailable, using mock API:", error.message);
-
-    return mockEndpointResponse(endpoint, options);
+    throw new Error(error.message || `Request failed (${response.status})`);
   }
+
+  return response.json();
 }
 
 /**

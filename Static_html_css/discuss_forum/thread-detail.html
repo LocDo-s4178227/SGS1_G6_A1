@@ -93,29 +93,27 @@ Posted by: <strong>Alex</strong> | Oct 25, 2026 at 10:30 AM
 /**
  * Add item to cart and optionally redirect
  */
-function agreePriceAndAddToCart(itemTitle, makerName, price, threadId) {
+async function agreePriceAndAddToCart(itemTitle, makerName, price, threadId) {
+  if (!Number.isFinite(Number(price)) || Number(price) <= 0) {
+    alert('A valid agreed price is required before adding this item to the cart.');
+    return;
+  }
   try {
-    let cart = JSON.parse(localStorage.getItem('forumCart') || '[]');
-    const cartItem = {
-      id: threadId,
-      title: itemTitle,
-      maker: makerName,
-      price: price,
-      threadId: threadId,
-      agreedAt: new Date().toISOString(),
-      status: 'Accepted Offer'
-    };
-    const existingIndex = cart.findIndex(item => item.threadId === threadId);
-    if (existingIndex >= 0) {
-      if (confirm(`"${itemTitle}" is already in your cart. Do you want to update it?`)) {
-        cart[existingIndex] = cartItem;
-      } else {
-        return;
-      }
-    } else {
-      cart.push(cartItem);
+    const cart = await apiCall(`/cart/${SESSION_ID}`);
+    if (cart.items.some(item => item.productId === threadId)) {
+      alert(`"${itemTitle}" is already in your cart.`);
+      return;
     }
-    localStorage.setItem('forumCart', JSON.stringify(cart));
+    await apiCall(`/cart/${SESSION_ID}/items`, {
+      method: 'POST',
+      body: JSON.stringify({
+        productId: threadId,
+        quantity: 1,
+        unitPrice: Number(price),
+        textDetails: { title: itemTitle, threadId, maker: makerName, status: 'Accepted Offer' }
+      })
+    });
+    await updateCartBadge();
     alert(`"${itemTitle}" has been added to your cart at $${price.toFixed(2)}\n\nRedirecting to cart...`);
     setTimeout(() => {
       window.location.href = '../shopping_cart/cart.html';
@@ -126,6 +124,7 @@ function agreePriceAndAddToCart(itemTitle, makerName, price, threadId) {
   }
 }
 </script>
+<script src="../shopping_cart/js/main.js"></script>
 <script src="../components/shared-nav.js"></script>
 <script src="js/discussion_forum.js?=v2"></script>
 </body>
