@@ -124,7 +124,12 @@
       "active": false
     }
   },
-  "carts": {},
+  "carts": {
+    "9e3c7964-f37b-41dc-8ac6-cfc0f13d075c": {
+      "sessionId": "9e3c7964-f37b-41dc-8ac6-cfc0f13d075c",
+      "items": []
+    }
+  },
   "orders": [],
   "threads": [
     {
@@ -146,16 +151,6 @@
       "image": "../images/mechanical_keyboard_case.png",
       "status": "Negotiating",
       "replyCount": 5
-    },
-    {
-      "id": "thread_1787021476862_428",
-      "author": "Alex_Student",
-      "title": "hiiiiiiiii",
-      "content": "finfinfinfin",
-      "posted_at": "2026-08-18T02:51:16.862Z",
-      "image": "",
-      "status": "Open",
-      "replyCount": 0
     }
   ],
   "replies": [
