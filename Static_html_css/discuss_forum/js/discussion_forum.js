@@ -423,11 +423,16 @@ if (submitBtn) submitBtn.disabled = true;
 try {
 let imageData = currentImage;
 
-// If user selected a new image, replace the old one
 const selectedImage = getSelectedImage(imageInput);
 
 if (selectedImage) {
     imageData = await fileToDataUrl(selectedImage);
+}
+
+// Image is required for every post
+if (!imageData) {
+    showFormError('Please upload an image for this post.');
+    return;
 }
 
 await apiRequest(`/api/threads/${threadId}`, {
@@ -522,6 +527,12 @@ const selectedImage = getSelectedImage(imageInput);
 
 if (selectedImage) {
     imageData = await fileToDataUrl(selectedImage);
+}
+
+// Image is required for every post
+if (!imageData) {
+    showFormError('Please upload an image for this reply.');
+    return;
 }
 
 await apiRequest(`/api/replies/${replyId}`, {
