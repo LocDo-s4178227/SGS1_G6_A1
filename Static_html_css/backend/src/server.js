@@ -1,13 +1,46 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const crypto = require("crypto");
+const fs = require("fs");
+const path = require("path");
+const multer = require("multer");
 const { db, generateId, generateOrderNumber, saveDb } = require("./data/db");
 
 const app = express();
 const PORT = Number(process.env.PORT || 5000);
 const passwordResetTokens = new Map();
 const activeSessions = new Map();
+
+const UPLOADS_DIR = path.join(__dirname, "uploads");
+if (!fs.existsSync(UPLOADS_DIR)) {
+  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, UPLOADS_DIR),
+  filename: (_req, file, cb) => {
+    const safeName = file.originalname
+      .replace(/\s+/g, "_")
+      .replace(/[^a-zA-Z0-9_\.-]/g, "");
+    const filename = `${Date.now()}-${crypto.randomBytes(6).toString("hex")}-${safeName}`;
+    cb(null, filename);
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(new Error("Only image uploads are allowed"));
+    }
+    cb(null, true);
+  }
+});
+
 app.use(cors());
+app.use("/uploads", express.static(UPLOADS_DIR));
 app.use(express.json());
 
 function sanitizeUser(user) {
@@ -647,19 +680,26 @@ function isOwner(req, resource) {
 }
 
 // 3. POST /api/threads - Create a new thread
-app.post("/api/threads", (req, res) => {
-  const { title, content, image, status } = req.body || {};
-  
+app.post("/api/threads", upload.single("image"), (req, res) => {
+  const { title, content, status } = req.body || {};
+
   // Author is always the currently authenticated user (from requireLogin),
-// never a value the client sends in the body - otherwise anyone could
-// post a thread pretending to be someone else.
-const author = req.user.username;
+  // never a value the client sends in the body - otherwise anyone could
+  // post a thread pretending to be someone else.
+  const author = req.user && req.user.username;
 
   if (!isNonEmptyString(title) || title.trim().length < 5) {
     return res.status(400).json({ success: false, message: "Title must be at least 5 characters" });
   }
   if (!isNonEmptyString(content) || content.trim().length < 10) {
     return res.status(400).json({ success: false, message: "Content must be at least 10 characters" });
+  }
+
+  let imageUrl = "";
+  if (req.file) {
+    imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+  } else if (req.body.image) {
+    imageUrl = req.body.image;
   }
 
   const id = generateId("thread");
@@ -669,7 +709,7 @@ const author = req.user.username;
     title: title.trim(),
     content: content.trim(),
     posted_at: new Date().toISOString(),
-    image: image || "",
+    image: imageUrl || "",
     status: status || "Open",
     replyCount: 0
   };
@@ -682,7 +722,7 @@ const author = req.user.username;
 });
 
 // 4. PUT /api/threads/:id - Update an existing thread
-app.put("/api/threads/:id", (req, res) => {
+app.put("/api/threads/:id", upload.single("image"), (req, res) => {
   const thread = (db.threads || []).find((t) => t.id === req.params.id);
   if (!thread) {
     return res.status(404).json({ success: false, message: "Thread not found" });
@@ -693,7 +733,7 @@ app.put("/api/threads/:id", (req, res) => {
     return res.status(403).json({ success: false, message: "You can only edit your own posts" });
   }
 
-  const { title, content, image, status } = req.body || {};
+  const { title, content, status } = req.body || {};
 
   if (typeof title !== "undefined") {
     if (!isNonEmptyString(title) || title.trim().length < 5) {
@@ -709,7 +749,11 @@ app.put("/api/threads/:id", (req, res) => {
     thread.content = content.trim();
   }
 
-  if (typeof image !== "undefined") thread.image = image;
+  if (req.file) {
+    thread.image = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+  } else if (typeof req.body.image !== "undefined") {
+    thread.image = req.body.image || "";
+  }
   if (typeof status !== "undefined") thread.status = status;
 
   saveDb(db);
@@ -738,15 +782,15 @@ app.delete("/api/threads/:id", (req, res) => {
 });
 
 // 6. POST /api/threads/:id/replies - Post a reply / quote offer under a thread
-app.post("/api/threads/:id/replies", (req, res) => {
+app.post("/api/threads/:id/replies", upload.single("image"), (req, res) => {
   const thread = (db.threads || []).find((t) => t.id === req.params.id);
   if (!thread) {
     return res.status(404).json({ success: false, message: "Thread not found" });
   }
 
-  const { title, content, price, image } = req.body || {};
-// Author is always the currently authenticated user (from requireLogin),
-// never a value the client sends in the body.
+  const { title, content, price } = req.body || {};
+  // Author is always the currently authenticated user (from requireLogin),
+  // never a value the client sends in the body.
   const author = req.user.username;
   if (!isNonEmptyString(title)) {
     return res.status(400).json({ success: false, message: "Reply title is required" });
@@ -760,6 +804,13 @@ app.post("/api/threads/:id/replies", (req, res) => {
     return res.status(400).json({ success: false, message: "Price must be a valid non-negative number" });
   }
 
+  let imageUrl = "";
+  if (req.file) {
+    imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+  } else if (req.body.image) {
+    imageUrl = req.body.image;
+  }
+
   const newReply = {
     id: generateId("reply"),
     threadId: req.params.id,
@@ -768,7 +819,7 @@ app.post("/api/threads/:id/replies", (req, res) => {
     content: content.trim(),
     price: parsedPrice,
     posted_at: new Date().toISOString(),
-    image: image || ""
+    image: imageUrl || ""
   };
 
   if (!db.replies) db.replies = [];
@@ -782,7 +833,7 @@ app.post("/api/threads/:id/replies", (req, res) => {
 });
 
 // 7. PUT /api/replies/:replyId - Update a reply / quote offer
-app.put("/api/replies/:replyId", (req, res) => {
+app.put("/api/replies/:replyId", upload.single("image"), (req, res) => {
   const reply = (db.replies || []).find((r) => r.id === req.params.replyId);
   if (!reply) {
     return res.status(404).json({ success: false, message: "Reply not found" });
@@ -793,7 +844,7 @@ app.put("/api/replies/:replyId", (req, res) => {
     return res.status(403).json({ success: false, message: "You can only edit your own replies" });
   }
 
-  const { title, content, price, image } = req.body || {};
+  const { title, content, price } = req.body || {};
 
   if (typeof title !== "undefined") {
     if (!isNonEmptyString(title)) {
@@ -817,7 +868,11 @@ app.put("/api/replies/:replyId", (req, res) => {
     reply.price = parsedPrice;
   }
 
-  if (typeof image !== "undefined") reply.image = image;
+  if (req.file) {
+    reply.image = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+  } else if (typeof req.body.image !== "undefined") {
+    reply.image = req.body.image || "";
+  }
 
   saveDb(db);
   return res.json({ success: true, reply });

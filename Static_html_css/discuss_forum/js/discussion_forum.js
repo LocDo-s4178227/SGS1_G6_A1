@@ -45,17 +45,16 @@ return new URLSearchParams(window.location.search).get(name);
 async function apiRequest(path, options = {}) {
 const url = path.startsWith('http') ? path : `${API_BASE}${path}`;
 const token = getAuthToken();
-const response = await fetch(url, {
-...options,
-headers: {
-'Content-Type': 'application/json',
-// Sends the REAL login token issued by /api/auth/login (or /register).
-// The server looks this token up itself to find out who is making the
-// request - it does not trust any username the client claims to be,
-// so a request can't be spoofed into editing/deleting someone else's post.
+const isFormData = options.body instanceof FormData;
+const headers = {
 ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
 ...(options.headers || {})
-}
+};
+if (!isFormData) headers['Content-Type'] = 'application/json';
+const response = await fetch(url, {
+...options,
+headers,
+body: options.body
 });
 let data = null;
 try {
@@ -97,45 +96,6 @@ hour: 'numeric',
 minute: '2-digit'
 });
 }
-// ==========================================
-// IMAGE UPLOAD HELPER
-// Converts the selected image file into a Base64 Data URL
-// so it can be sent inside the existing JSON API.
-// ==========================================
-function fileToDataUrl(file) {
-    return new Promise((resolve, reject) => {
-        if (!file) {
-            resolve('');
-            return;
-        }
-
-        if (!file.type.startsWith('image/')) {
-            reject(new Error('Please select a valid image file.'));
-            return;
-        }
-
-        const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
-
-        if (file.size > MAX_IMAGE_SIZE) {
-            reject(new Error('Image must be smaller than 5 MB.'));
-            return;
-        }
-
-        const reader = new FileReader();
-
-        reader.onload = () => {
-            resolve(reader.result);
-        };
-
-        reader.onerror = () => {
-            reject(new Error('Could not read the image file.'));
-        };
-
-        reader.readAsDataURL(file);
-    });
-}
-
-
 // Gets the selected file from a file input
 function getSelectedImage(fileInput) {
     if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
@@ -143,6 +103,41 @@ function getSelectedImage(fileInput) {
     }
 
     return fileInput.files[0];
+}
+function bindImagePreview(fileInput, imgPreviewEl) {
+if (!fileInput) return;
+if (!imgPreviewEl) {
+imgPreviewEl = document.createElement('img');
+imgPreviewEl.className = 'current-image-preview';
+imgPreviewEl.alt = 'Selected image preview';
+imgPreviewEl.style.display = 'none';
+fileInput.insertAdjacentElement('afterend', imgPreviewEl);
+}
+let previewUrl = '';
+fileInput.addEventListener('change', () => {
+const file = getSelectedImage(fileInput);
+if (previewUrl) URL.revokeObjectURL(previewUrl);
+if (!file) {
+if (imgPreviewEl) {
+imgPreviewEl.style.display = 'none';
+imgPreviewEl.removeAttribute('src');
+}
+return;
+}
+if (!file.type.startsWith('image/')) {
+fileInput.value = '';
+showFormError('Please select a valid image file.');
+return;
+}
+if (file.size > 5 * 1024 * 1024) {
+fileInput.value = '';
+showFormError('Image must be smaller than 5 MB.');
+return;
+}
+previewUrl = URL.createObjectURL(file);
+imgPreviewEl.src = previewUrl;
+imgPreviewEl.style.display = '';
+});
 }
 function truncateText(text, maxLength = 160) {
 if (!text) return '';
@@ -286,6 +281,7 @@ const contentInput = document.getElementById('edit-content');
 const submitBtn = form.querySelector('button[type="submit"]');
 const imageInput = document.getElementById('edit-image');
 const DRAFT_KEY = 'forum_new_thread_draft';
+bindImagePreview(imageInput, form.querySelector('.current-image-preview'));
 // --- Restore draft from Web Storage ---
 const saved = localStorage.getItem(DRAFT_KEY);
 if (saved) {
@@ -322,23 +318,19 @@ const isContentValid = validateContentField(contentInput);
 if (!isTitleValid || !isContentValid) return;
 if (submitBtn) submitBtn.disabled = true;
 try {
-    const selectedImage = getSelectedImage(imageInput);
-
-    // Image is required for a new post
-    if (!selectedImage) {
-        showFormError('Please upload an image for your post.');
-        return;
-    }
-
-    const imageData = await fileToDataUrl(selectedImage);
+  const selectedImage = getSelectedImage(imageInput);
+  if (!selectedImage) {
+    showFormError('Please upload an image for your post.');
+    return;
+  }
+  const formData = new FormData();
+  formData.append('title', titleInput.value.trim());
+  formData.append('content', contentInput.value.trim());
+  formData.append('image', selectedImage);
 
     const data = await apiRequest('/api/threads', {
         method: 'POST',
-        body: JSON.stringify({
-            title: titleInput.value.trim(),
-            content: contentInput.value.trim(),
-            image: imageData
-        })
+    body: formData
     });
 
     localStorage.removeItem(DRAFT_KEY);
@@ -374,6 +366,7 @@ const threadId = getQueryParam('threadId') || 'desk-001';
 const DRAFT_KEY = `forum_edit_thread_draft_${threadId}`;
 const draftFields = { title: titleInput, content: contentInput };
 let currentImage = '';
+bindImagePreview(imageInput, form.querySelector('.current-image-preview'));
 
 // --- Load current thread data from the server ---
 (async () => {
@@ -421,27 +414,15 @@ const isContentValid = validateContentField(contentInput);
 if (!isTitleValid || !isContentValid) return;
 if (submitBtn) submitBtn.disabled = true;
 try {
-let imageData = currentImage;
-
 const selectedImage = getSelectedImage(imageInput);
-
-if (selectedImage) {
-    imageData = await fileToDataUrl(selectedImage);
-}
-
-// Image is required for every post
-if (!imageData) {
-    showFormError('Please upload an image for this post.');
-    return;
-}
+const formData = new FormData();
+formData.append('title', titleInput.value.trim());
+formData.append('content', contentInput.value.trim());
+if (selectedImage) formData.append('image', selectedImage);
 
 await apiRequest(`/api/threads/${threadId}`, {
     method: 'PUT',
-    body: JSON.stringify({
-        title: titleInput.value.trim(),
-        content: contentInput.value.trim(),
-        image: imageData
-    })
+  body: formData
 });
 clearDraftFromStorage(DRAFT_KEY);
 alert('Changes saved successfully!');
@@ -470,6 +451,7 @@ const threadId = getQueryParam('threadId') || 'desk-001';
 const DRAFT_KEY = `forum_edit_reply_draft_${replyId}`;
 const draftFields = { title: titleInput, content: contentInput };
 let currentReplyImage = '';
+bindImagePreview(imageInput, form.querySelector('.current-image-preview'));
 // --- Load current reply data from the server ---
 (async () => {
 try {
@@ -521,27 +503,15 @@ const isContentValid = validateRequiredField(contentInput, 'Reply content');
 if (!isTitleValid || !isContentValid) return;
 if (submitBtn) submitBtn.disabled = true;
 try {
-let imageData = currentReplyImage;
-
 const selectedImage = getSelectedImage(imageInput);
-
-if (selectedImage) {
-    imageData = await fileToDataUrl(selectedImage);
-}
-
-// Image is required for every post
-if (!imageData) {
-    showFormError('Please upload an image for this reply.');
-    return;
-}
+const formData = new FormData();
+formData.append('title', titleInput.value.trim());
+formData.append('content', contentInput.value.trim());
+if (selectedImage) formData.append('image', selectedImage);
 
 await apiRequest(`/api/replies/${replyId}`, {
     method: 'PUT',
-    body: JSON.stringify({
-        title: titleInput.value.trim(),
-        content: contentInput.value.trim(),
-        image: imageData
-    })
+  body: formData
 });
 clearDraftFromStorage(DRAFT_KEY);
 alert('Reply updated successfully!');
@@ -575,6 +545,7 @@ const threadId = getQueryParam('threadId') || 'desk-001';
 // half-written reply survives an accidental page refresh.
 const DRAFT_KEY = `forum_new_reply_draft_${threadId}`;
 const draftFields = { title: titleInput, content: contentInput };
+bindImagePreview(imageInput, null);
 restoreDraftFromStorage(DRAFT_KEY, draftFields);
 bindDraftAutoSave(DRAFT_KEY, draftFields);
 [titleInput, contentInput].forEach((el) => {
@@ -602,15 +573,14 @@ if (!selectedImage) {
     return;
 }
 
-const imageData = await fileToDataUrl(selectedImage);
+const formData = new FormData();
+formData.append('title', titleInput.value.trim());
+formData.append('content', contentInput.value.trim());
+formData.append('image', selectedImage);
 
 await apiRequest(`/api/threads/${threadId}/replies`, {
     method: 'POST',
-    body: JSON.stringify({
-        title: titleInput.value.trim(),
-        content: contentInput.value.trim(),
-        image: imageData
-    })
+  body: formData
 });
 clearDraftFromStorage(DRAFT_KEY);
 alert('Reply posted successfully!');
