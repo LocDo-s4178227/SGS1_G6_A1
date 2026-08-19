@@ -39,40 +39,23 @@ const API_BASE = 'http://localhost:5000';
 // ==========================================
 // SMALL HELPERS
 // ==========================================
-function formatPrice(value) {
-  const num = Number(value);
-  if (!Number.isFinite(num) || num <= 0) return '';
-  return `$${num.toFixed(2)}`;
-}
-
-function validatePriceField(inputEl) {
-  if (!inputEl) return true;
-  const val = inputEl.value.trim();
-  if (!val) { clearFieldError(inputEl); return true; } // optional field
-  const num = Number(val);
-  if (Number.isNaN(num) || num < 0) {
-    showFieldError(inputEl, 'Price must be a valid non-negative number.');
-    return false;
-  }
-  clearFieldError(inputEl);
-  return true;
-}
 function getQueryParam(name) {
 return new URLSearchParams(window.location.search).get(name);
 }
 async function apiRequest(path, options = {}) {
 const url = path.startsWith('http') ? path : `${API_BASE}${path}`;
 const token = getAuthToken();
-const isFormData = options.body instanceof FormData;
-const headers = {
-...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-...(options.headers || {})
-};
-if (!isFormData) headers['Content-Type'] = 'application/json';
 const response = await fetch(url, {
 ...options,
-headers,
-body: options.body
+headers: {
+'Content-Type': 'application/json',
+// Sends the REAL login token issued by /api/auth/login (or /register).
+// The server looks this token up itself to find out who is making the
+// request - it does not trust any username the client claims to be,
+// so a request can't be spoofed into editing/deleting someone else's post.
+...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+...(options.headers || {})
+}
 });
 let data = null;
 try {
@@ -114,6 +97,45 @@ hour: 'numeric',
 minute: '2-digit'
 });
 }
+// ==========================================
+// IMAGE UPLOAD HELPER
+// Converts the selected image file into a Base64 Data URL
+// so it can be sent inside the existing JSON API.
+// ==========================================
+function fileToDataUrl(file) {
+    return new Promise((resolve, reject) => {
+        if (!file) {
+            resolve('');
+            return;
+        }
+
+        if (!file.type.startsWith('image/')) {
+            reject(new Error('Please select a valid image file.'));
+            return;
+        }
+
+        const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
+
+        if (file.size > MAX_IMAGE_SIZE) {
+            reject(new Error('Image must be smaller than 5 MB.'));
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = () => {
+            resolve(reader.result);
+        };
+
+        reader.onerror = () => {
+            reject(new Error('Could not read the image file.'));
+        };
+
+        reader.readAsDataURL(file);
+    });
+}
+
+
 // Gets the selected file from a file input
 function getSelectedImage(fileInput) {
     if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
@@ -121,56 +143,6 @@ function getSelectedImage(fileInput) {
     }
 
     return fileInput.files[0];
-}
-// Reads a File (from an <input type="file">) and resolves to a base64
-// data URL string, so it can be sent to the server as plain JSON
-// (used by reply create/edit, which post JSON rather than FormData).
-function fileToDataUrl(file) {
-  return new Promise((resolve, reject) => {
-    if (!file) {
-      resolve('');
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = () => reject(new Error('Could not read the selected image file.'));
-    reader.readAsDataURL(file);
-  });
-}
-function bindImagePreview(fileInput, imgPreviewEl) {
-if (!fileInput) return;
-if (!imgPreviewEl) {
-imgPreviewEl = document.createElement('img');
-imgPreviewEl.className = 'current-image-preview';
-imgPreviewEl.alt = 'Selected image preview';
-imgPreviewEl.style.display = 'none';
-fileInput.insertAdjacentElement('afterend', imgPreviewEl);
-}
-let previewUrl = '';
-fileInput.addEventListener('change', () => {
-const file = getSelectedImage(fileInput);
-if (previewUrl) URL.revokeObjectURL(previewUrl);
-if (!file) {
-if (imgPreviewEl) {
-imgPreviewEl.style.display = 'none';
-imgPreviewEl.removeAttribute('src');
-}
-return;
-}
-if (!file.type.startsWith('image/')) {
-fileInput.value = '';
-showFormError('Please select a valid image file.');
-return;
-}
-if (file.size > 5 * 1024 * 1024) {
-fileInput.value = '';
-showFormError('Image must be smaller than 5 MB.');
-return;
-}
-previewUrl = URL.createObjectURL(file);
-imgPreviewEl.src = previewUrl;
-imgPreviewEl.style.display = '';
-});
 }
 function truncateText(text, maxLength = 160) {
 if (!text) return '';
@@ -216,6 +188,21 @@ function validateRequiredField(inputEl, label) {
 if (!inputEl) return true;
 if (!inputEl.value || !inputEl.value.trim()) {
 showFieldError(inputEl, `${label} is required.`);
+return false;
+}
+clearFieldError(inputEl);
+return true;
+}
+function validatePriceField(inputEl) {
+if (!inputEl) return true;
+const value = inputEl.value.trim();
+if (!value) {
+clearFieldError(inputEl);
+return true;
+}
+const price = Number(value);
+if (!Number.isFinite(price) || price < 0) {
+showFieldError(inputEl, 'Price must be a valid non-negative number.');
 return false;
 }
 clearFieldError(inputEl);
@@ -314,7 +301,6 @@ const contentInput = document.getElementById('edit-content');
 const submitBtn = form.querySelector('button[type="submit"]');
 const imageInput = document.getElementById('edit-image');
 const DRAFT_KEY = 'forum_new_thread_draft';
-bindImagePreview(imageInput, form.querySelector('.current-image-preview'));
 // --- Restore draft from Web Storage ---
 const saved = localStorage.getItem(DRAFT_KEY);
 if (saved) {
@@ -351,19 +337,23 @@ const isContentValid = validateContentField(contentInput);
 if (!isTitleValid || !isContentValid) return;
 if (submitBtn) submitBtn.disabled = true;
 try {
-  const selectedImage = getSelectedImage(imageInput);
-  if (!selectedImage) {
-    showFormError('Please upload an image for your post.');
-    return;
-  }
-  const formData = new FormData();
-  formData.append('title', titleInput.value.trim());
-  formData.append('content', contentInput.value.trim());
-  formData.append('image', selectedImage);
+    const selectedImage = getSelectedImage(imageInput);
+
+    // Image is required for a new post
+    if (!selectedImage) {
+        showFormError('Please upload an image for your post.');
+        return;
+    }
+
+    const imageData = await fileToDataUrl(selectedImage);
 
     const data = await apiRequest('/api/threads', {
         method: 'POST',
-    body: formData
+        body: JSON.stringify({
+            title: titleInput.value.trim(),
+            content: contentInput.value.trim(),
+            image: imageData
+        })
     });
 
     localStorage.removeItem(DRAFT_KEY);
@@ -393,13 +383,12 @@ const titleInput = document.getElementById('edit-title');
 const contentInput = document.getElementById('edit-content');
 const submitBtn = form.querySelector('button[type="submit"]');
 const imageInput = document.getElementById('edit-image');
-const threadId = getQueryParam('threadId') ;
+const threadId = getQueryParam('threadId') || 'desk-001';
 // Web Storage draft key is scoped to this specific thread, so editing
 // two different threads never mixes up their unsaved drafts.
 const DRAFT_KEY = `forum_edit_thread_draft_${threadId}`;
 const draftFields = { title: titleInput, content: contentInput };
 let currentImage = '';
-bindImagePreview(imageInput, form.querySelector('.current-image-preview'));
 
 // --- Load current thread data from the server ---
 (async () => {
@@ -447,15 +436,27 @@ const isContentValid = validateContentField(contentInput);
 if (!isTitleValid || !isContentValid) return;
 if (submitBtn) submitBtn.disabled = true;
 try {
+let imageData = currentImage;
+
 const selectedImage = getSelectedImage(imageInput);
-const formData = new FormData();
-formData.append('title', titleInput.value.trim());
-formData.append('content', contentInput.value.trim());
-if (selectedImage) formData.append('image', selectedImage);
+
+if (selectedImage) {
+    imageData = await fileToDataUrl(selectedImage);
+}
+
+// Image is required for every post
+if (!imageData) {
+    showFormError('Please upload an image for this post.');
+    return;
+}
 
 await apiRequest(`/api/threads/${threadId}`, {
     method: 'PUT',
-  body: formData
+    body: JSON.stringify({
+        title: titleInput.value.trim(),
+        content: contentInput.value.trim(),
+        image: imageData
+    })
 });
 clearDraftFromStorage(DRAFT_KEY);
 alert('Changes saved successfully!');
@@ -472,175 +473,173 @@ if (submitBtn) submitBtn.disabled = false;
 // 3. EDIT REPLY (edit-reply.html) -> GET thread (to find reply) + PUT /api/replies/:id
 // ==========================================
 function initEditReplyForm() {
-  const form = document.getElementById('edit-reply-form');
-  if (!form) return;
-  form.setAttribute('novalidate', 'true');
-  const titleInput = document.getElementById('edit-reply-title');
-  const contentInput = document.getElementById('edit-reply-content');
-  const priceInput = document.getElementById('edit-reply-price');
-  const submitBtn = form.querySelector('button[type="submit"]');
-  const imageInput = document.getElementById('edit-reply-image');
-  const replyId = getQueryParam('replyId') || 'reply-001';
-  const threadId = getQueryParam('threadId') || 'desk-001';
-  const DRAFT_KEY = `forum_edit_reply_draft_${replyId}`;
-  const draftFields = { title: titleInput, content: contentInput, price: priceInput };
-  let currentReplyImage = '';
+const form = document.getElementById('edit-reply-form');
+if (!form) return;
+form.setAttribute('novalidate', 'true');
+const titleInput = document.getElementById('edit-reply-title');
+const contentInput = document.getElementById('edit-reply-content');
+const priceInput = document.getElementById('edit-reply-price');
+const submitBtn = form.querySelector('button[type="submit"]');
+const replyId = getQueryParam('replyId') || 'reply-001';
+const threadId = getQueryParam('threadId') || 'desk-001';
+// Web Storage draft key is scoped to this specific reply.
+const DRAFT_KEY = `forum_edit_reply_draft_${replyId}`;
+const draftFields = { title: titleInput, content: contentInput, price: priceInput };
+let currentReplyImage = '';
+// --- Load current reply data from the server ---
+(async () => {
+try {
+const data = await apiRequest(`/api/threads/${threadId}`);
+const reply = (data.thread.replies || []).find((r) => r.id === replyId);
+if (reply) {
+if (titleInput) titleInput.value = reply.title;
+if (contentInput) contentInput.value = reply.content;
+if (priceInput) priceInput.value = reply.price > 0 ? reply.price : '';
+currentReplyImage = reply.image || '';
+// If the user had unsaved edits in progress (e.g. the page was
+// refreshed by accident), restore those over the server values.
+restoreDraftFromStorage(DRAFT_KEY, draftFields);
+// Ownership check: only the original author may edit this reply.
+// (The server enforces this too on submit - this just gives the user
+// immediate feedback instead of letting them fill out the whole form first.)
+const currentUser = getCurrentUser();
+const isOwnerOfReply = currentUser &&
+String(reply.author || '').trim().toLowerCase() === String(currentUser.username || '').trim().toLowerCase();
+if (!isOwnerOfReply) {
+showFormError('You can only edit your own replies.');
+if (titleInput) titleInput.disabled = true;
+if (contentInput) contentInput.disabled = true;
+if (submitBtn) submitBtn.disabled = true;
+}
+} else {
+showFormError('Could not find this reply on the server.');
+}
+} catch (err) {
+console.error('Could not load reply for editing:', err);
+showFormError('Could not load this reply from the server.');
+}
+})();
+bindDraftAutoSave(DRAFT_KEY, draftFields);
+[titleInput, contentInput].forEach((el) => {
+el.addEventListener('input', () => {
+if (el === titleInput) validateRequiredField(titleInput, 'Reply title');
+if (el === contentInput) validateRequiredField(contentInput, 'Reply content');
+});
+el.addEventListener('blur', () => {
+if (el === titleInput) validateRequiredField(titleInput, 'Reply title');
+if (el === contentInput) validateRequiredField(contentInput, 'Reply content');
+});
+});
+if (priceInput) {
+priceInput.addEventListener('input', () => validatePriceField(priceInput));
+priceInput.addEventListener('blur', () => validatePriceField(priceInput));
+}
+form.addEventListener('submit', async (e) => {
+e.preventDefault();
+showFormError('');
+const isTitleValid = validateRequiredField(titleInput, 'Reply title');
+const isContentValid = validateRequiredField(contentInput, 'Reply content');
+const isPriceValid = validatePriceField(priceInput);
+if (!isTitleValid || !isContentValid || !isPriceValid) return;
+if (submitBtn) submitBtn.disabled = true;
+try {
+const selectedImage = getSelectedImage(imageInput);
+const priceValue = priceInput && priceInput.value.trim() ? Number(priceInput.value) : 0;
+let imageData = currentReplyImage;
+if (selectedImage) imageData = await fileToDataUrl(selectedImage);
 
-  (async () => {
-    try {
-      const data = await apiRequest(`/api/threads/${threadId}`);
-      const reply = (data.thread.replies || []).find((r) => r.id === replyId);
-      if (reply) {
-        if (titleInput) titleInput.value = reply.title;
-        if (contentInput) contentInput.value = reply.content;
-        if (priceInput) priceInput.value = reply.price > 0 ? reply.price : '';
-        currentReplyImage = reply.image || '';
-        restoreDraftFromStorage(DRAFT_KEY, draftFields);
-        const currentUser = getCurrentUser();
-        const isOwnerOfReply = currentUser &&
-          String(reply.author || '').trim().toLowerCase() === String(currentUser.username || '').trim().toLowerCase();
-        if (!isOwnerOfReply) {
-          showFormError('You can only edit your own replies.');
-          if (titleInput) titleInput.disabled = true;
-          if (contentInput) contentInput.disabled = true;
-          if (priceInput) priceInput.disabled = true;
-          if (submitBtn) submitBtn.disabled = true;
-        }
-      } else {
-        showFormError('Could not find this reply on the server.');
-      }
-    } catch (err) {
-      console.error('Could not load reply for editing:', err);
-      showFormError('Could not load this reply from the server.');
-    }
-  })();
-
-  bindDraftAutoSave(DRAFT_KEY, draftFields);
-  [titleInput, contentInput].forEach((el) => {
-    el.addEventListener('input', () => {
-      if (el === titleInput) validateRequiredField(titleInput, 'Reply title');
-      if (el === contentInput) validateRequiredField(contentInput, 'Reply content');
-    });
-    el.addEventListener('blur', () => {
-      if (el === titleInput) validateRequiredField(titleInput, 'Reply title');
-      if (el === contentInput) validateRequiredField(contentInput, 'Reply content');
-    });
-  });
-  if (priceInput) {
-    priceInput.addEventListener('input', () => validatePriceField(priceInput));
-    priceInput.addEventListener('blur', () => validatePriceField(priceInput));
-  }
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    showFormError('');
-    const isTitleValid = validateRequiredField(titleInput, 'Reply title');
-    const isContentValid = validateRequiredField(contentInput, 'Reply content');
-    const isPriceValid = validatePriceField(priceInput);
-    if (!isTitleValid || !isContentValid || !isPriceValid) return;
-    if (submitBtn) submitBtn.disabled = true;
-    try {
-      let imageData = currentReplyImage;
-      const selectedImage = getSelectedImage(imageInput);
-      if (selectedImage) {
-        imageData = await fileToDataUrl(selectedImage);
-      }
-      const priceValue = priceInput && priceInput.value.trim() ? Number(priceInput.value) : 0;
-
-      await apiRequest(`/api/replies/${replyId}`, {
-        method: 'PUT',
-        body: JSON.stringify({
-          title: titleInput.value.trim(),
-          content: contentInput.value.trim(),
-          price: priceValue,
-          image: imageData
-        })
-      });
-      clearDraftFromStorage(DRAFT_KEY);
-      alert('Reply updated successfully!');
-      window.location.href = `thread-detail.html?threadId=${threadId}`;
-    } catch (err) {
-      console.error('Update reply error:', err);
-      showFormError('Error: ' + err.message);
-    } finally {
-      if (submitBtn) submitBtn.disabled = false;
-    }
-  });
+await apiRequest(`/api/replies/${replyId}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+        title: titleInput.value.trim(),
+        content: contentInput.value.trim(),
+        price: priceValue,
+        image: imageData
+    })
+});
+clearDraftFromStorage(DRAFT_KEY);
+alert('Reply updated successfully!');
+window.location.href = `thread-detail.html?threadId=${threadId}`;
+} catch (err) {
+console.error('Update reply error:', err);
+showFormError('Error: ' + err.message);
+} finally {
+if (submitBtn) submitBtn.disabled = false;
+}
+});
 }
 // ==========================================
 // 4. POST REPLY (thread-detail.html) -> POST /api/threads/:id/replies
 // ==========================================
 function initPostReplyForm() {
-  const form = document.getElementById('post-reply-form');
-  if (!form) return;
-  if (!getCurrentUser()) {
-    showFormError('You must be logged in to reply. Please log in first.');
-    form.querySelectorAll('input, textarea, button').forEach((el) => { el.disabled = true; });
-    return;
-  }
-  const titleInput = document.getElementById('reply-title');
-  const contentInput = document.getElementById('reply-content');
-  const priceInput = document.getElementById('reply-price');
-  const submitBtn = form.querySelector('button[type="submit"]');
-  const imageInput = document.getElementById('reply-image');
-  const threadId = getQueryParam('threadId') || 'desk-001';
-  const DRAFT_KEY = `forum_new_reply_draft_${threadId}`;
-  const draftFields = { title: titleInput, content: contentInput, price: priceInput };
-  restoreDraftFromStorage(DRAFT_KEY, draftFields);
-  bindDraftAutoSave(DRAFT_KEY, draftFields);
+const form = document.getElementById('post-reply-form');
+if (!form) return;
+// Guests can't post a reply - the server would reject it anyway (401).
+if (!getCurrentUser()) {
+showFormError('You must be logged in to reply. Please log in first.');
+form.querySelectorAll('input, textarea, button').forEach((el) => { el.disabled = true; });
+return;
+}
+const titleInput = document.getElementById('reply-title');
+const contentInput = document.getElementById('reply-content');
+const priceInput = document.getElementById('reply-price');
+const submitBtn = form.querySelector('button[type="submit"]');
+const imageInput = document.getElementById('reply-image');
+const threadId = getQueryParam('threadId') || 'desk-001';
+// Web Storage draft key is scoped to this specific thread, so a
+// half-written reply survives an accidental page refresh.
+const DRAFT_KEY = `forum_new_reply_draft_${threadId}`;
+const draftFields = { title: titleInput, content: contentInput, price: priceInput };
+restoreDraftFromStorage(DRAFT_KEY, draftFields);
+bindDraftAutoSave(DRAFT_KEY, draftFields);
+[titleInput, contentInput].forEach((el) => {
+el.addEventListener('input', () => {
+if (el === titleInput) validateRequiredField(titleInput, 'Reply title');
+if (el === contentInput) validateRequiredField(contentInput, 'Reply content');
+});
+el.addEventListener('blur', () => {
+if (el === titleInput) validateRequiredField(titleInput, 'Reply title');
+if (el === contentInput) validateRequiredField(contentInput, 'Reply content');
+});
+});
+if (priceInput) {
+priceInput.addEventListener('input', () => validatePriceField(priceInput));
+priceInput.addEventListener('blur', () => validatePriceField(priceInput));
+}
+form.addEventListener('submit', async (e) => {
+e.preventDefault();
+showFormError('');
+const isTitleValid = validateRequiredField(titleInput, 'Reply title');
+const isContentValid = validateRequiredField(contentInput, 'Reply content');
+const isPriceValid = validatePriceField(priceInput);
+if (!isTitleValid || !isContentValid || !isPriceValid) return;
+if (submitBtn) submitBtn.disabled = true;
+try {
+const selectedImage = getSelectedImage(imageInput);
+const priceValue = priceInput && priceInput.value.trim() ? Number(priceInput.value) : 0;
+let imageData = '';
+if (selectedImage) imageData = await fileToDataUrl(selectedImage);
 
-  [titleInput, contentInput].forEach((el) => {
-    el.addEventListener('input', () => {
-      if (el === titleInput) validateRequiredField(titleInput, 'Reply title');
-      if (el === contentInput) validateRequiredField(contentInput, 'Reply content');
-    });
-    el.addEventListener('blur', () => {
-      if (el === titleInput) validateRequiredField(titleInput, 'Reply title');
-      if (el === contentInput) validateRequiredField(contentInput, 'Reply content');
-    });
-  });
-  if (priceInput) {
-    priceInput.addEventListener('input', () => validatePriceField(priceInput));
-    priceInput.addEventListener('blur', () => validatePriceField(priceInput));
-  }
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    showFormError('');
-    const isTitleValid = validateRequiredField(titleInput, 'Reply title');
-    const isContentValid = validateRequiredField(contentInput, 'Reply content');
-    const isPriceValid = validatePriceField(priceInput);
-    if (!isTitleValid || !isContentValid || !isPriceValid) return;
-    if (submitBtn) submitBtn.disabled = true;
-    try {
-      const selectedImage = getSelectedImage(imageInput);
-      if (!selectedImage) {
-        showFormError('Please upload an image for your reply.');
-        return;
-      }
-      const imageData = await fileToDataUrl(selectedImage);
-      const priceValue = priceInput && priceInput.value.trim() ? Number(priceInput.value) : 0;
-
-      await apiRequest(`/api/threads/${threadId}/replies`, {
-        method: 'POST',
-        body: JSON.stringify({
-          title: titleInput.value.trim(),
-          content: contentInput.value.trim(),
-          price: priceValue,
-          image: imageData
-        })
-      });
-      clearDraftFromStorage(DRAFT_KEY);
-      alert('Reply posted successfully!');
-      form.reset();
-      window.location.href = `thread-detail.html?threadId=${threadId}`;
-    } catch (err) {
-      console.error('Post reply error:', err);
-      showFormError('Error: ' + err.message);
-    } finally {
-      if (submitBtn) submitBtn.disabled = false;
-    }
-  });
+await apiRequest(`/api/threads/${threadId}/replies`, {
+    method: 'POST',
+    body: JSON.stringify({
+        title: titleInput.value.trim(),
+        content: contentInput.value.trim(),
+    price: priceValue,
+        image: imageData
+    })
+});
+clearDraftFromStorage(DRAFT_KEY);
+alert('Reply posted successfully!');
+form.reset();
+window.location.href = `thread-detail.html?threadId=${threadId}`;
+} catch (err) {
+console.error('Post reply error:', err);
+showFormError('Error: ' + err.message);
+} finally {
+if (submitBtn) submitBtn.disabled = false;
+}
+});
 }
 // ==========================================
 // 5. DELETE THREAD (thread-detail.html) -> DELETE /api/threads/:id
@@ -651,7 +650,7 @@ if (!form) return;
 form.addEventListener('submit', async (e) => {
 e.preventDefault();
 if (!confirm('Are you sure you want to delete this post?')) return;
-const threadId = form.dataset.threadId || getQueryParam('threadId');
+const threadId = form.dataset.threadId || getQueryParam('threadId') || 'desk-001';
 try {
 await apiRequest(`/api/threads/${threadId}`, { method: 'DELETE' });
 alert('Post deleted.');
@@ -673,7 +672,7 @@ form.addEventListener('submit', async (e) => {
 e.preventDefault();
 if (!confirm('Are you sure you want to delete this reply?')) return;
 const replyId = form.dataset.replyId;
-const threadId = form.dataset.threadId || getQueryParam('threadId') ;
+const threadId = form.dataset.threadId || getQueryParam('threadId') || 'desk-001';
 if (!replyId) {
 alert('Missing reply reference — cannot delete.');
 return;
@@ -860,33 +859,26 @@ async function initThreadDetailPage() {
     if (headingEl) headingEl.textContent = `Offers & Replies (${thread.replies.length})`;
 
     // Render the real replies (removes the old hardcoded demo reply)
-renderThreadReplies(thread.replies, threadId, currentUser, thread.title);
+    renderThreadReplies(thread.replies, threadId, currentUser);
+
   } catch (err) {
     console.error('Failed to load thread:', err);
     showFormError('Could not load this thread from the server.');
   }
 }
 
-function renderThreadReplies(replies, threadId, currentUser, threadTitle) {
+function renderThreadReplies(replies, threadId, currentUser) {
   const section = document.querySelector('.reply-section');
   const replyFormCard = document.getElementById('reply-form');
   if (!section || !replyFormCard) return;
 
+  // Remove any existing reply cards (including the old hardcoded demo one)
   section.querySelectorAll('.reply-card').forEach((el) => el.remove());
 
   replies.forEach((reply) => {
     const isOwner = currentUser &&
       String(reply.author || '').trim().toLowerCase() ===
       String(currentUser.username || '').trim().toLowerCase();
-
-    const offerSection = reply.price > 0 ? `
-      <div class="offer-section mt-1">
-        <div>
-          <span class="meta-info">Proposed Price:</span>
-          <div class="offer-price">${formatPrice(reply.price)}</div>
-        </div>
-        ${!isOwner ? `<button type="button" class="btn btn-success btn-sm" onclick="agreePriceAndAddToCart('${escapeHtml(threadTitle || '').replace(/'/g, "\\'")}', '${escapeHtml(reply.author).replace(/'/g, "\\'")}', ${reply.price}, '${threadId}')">Agree Price</button>` : ''}
-      </div>` : '';
 
     const article = document.createElement('article');
     article.className = 'card reply-card';
@@ -903,19 +895,26 @@ function renderThreadReplies(replies, threadId, currentUser, threadTitle) {
       </div>
       <div class="meta-info mb-1">Reply from: <strong>${escapeHtml(reply.author)}</strong> | ${formatPostedDate(reply.posted_at)}</div>
       <div class="post-content">
-        <p>${escapeHtml(reply.content)}</p>
-        ${
-          reply.image
-            ? `<div class="reply-image-container" style="margin-top: 12px;">
-                <img src="${escapeHtml(reply.image)}" alt="Reply attachment" style="max-width: 100%; max-height: 400px; border-radius: 8px; object-fit: contain;">
-              </div>`
+    <p>${escapeHtml(reply.content)}</p>
+
+    ${
+        reply.image
+            ? `
+            <div class="reply-image-container" style="margin-top: 12px;">
+                <img
+                    src="${escapeHtml(reply.image)}"
+                    alt="Reply attachment"
+                    style="max-width: 100%; max-height: 400px; border-radius: 8px; object-fit: contain;"
+                >
+            </div>
+            `
             : ''
-        }
-      </div>
-      ${offerSection}
+    }
+</div>
     `;
     section.insertBefore(article, replyFormCard);
   });
 
+  // Re-bind delete listeners since these reply forms are newly created
   initDeleteReplyForms();
 }
