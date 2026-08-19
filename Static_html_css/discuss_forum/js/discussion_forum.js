@@ -39,6 +39,24 @@ const API_BASE = 'http://localhost:5000';
 // ==========================================
 // SMALL HELPERS
 // ==========================================
+function formatPrice(value) {
+  const num = Number(value);
+  if (!Number.isFinite(num) || num <= 0) return '';
+  return `$${num.toFixed(2)}`;
+}
+
+function validatePriceField(inputEl) {
+  if (!inputEl) return true;
+  const val = inputEl.value.trim();
+  if (!val) { clearFieldError(inputEl); return true; } // optional field
+  const num = Number(val);
+  if (Number.isNaN(num) || num < 0) {
+    showFieldError(inputEl, 'Price must be a valid non-negative number.');
+    return false;
+  }
+  clearFieldError(inputEl);
+  return true;
+}
 function getQueryParam(name) {
 return new URLSearchParams(window.location.search).get(name);
 }
@@ -439,160 +457,175 @@ if (submitBtn) submitBtn.disabled = false;
 // 3. EDIT REPLY (edit-reply.html) -> GET thread (to find reply) + PUT /api/replies/:id
 // ==========================================
 function initEditReplyForm() {
-const form = document.getElementById('edit-reply-form');
-if (!form) return;
-form.setAttribute('novalidate', 'true');
-const titleInput = document.getElementById('edit-reply-title');
-const contentInput = document.getElementById('edit-reply-content');
-const submitBtn = form.querySelector('button[type="submit"]');
-const replyId = getQueryParam('replyId') || 'reply-001';
-const threadId = getQueryParam('threadId') ;
-// Web Storage draft key is scoped to this specific reply.
-const DRAFT_KEY = `forum_edit_reply_draft_${replyId}`;
-const draftFields = { title: titleInput, content: contentInput };
-let currentReplyImage = '';
-bindImagePreview(imageInput, form.querySelector('.current-image-preview'));
-// --- Load current reply data from the server ---
-(async () => {
-try {
-const data = await apiRequest(`/api/threads/${threadId}`);
-const reply = (data.thread.replies || []).find((r) => r.id === replyId);
-if (reply) {
-if (titleInput) titleInput.value = reply.title;
-if (contentInput) contentInput.value = reply.content;
-currentReplyImage = reply.image || '';
-// If the user had unsaved edits in progress (e.g. the page was
-// refreshed by accident), restore those over the server values.
-restoreDraftFromStorage(DRAFT_KEY, draftFields);
-// Ownership check: only the original author may edit this reply.
-// (The server enforces this too on submit - this just gives the user
-// immediate feedback instead of letting them fill out the whole form first.)
-const currentUser = getCurrentUser();
-const isOwnerOfReply = currentUser &&
-String(reply.author || '').trim().toLowerCase() === String(currentUser.username || '').trim().toLowerCase();
-if (!isOwnerOfReply) {
-showFormError('You can only edit your own replies.');
-if (titleInput) titleInput.disabled = true;
-if (contentInput) contentInput.disabled = true;
-if (submitBtn) submitBtn.disabled = true;
-}
-} else {
-showFormError('Could not find this reply on the server.');
-}
-} catch (err) {
-console.error('Could not load reply for editing:', err);
-showFormError('Could not load this reply from the server.');
-}
-})();
-bindDraftAutoSave(DRAFT_KEY, draftFields);
-[titleInput, contentInput].forEach((el) => {
-el.addEventListener('input', () => {
-if (el === titleInput) validateRequiredField(titleInput, 'Reply title');
-if (el === contentInput) validateRequiredField(contentInput, 'Reply content');
-});
-el.addEventListener('blur', () => {
-if (el === titleInput) validateRequiredField(titleInput, 'Reply title');
-if (el === contentInput) validateRequiredField(contentInput, 'Reply content');
-});
-});
-form.addEventListener('submit', async (e) => {
-e.preventDefault();
-showFormError('');
-const isTitleValid = validateRequiredField(titleInput, 'Reply title');
-const isContentValid = validateRequiredField(contentInput, 'Reply content');
-if (!isTitleValid || !isContentValid) return;
-if (submitBtn) submitBtn.disabled = true;
-try {
-const selectedImage = getSelectedImage(imageInput);
-const formData = new FormData();
-formData.append('title', titleInput.value.trim());
-formData.append('content', contentInput.value.trim());
-if (selectedImage) formData.append('image', selectedImage);
+  const form = document.getElementById('edit-reply-form');
+  if (!form) return;
+  form.setAttribute('novalidate', 'true');
+  const titleInput = document.getElementById('edit-reply-title');
+  const contentInput = document.getElementById('edit-reply-content');
+  const priceInput = document.getElementById('edit-reply-price');
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const imageInput = document.getElementById('edit-reply-image');
+  const replyId = getQueryParam('replyId') || 'reply-001';
+  const threadId = getQueryParam('threadId') || 'desk-001';
+  const DRAFT_KEY = `forum_edit_reply_draft_${replyId}`;
+  const draftFields = { title: titleInput, content: contentInput, price: priceInput };
+  let currentReplyImage = '';
 
-await apiRequest(`/api/replies/${replyId}`, {
-    method: 'PUT',
-  body: formData
-});
-clearDraftFromStorage(DRAFT_KEY);
-alert('Reply updated successfully!');
-window.location.href = `thread-detail.html?threadId=${threadId}`;
-} catch (err) {
-console.error('Update reply error:', err);
-showFormError('Error: ' + err.message);
-} finally {
-if (submitBtn) submitBtn.disabled = false;
-}
-});
+  (async () => {
+    try {
+      const data = await apiRequest(`/api/threads/${threadId}`);
+      const reply = (data.thread.replies || []).find((r) => r.id === replyId);
+      if (reply) {
+        if (titleInput) titleInput.value = reply.title;
+        if (contentInput) contentInput.value = reply.content;
+        if (priceInput) priceInput.value = reply.price > 0 ? reply.price : '';
+        currentReplyImage = reply.image || '';
+        restoreDraftFromStorage(DRAFT_KEY, draftFields);
+        const currentUser = getCurrentUser();
+        const isOwnerOfReply = currentUser &&
+          String(reply.author || '').trim().toLowerCase() === String(currentUser.username || '').trim().toLowerCase();
+        if (!isOwnerOfReply) {
+          showFormError('You can only edit your own replies.');
+          if (titleInput) titleInput.disabled = true;
+          if (contentInput) contentInput.disabled = true;
+          if (priceInput) priceInput.disabled = true;
+          if (submitBtn) submitBtn.disabled = true;
+        }
+      } else {
+        showFormError('Could not find this reply on the server.');
+      }
+    } catch (err) {
+      console.error('Could not load reply for editing:', err);
+      showFormError('Could not load this reply from the server.');
+    }
+  })();
+
+  bindDraftAutoSave(DRAFT_KEY, draftFields);
+  [titleInput, contentInput].forEach((el) => {
+    el.addEventListener('input', () => {
+      if (el === titleInput) validateRequiredField(titleInput, 'Reply title');
+      if (el === contentInput) validateRequiredField(contentInput, 'Reply content');
+    });
+    el.addEventListener('blur', () => {
+      if (el === titleInput) validateRequiredField(titleInput, 'Reply title');
+      if (el === contentInput) validateRequiredField(contentInput, 'Reply content');
+    });
+  });
+  if (priceInput) {
+    priceInput.addEventListener('input', () => validatePriceField(priceInput));
+    priceInput.addEventListener('blur', () => validatePriceField(priceInput));
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    showFormError('');
+    const isTitleValid = validateRequiredField(titleInput, 'Reply title');
+    const isContentValid = validateRequiredField(contentInput, 'Reply content');
+    const isPriceValid = validatePriceField(priceInput);
+    if (!isTitleValid || !isContentValid || !isPriceValid) return;
+    if (submitBtn) submitBtn.disabled = true;
+    try {
+      let imageData = currentReplyImage;
+      const selectedImage = getSelectedImage(imageInput);
+      if (selectedImage) {
+        imageData = await fileToDataUrl(selectedImage);
+      }
+      const priceValue = priceInput && priceInput.value.trim() ? Number(priceInput.value) : 0;
+
+      await apiRequest(`/api/replies/${replyId}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          title: titleInput.value.trim(),
+          content: contentInput.value.trim(),
+          price: priceValue,
+          image: imageData
+        })
+      });
+      clearDraftFromStorage(DRAFT_KEY);
+      alert('Reply updated successfully!');
+      window.location.href = `thread-detail.html?threadId=${threadId}`;
+    } catch (err) {
+      console.error('Update reply error:', err);
+      showFormError('Error: ' + err.message);
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
+  });
 }
 // ==========================================
 // 4. POST REPLY (thread-detail.html) -> POST /api/threads/:id/replies
 // ==========================================
 function initPostReplyForm() {
-const form = document.getElementById('post-reply-form');
-if (!form) return;
-// Guests can't post a reply - the server would reject it anyway (401).
-if (!getCurrentUser()) {
-showFormError('You must be logged in to reply. Please log in first.');
-form.querySelectorAll('input, textarea, button').forEach((el) => { el.disabled = true; });
-return;
-}
-const titleInput = document.getElementById('reply-title');
-const contentInput = document.getElementById('reply-content');
-const submitBtn = form.querySelector('button[type="submit"]');
-const imageInput = document.getElementById('reply-image');
-const threadId = getQueryParam('threadId');
-// Web Storage draft key is scoped to this specific thread, so a
-// half-written reply survives an accidental page refresh.
-const DRAFT_KEY = `forum_new_reply_draft_${threadId}`;
-const draftFields = { title: titleInput, content: contentInput };
-bindImagePreview(imageInput, null);
-restoreDraftFromStorage(DRAFT_KEY, draftFields);
-bindDraftAutoSave(DRAFT_KEY, draftFields);
-[titleInput, contentInput].forEach((el) => {
-el.addEventListener('input', () => {
-if (el === titleInput) validateRequiredField(titleInput, 'Reply title');
-if (el === contentInput) validateRequiredField(contentInput, 'Reply content');
-});
-el.addEventListener('blur', () => {
-if (el === titleInput) validateRequiredField(titleInput, 'Reply title');
-if (el === contentInput) validateRequiredField(contentInput, 'Reply content');
-});
-});
-form.addEventListener('submit', async (e) => {
-e.preventDefault();
-showFormError('');
-const isTitleValid = validateRequiredField(titleInput, 'Reply title');
-const isContentValid = validateRequiredField(contentInput, 'Reply content');
-if (!isTitleValid || !isContentValid) return;
-if (submitBtn) submitBtn.disabled = true;
-try {
-const selectedImage = getSelectedImage(imageInput);
-
-if (!selectedImage) {
-    showFormError('Please upload an image for your reply.');
+  const form = document.getElementById('post-reply-form');
+  if (!form) return;
+  if (!getCurrentUser()) {
+    showFormError('You must be logged in to reply. Please log in first.');
+    form.querySelectorAll('input, textarea, button').forEach((el) => { el.disabled = true; });
     return;
-}
+  }
+  const titleInput = document.getElementById('reply-title');
+  const contentInput = document.getElementById('reply-content');
+  const priceInput = document.getElementById('reply-price');
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const imageInput = document.getElementById('reply-image');
+  const threadId = getQueryParam('threadId') || 'desk-001';
+  const DRAFT_KEY = `forum_new_reply_draft_${threadId}`;
+  const draftFields = { title: titleInput, content: contentInput, price: priceInput };
+  restoreDraftFromStorage(DRAFT_KEY, draftFields);
+  bindDraftAutoSave(DRAFT_KEY, draftFields);
 
-const formData = new FormData();
-formData.append('title', titleInput.value.trim());
-formData.append('content', contentInput.value.trim());
-formData.append('image', selectedImage);
+  [titleInput, contentInput].forEach((el) => {
+    el.addEventListener('input', () => {
+      if (el === titleInput) validateRequiredField(titleInput, 'Reply title');
+      if (el === contentInput) validateRequiredField(contentInput, 'Reply content');
+    });
+    el.addEventListener('blur', () => {
+      if (el === titleInput) validateRequiredField(titleInput, 'Reply title');
+      if (el === contentInput) validateRequiredField(contentInput, 'Reply content');
+    });
+  });
+  if (priceInput) {
+    priceInput.addEventListener('input', () => validatePriceField(priceInput));
+    priceInput.addEventListener('blur', () => validatePriceField(priceInput));
+  }
 
-await apiRequest(`/api/threads/${threadId}/replies`, {
-    method: 'POST',
-  body: formData
-});
-clearDraftFromStorage(DRAFT_KEY);
-alert('Reply posted successfully!');
-form.reset();
-window.location.href = `thread-detail.html?threadId=${threadId}`;
-} catch (err) {
-console.error('Post reply error:', err);
-showFormError('Error: ' + err.message);
-} finally {
-if (submitBtn) submitBtn.disabled = false;
-}
-});
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    showFormError('');
+    const isTitleValid = validateRequiredField(titleInput, 'Reply title');
+    const isContentValid = validateRequiredField(contentInput, 'Reply content');
+    const isPriceValid = validatePriceField(priceInput);
+    if (!isTitleValid || !isContentValid || !isPriceValid) return;
+    if (submitBtn) submitBtn.disabled = true;
+    try {
+      const selectedImage = getSelectedImage(imageInput);
+      if (!selectedImage) {
+        showFormError('Please upload an image for your reply.');
+        return;
+      }
+      const imageData = await fileToDataUrl(selectedImage);
+      const priceValue = priceInput && priceInput.value.trim() ? Number(priceInput.value) : 0;
+
+      await apiRequest(`/api/threads/${threadId}/replies`, {
+        method: 'POST',
+        body: JSON.stringify({
+          title: titleInput.value.trim(),
+          content: contentInput.value.trim(),
+          price: priceValue,
+          image: imageData
+        })
+      });
+      clearDraftFromStorage(DRAFT_KEY);
+      alert('Reply posted successfully!');
+      form.reset();
+      window.location.href = `thread-detail.html?threadId=${threadId}`;
+    } catch (err) {
+      console.error('Post reply error:', err);
+      showFormError('Error: ' + err.message);
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
+  });
 }
 // ==========================================
 // 5. DELETE THREAD (thread-detail.html) -> DELETE /api/threads/:id
@@ -812,26 +845,33 @@ async function initThreadDetailPage() {
     if (headingEl) headingEl.textContent = `Offers & Replies (${thread.replies.length})`;
 
     // Render the real replies (removes the old hardcoded demo reply)
-    renderThreadReplies(thread.replies, threadId, currentUser);
-
+renderThreadReplies(thread.replies, threadId, currentUser, thread.title);
   } catch (err) {
     console.error('Failed to load thread:', err);
     showFormError('Could not load this thread from the server.');
   }
 }
 
-function renderThreadReplies(replies, threadId, currentUser) {
+function renderThreadReplies(replies, threadId, currentUser, threadTitle) {
   const section = document.querySelector('.reply-section');
   const replyFormCard = document.getElementById('reply-form');
   if (!section || !replyFormCard) return;
 
-  // Remove any existing reply cards (including the old hardcoded demo one)
   section.querySelectorAll('.reply-card').forEach((el) => el.remove());
 
   replies.forEach((reply) => {
     const isOwner = currentUser &&
       String(reply.author || '').trim().toLowerCase() ===
       String(currentUser.username || '').trim().toLowerCase();
+
+    const offerSection = reply.price > 0 ? `
+      <div class="offer-section mt-1">
+        <div>
+          <span class="meta-info">Proposed Price:</span>
+          <div class="offer-price">${formatPrice(reply.price)}</div>
+        </div>
+        ${!isOwner ? `<button type="button" class="btn btn-success btn-sm" onclick="agreePriceAndAddToCart('${escapeHtml(threadTitle || '').replace(/'/g, "\\'")}', '${escapeHtml(reply.author).replace(/'/g, "\\'")}', ${reply.price}, '${threadId}')">Agree Price</button>` : ''}
+      </div>` : '';
 
     const article = document.createElement('article');
     article.className = 'card reply-card';
@@ -848,26 +888,19 @@ function renderThreadReplies(replies, threadId, currentUser) {
       </div>
       <div class="meta-info mb-1">Reply from: <strong>${escapeHtml(reply.author)}</strong> | ${formatPostedDate(reply.posted_at)}</div>
       <div class="post-content">
-    <p>${escapeHtml(reply.content)}</p>
-
-    ${
-        reply.image
-            ? `
-            <div class="reply-image-container" style="margin-top: 12px;">
-                <img
-                    src="${escapeHtml(reply.image)}"
-                    alt="Reply attachment"
-                    style="max-width: 100%; max-height: 400px; border-radius: 8px; object-fit: contain;"
-                >
-            </div>
-            `
+        <p>${escapeHtml(reply.content)}</p>
+        ${
+          reply.image
+            ? `<div class="reply-image-container" style="margin-top: 12px;">
+                <img src="${escapeHtml(reply.image)}" alt="Reply attachment" style="max-width: 100%; max-height: 400px; border-radius: 8px; object-fit: contain;">
+              </div>`
             : ''
-    }
-</div>
+        }
+      </div>
+      ${offerSection}
     `;
     section.insertBefore(article, replyFormCard);
   });
 
-  // Re-bind delete listeners since these reply forms are newly created
   initDeleteReplyForms();
 }
