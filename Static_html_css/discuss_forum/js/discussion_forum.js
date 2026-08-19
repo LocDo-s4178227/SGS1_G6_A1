@@ -97,6 +97,53 @@ hour: 'numeric',
 minute: '2-digit'
 });
 }
+// ==========================================
+// IMAGE UPLOAD HELPER
+// Converts the selected image file into a Base64 Data URL
+// so it can be sent inside the existing JSON API.
+// ==========================================
+function fileToDataUrl(file) {
+    return new Promise((resolve, reject) => {
+        if (!file) {
+            resolve('');
+            return;
+        }
+
+        if (!file.type.startsWith('image/')) {
+            reject(new Error('Please select a valid image file.'));
+            return;
+        }
+
+        const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
+
+        if (file.size > MAX_IMAGE_SIZE) {
+            reject(new Error('Image must be smaller than 5 MB.'));
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = () => {
+            resolve(reader.result);
+        };
+
+        reader.onerror = () => {
+            reject(new Error('Could not read the image file.'));
+        };
+
+        reader.readAsDataURL(file);
+    });
+}
+
+
+// Gets the selected file from a file input
+function getSelectedImage(fileInput) {
+    if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+        return null;
+    }
+
+    return fileInput.files[0];
+}
 function truncateText(text, maxLength = 160) {
 if (!text) return '';
 const trimmed = String(text).trim();
@@ -237,6 +284,7 @@ form.setAttribute('novalidate', 'true');
 const titleInput = document.getElementById('edit-title');
 const contentInput = document.getElementById('edit-content');
 const submitBtn = form.querySelector('button[type="submit"]');
+const imageInput = document.getElementById('edit-image');
 const DRAFT_KEY = 'forum_new_thread_draft';
 // --- Restore draft from Web Storage ---
 const saved = localStorage.getItem(DRAFT_KEY);
@@ -274,23 +322,38 @@ const isContentValid = validateContentField(contentInput);
 if (!isTitleValid || !isContentValid) return;
 if (submitBtn) submitBtn.disabled = true;
 try {
-const data = await apiRequest('/api/threads', {
-method: 'POST',
-body: JSON.stringify({
-// No "author" field here - the server sets it from the authenticated
-// session (req.user.username), so a client can never claim to be someone else.
-title: titleInput.value.trim(),
-content: contentInput.value.trim()
-})
-});
-localStorage.removeItem(DRAFT_KEY);
-alert('Thread published successfully!');
-window.location.href = `thread-detail.html?threadId=${data.thread.id}`;
+    const selectedImage = getSelectedImage(imageInput);
+
+    // Image is required for a new post
+    if (!selectedImage) {
+        showFormError('Please upload an image for your post.');
+        return;
+    }
+
+    const imageData = await fileToDataUrl(selectedImage);
+
+    const data = await apiRequest('/api/threads', {
+        method: 'POST',
+        body: JSON.stringify({
+            title: titleInput.value.trim(),
+            content: contentInput.value.trim(),
+            image: imageData
+        })
+    });
+
+    localStorage.removeItem(DRAFT_KEY);
+
+    alert('Thread published successfully!');
+
+    window.location.href =
+        `thread-detail.html?threadId=${data.thread.id}`;
+
 } catch (err) {
-console.error('Create thread error:', err);
-showFormError('Error: ' + err.message);
+    console.error('Create thread error:', err);
+    showFormError('Error: ' + err.message);
+
 } finally {
-if (submitBtn) submitBtn.disabled = false;
+    if (submitBtn) submitBtn.disabled = false;
 }
 });
 }
@@ -304,17 +367,21 @@ form.setAttribute('novalidate', 'true');
 const titleInput = document.getElementById('edit-title');
 const contentInput = document.getElementById('edit-content');
 const submitBtn = form.querySelector('button[type="submit"]');
+const imageInput = document.getElementById('edit-image');
 const threadId = getQueryParam('threadId') || 'desk-001';
 // Web Storage draft key is scoped to this specific thread, so editing
 // two different threads never mixes up their unsaved drafts.
 const DRAFT_KEY = `forum_edit_thread_draft_${threadId}`;
 const draftFields = { title: titleInput, content: contentInput };
+let currentImage = '';
+
 // --- Load current thread data from the server ---
 (async () => {
 try {
 const data = await apiRequest(`/api/threads/${threadId}`);
 if (titleInput) titleInput.value = data.thread.title;
 if (contentInput) contentInput.value = data.thread.content;
+currentImage = data.thread.image || '';
 // If the user had unsaved edits in progress (e.g. the page was
 // refreshed by accident), restore those over the server values.
 restoreDraftFromStorage(DRAFT_KEY, draftFields);
@@ -354,12 +421,22 @@ const isContentValid = validateContentField(contentInput);
 if (!isTitleValid || !isContentValid) return;
 if (submitBtn) submitBtn.disabled = true;
 try {
+let imageData = currentImage;
+
+// If user selected a new image, replace the old one
+const selectedImage = getSelectedImage(imageInput);
+
+if (selectedImage) {
+    imageData = await fileToDataUrl(selectedImage);
+}
+
 await apiRequest(`/api/threads/${threadId}`, {
-method: 'PUT',
-body: JSON.stringify({
-title: titleInput.value.trim(),
-content: contentInput.value.trim()
-})
+    method: 'PUT',
+    body: JSON.stringify({
+        title: titleInput.value.trim(),
+        content: contentInput.value.trim(),
+        image: imageData
+    })
 });
 clearDraftFromStorage(DRAFT_KEY);
 alert('Changes saved successfully!');
@@ -387,6 +464,7 @@ const threadId = getQueryParam('threadId') || 'desk-001';
 // Web Storage draft key is scoped to this specific reply.
 const DRAFT_KEY = `forum_edit_reply_draft_${replyId}`;
 const draftFields = { title: titleInput, content: contentInput };
+let currentReplyImage = '';
 // --- Load current reply data from the server ---
 (async () => {
 try {
@@ -395,6 +473,7 @@ const reply = (data.thread.replies || []).find((r) => r.id === replyId);
 if (reply) {
 if (titleInput) titleInput.value = reply.title;
 if (contentInput) contentInput.value = reply.content;
+currentReplyImage = reply.image || '';
 // If the user had unsaved edits in progress (e.g. the page was
 // refreshed by accident), restore those over the server values.
 restoreDraftFromStorage(DRAFT_KEY, draftFields);
@@ -437,12 +516,21 @@ const isContentValid = validateRequiredField(contentInput, 'Reply content');
 if (!isTitleValid || !isContentValid) return;
 if (submitBtn) submitBtn.disabled = true;
 try {
+let imageData = currentReplyImage;
+
+const selectedImage = getSelectedImage(imageInput);
+
+if (selectedImage) {
+    imageData = await fileToDataUrl(selectedImage);
+}
+
 await apiRequest(`/api/replies/${replyId}`, {
-method: 'PUT',
-body: JSON.stringify({
-title: titleInput.value.trim(),
-content: contentInput.value.trim()
-})
+    method: 'PUT',
+    body: JSON.stringify({
+        title: titleInput.value.trim(),
+        content: contentInput.value.trim(),
+        image: imageData
+    })
 });
 clearDraftFromStorage(DRAFT_KEY);
 alert('Reply updated successfully!');
@@ -470,6 +558,7 @@ return;
 const titleInput = document.getElementById('reply-title');
 const contentInput = document.getElementById('reply-content');
 const submitBtn = form.querySelector('button[type="submit"]');
+const imageInput = document.getElementById('reply-image');
 const threadId = getQueryParam('threadId') || 'desk-001';
 // Web Storage draft key is scoped to this specific thread, so a
 // half-written reply survives an accidental page refresh.
@@ -495,14 +584,22 @@ const isContentValid = validateRequiredField(contentInput, 'Reply content');
 if (!isTitleValid || !isContentValid) return;
 if (submitBtn) submitBtn.disabled = true;
 try {
+const selectedImage = getSelectedImage(imageInput);
+
+if (!selectedImage) {
+    showFormError('Please upload an image for your reply.');
+    return;
+}
+
+const imageData = await fileToDataUrl(selectedImage);
+
 await apiRequest(`/api/threads/${threadId}/replies`, {
-method: 'POST',
-body: JSON.stringify({
-// No "author" field here - the server sets it from the authenticated
-// session (req.user.username), so a client can never claim to be someone else.
-title: titleInput.value.trim(),
-content: contentInput.value.trim()
-})
+    method: 'POST',
+    body: JSON.stringify({
+        title: titleInput.value.trim(),
+        content: contentInput.value.trim(),
+        image: imageData
+    })
 });
 clearDraftFromStorage(DRAFT_KEY);
 alert('Reply posted successfully!');
@@ -769,7 +866,23 @@ function renderThreadReplies(replies, threadId, currentUser) {
         </div>` : ''}
       </div>
       <div class="meta-info mb-1">Reply from: <strong>${escapeHtml(reply.author)}</strong> | ${formatPostedDate(reply.posted_at)}</div>
-      <div class="post-content"><p>${escapeHtml(reply.content)}</p></div>
+      <div class="post-content">
+    <p>${escapeHtml(reply.content)}</p>
+
+    ${
+        reply.image
+            ? `
+            <div class="reply-image-container" style="margin-top: 12px;">
+                <img
+                    src="${escapeHtml(reply.image)}"
+                    alt="Reply attachment"
+                    style="max-width: 100%; max-height: 400px; border-radius: 8px; object-fit: contain;"
+                >
+            </div>
+            `
+            : ''
+    }
+</div>
     `;
     section.insertBefore(article, replyFormCard);
   });
