@@ -827,7 +827,9 @@ app.post("/api/threads/:id/replies", upload.single("image"), (req, res) => {
   
   // Increment thread reply count
   thread.replyCount = (thread.replyCount || 0) + 1;
-
+  if (parsedPrice > 0 && (thread.status || "Open").toLowerCase() === "open") {
+  thread.status = "Negotiating";
+}
   saveDb(db);
   return res.status(201).json({ success: true, reply: newReply });
 });

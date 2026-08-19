@@ -119,6 +119,18 @@ async function agreePriceAndAddToCart(itemTitle, makerName, price, threadId) {
         textDetails: { title: itemTitle, threadId, maker: makerName, status: 'Accepted Offer' }
       })
     });
+
+  
+    const authToken = localStorage.getItem('authToken') || '';
+    await fetch(`http://localhost:5000/api/threads/${threadId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {})
+      },
+      body: JSON.stringify({ status: 'Closed' })
+    });
+
     await updateCartBadge();
     alert(`"${itemTitle}" has been added to your cart at $${price.toFixed(2)}\n\nRedirecting to cart...`);
     setTimeout(() => {

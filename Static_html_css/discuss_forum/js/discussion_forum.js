@@ -122,6 +122,21 @@ function getSelectedImage(fileInput) {
 
     return fileInput.files[0];
 }
+// Reads a File (from an <input type="file">) and resolves to a base64
+// data URL string, so it can be sent to the server as plain JSON
+// (used by reply create/edit, which post JSON rather than FormData).
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    if (!file) {
+      resolve('');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error('Could not read the selected image file.'));
+    reader.readAsDataURL(file);
+  });
+}
 function bindImagePreview(fileInput, imgPreviewEl) {
 if (!fileInput) return;
 if (!imgPreviewEl) {
