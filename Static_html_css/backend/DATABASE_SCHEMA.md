@@ -102,6 +102,32 @@ erDiagram
         string image
     }
 
+    BLOGS {
+        string id PK
+        string authorId FK
+        string title
+        string dateAdded
+        string category
+        array tags
+        string image
+        string summary
+        string content
+    }
+
+    REVIEWS {
+        string id PK
+        string reviewerId FK
+        string productId
+        string title
+        string product
+        string category
+        number rating
+        string summary
+        string description
+        string image
+        string dateAdded
+    }
+
     USERS ||--|| USER_PREFERENCES : has
     CARTS ||--o{ CART_ITEMS : contains
     ORDERS ||--o{ ORDER_ITEMS : captures
@@ -111,6 +137,8 @@ erDiagram
     USERS ||--o{ THREADS : authors
     THREADS ||--o{ REPLIES : contains
     USERS ||--o{ REPLIES : authors
+    USERS ||--o{ BLOGS : authors
+    USERS ||--o{ REVIEWS : writes
 ```
 
 ## Relationship Notes
@@ -124,6 +152,11 @@ erDiagram
     the user relationships are logical links rather than enforced foreign keys.
 - `REPLIES.threadId` identifies the parent discussion thread. Deleting a thread
     also removes its associated replies.
+- `BLOGS.authorId` and `REVIEWS.reviewerId` identify the user who created each
+    record when the backend-backed module is enabled.
+- `REVIEWS.productId` identifies the reviewed marketplace item. Product details
+    are represented by fields in the review because there is no separate
+    products collection in the current JSON database.
 
 ## Main Data Collections
 
@@ -158,6 +191,15 @@ erDiagram
 - **Discussion Replies:** Stores replies and price offers posted under a
     discussion thread. Each reply is linked to one thread and includes its author,
     title, content, optional price, optional image, and posting date.
+- **Blog Posts:** Stores articles published through the Blog module. A blog post
+    includes its author, title, publication date, category, tags, image URL,
+    summary, and full content. The author is associated with a user through
+    `authorId` when backend persistence is used.
+- **Reviews and Ratings:** Stores product feedback submitted by users. A review
+    includes its reviewer, product reference, title, product name, category,
+    numeric rating, summary, detailed description, image, and date added. The
+    reviewer is associated with a user through `reviewerId`, while `productId`
+    is a logical reference to the reviewed marketplace item.
 
 ## Data Source
 
