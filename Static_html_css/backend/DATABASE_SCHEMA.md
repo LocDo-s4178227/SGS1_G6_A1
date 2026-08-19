@@ -191,15 +191,18 @@ erDiagram
 - **Discussion Replies:** Stores replies and price offers posted under a
     discussion thread. Each reply is linked to one thread and includes its author,
     title, content, optional price, optional image, and posting date.
-- **Blog Posts:** Stores articles published through the Blog module. A blog post
-    includes its author, title, publication date, category, tags, image URL,
-    summary, and full content. The author is associated with a user through
-    `authorId` when backend persistence is used.
-- **Reviews and Ratings:** Stores product feedback submitted by users. A review
-    includes its reviewer, product reference, title, product name, category,
-    numeric rating, summary, detailed description, image, and date added. The
-    reviewer is associated with a user through `reviewerId`, while `productId`
-    is a logical reference to the reviewed marketplace item.
+- **Blog Posts:** Stores articles published through the Blog module. Each blog
+    post includes a blog ID, author, title, publication date, category, tags,
+    image URL, summary, and full article content. The author can be associated
+    with a user through `authorId`, and the blog record supports ownership checks
+    for editing or deleting posts.
+- **Reviews and Ratings:** Stores product feedback submitted through the Review
+    module. Each review includes a review ID, reviewer, product reference,
+    product name, title, category, numeric rating, summary, detailed description,
+    image, and date added. The reviewer can be associated with a user through
+    `reviewerId`, while `productId` is a logical reference to the reviewed
+    marketplace item. Review ownership is used when users edit or delete their
+    own reviews.
 
 ## Data Source
 
