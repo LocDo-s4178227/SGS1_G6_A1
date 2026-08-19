@@ -859,7 +859,7 @@ async function initThreadDetailPage() {
     if (headingEl) headingEl.textContent = `Offers & Replies (${thread.replies.length})`;
 
     // Render the real replies (removes the old hardcoded demo reply)
-    renderThreadReplies(thread.replies, threadId, currentUser);
+    renderThreadReplies(thread.replies, threadId, currentUser, thread.author, thread.title);
 
   } catch (err) {
     console.error('Failed to load thread:', err);
@@ -867,10 +867,13 @@ async function initThreadDetailPage() {
   }
 }
 
-function renderThreadReplies(replies, threadId, currentUser) {
+function renderThreadReplies(replies, threadId, currentUser, threadAuthor, threadTitle) {
   const section = document.querySelector('.reply-section');
   const replyFormCard = document.getElementById('reply-form');
   if (!section || !replyFormCard) return;
+  const isThreadOwner = currentUser &&
+    String(threadAuthor || '').trim().toLowerCase() ===
+    String(currentUser.username || '').trim().toLowerCase();
 
   // Remove any existing reply cards (including the old hardcoded demo one)
   section.querySelectorAll('.reply-card').forEach((el) => el.remove());
@@ -911,10 +914,33 @@ function renderThreadReplies(replies, threadId, currentUser) {
             : ''
     }
 </div>
+      ${isThreadOwner && Number(reply.price) > 0 ? `
+      <div class="offer-section">
+        <div>
+          <span class="meta-info">Proposed Price:</span>
+          <div class="offer-price">$${Number(reply.price).toFixed(2)}</div>
+        </div>
+        <button
+          type="button"
+          class="btn btn-success accept-offer-button"
+          data-thread-id="${escapeHtml(threadId)}"
+          data-thread-title="${escapeHtml(threadTitle)}"
+          data-maker="${escapeHtml(reply.author)}"
+          data-price="${Number(reply.price)}"
+        >Agree Price</button>
+      </div>` : ''}
     `;
     section.insertBefore(article, replyFormCard);
   });
 
   // Re-bind delete listeners since these reply forms are newly created
   initDeleteReplyForms();
+  section.querySelectorAll('.accept-offer-button').forEach((button) => {
+    button.addEventListener('click', () => agreePriceAndAddToCart(
+      button.dataset.threadTitle,
+      button.dataset.maker,
+      Number(button.dataset.price),
+      button.dataset.threadId
+    ));
+  });
 }
