@@ -360,7 +360,7 @@ const titleInput = document.getElementById('edit-title');
 const contentInput = document.getElementById('edit-content');
 const submitBtn = form.querySelector('button[type="submit"]');
 const imageInput = document.getElementById('edit-image');
-const threadId = getQueryParam('threadId') || 'desk-001';
+const threadId = getQueryParam('threadId') ;
 // Web Storage draft key is scoped to this specific thread, so editing
 // two different threads never mixes up their unsaved drafts.
 const DRAFT_KEY = `forum_edit_thread_draft_${threadId}`;
@@ -446,7 +446,7 @@ const titleInput = document.getElementById('edit-reply-title');
 const contentInput = document.getElementById('edit-reply-content');
 const submitBtn = form.querySelector('button[type="submit"]');
 const replyId = getQueryParam('replyId') || 'reply-001';
-const threadId = getQueryParam('threadId') || 'desk-001';
+const threadId = getQueryParam('threadId') ;
 // Web Storage draft key is scoped to this specific reply.
 const DRAFT_KEY = `forum_edit_reply_draft_${replyId}`;
 const draftFields = { title: titleInput, content: contentInput };
@@ -540,7 +540,7 @@ const titleInput = document.getElementById('reply-title');
 const contentInput = document.getElementById('reply-content');
 const submitBtn = form.querySelector('button[type="submit"]');
 const imageInput = document.getElementById('reply-image');
-const threadId = getQueryParam('threadId') || 'desk-001';
+const threadId = getQueryParam('threadId');
 // Web Storage draft key is scoped to this specific thread, so a
 // half-written reply survives an accidental page refresh.
 const DRAFT_KEY = `forum_new_reply_draft_${threadId}`;
@@ -603,7 +603,7 @@ if (!form) return;
 form.addEventListener('submit', async (e) => {
 e.preventDefault();
 if (!confirm('Are you sure you want to delete this post?')) return;
-const threadId = form.dataset.threadId || getQueryParam('threadId') || 'desk-001';
+const threadId = form.dataset.threadId || getQueryParam('threadId');
 try {
 await apiRequest(`/api/threads/${threadId}`, { method: 'DELETE' });
 alert('Post deleted.');
@@ -625,7 +625,7 @@ form.addEventListener('submit', async (e) => {
 e.preventDefault();
 if (!confirm('Are you sure you want to delete this reply?')) return;
 const replyId = form.dataset.replyId;
-const threadId = form.dataset.threadId || getQueryParam('threadId') || 'desk-001';
+const threadId = form.dataset.threadId || getQueryParam('threadId') ;
 if (!replyId) {
 alert('Missing reply reference — cannot delete.');
 return;
