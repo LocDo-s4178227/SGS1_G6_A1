@@ -34,6 +34,16 @@ npm start
 - `POST /api/orders/checkout/:sessionId`
 - `GET /api/marketplace`
 
+### Discussion Forum (requires `Authorization: Bearer <token>`)
+- `GET /api/threads`
+- `GET /api/threads/:id`
+- `POST /api/threads`
+- `PUT /api/threads/:id`
+- `DELETE /api/threads/:id`
+- `POST /api/threads/:id/replies`
+- `PUT /api/replies/:replyId`
+- `DELETE /api/replies/:replyId`
+
 ## Data Model Diagram
 
 - Full schema and relationships: `DATABASE_SCHEMA.md`
