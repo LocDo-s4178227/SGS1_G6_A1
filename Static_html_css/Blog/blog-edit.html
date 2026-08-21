@@ -1,105 +1,351 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
     <title>Edit Blog Post - WebReview</title>
-    <link rel="stylesheet" href="../css/shopping_module_style.css">
-    <link rel="stylesheet" href="../css/blog.css">
-    <link rel="stylesheet" href="../css/top-nav.css">
+
+    <link
+        rel="stylesheet"
+        href="../css/shopping_module_style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../css/blog.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../css/top-nav.css"
+    >
+
 </head>
+
+
 <body class="with-rshop-nav">
-  <div id="rshop-shared-nav"></div>
 
-    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <div id="rshop-shared-nav"></div>
 
-    
 
-    <main id="main-content" class="container page">
+    <a
+        class="skip-link"
+        href="#main-content"
+    >
+        Skip to main content
+    </a>
+
+
+    <main
+        id="main-content"
+        class="container page"
+    >
+
         <div class="page-header">
-            <h1>Edit Blog Post</h1>
-            <p>Update an existing post. Only the author or an admin can save changes.</p>
+
+            <h1>
+                Edit Blog Post
+            </h1>
+
+            <p>
+                Update an existing post.
+                Only the original author can save or delete changes.
+            </p>
+
         </div>
 
-        <section class="blog-form-section card" aria-labelledby="edit-heading">
-            <h2 id="edit-heading">Edit: Đánh giá UX của Shopee Việt Nam</h2>
-            <p class="muted">Static prototype — pre-filled with sample data from post #1.</p>
 
-            <form class="blog-form" action="blog-detail.html" method="post">
-                <input type="hidden" name="post-id" value="1">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="edit-title">Title</label>
-                        <input class="input" type="text" id="edit-title" name="title" required value="Đánh giá UX của Shopee Việt Nam / Shopee Vietnam UX Review">
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-author">Author</label>
-                        <input class="input" type="text" id="edit-author" name="author" required value="Nguyễn Minh An">
-                    </div>
+        <section
+            class="blog-form-section card"
+            aria-labelledby="edit-heading"
+        >
+
+            <h2 id="edit-heading">
+                Edit Blog Post
+            </h2>
+
+
+            <p class="muted">
+                Blog data is loaded from the Express API.
+                Your unfinished edits are saved locally.
+            </p>
+
+
+            <form
+                class="blog-form"
+                id="blog-edit-form"
+                novalidate
+            >
+
+
+                <!-- TITLE -->
+
+                <div class="form-group">
+
+                    <label for="edit-title">
+                        Title
+                    </label>
+
+                    <input
+                        class="input"
+                        type="text"
+                        id="edit-title"
+                        name="title"
+                        required
+                        maxlength="200"
+                    >
+
                 </div>
+
+
                 <div class="form-row">
+
+
+                    <!-- DATE -->
+
                     <div class="form-group">
-                        <label for="edit-date">Date added</label>
-                        <input class="input" type="date" id="edit-date" name="date" required value="2026-07-18">
+
+                        <label for="edit-date">
+                            Date added
+                        </label>
+
+                        <input
+                            class="input"
+                            type="date"
+                            id="edit-date"
+                            name="date"
+                            required
+                        >
+
                     </div>
+
+
+                    <!-- CATEGORY -->
+
                     <div class="form-group">
-                        <label for="edit-category">Category</label>
-                        <select class="select" id="edit-category" name="category" required>
-                            <option value="technology">Technology</option>
-                            <option value="education">Education</option>
-                            <option value="shopping">Shopping</option>
-                            <option value="design" selected>Design</option>
+
+                        <label for="edit-category">
+                            Category
+                        </label>
+
+                        <select
+                            class="select"
+                            id="edit-category"
+                            name="category"
+                            required
+                        >
+
+                            <option value="">
+                                Select category
+                            </option>
+
+                            <option value="technology">
+                                Technology
+                            </option>
+
+                            <option value="education">
+                                Education
+                            </option>
+
+                            <option value="shopping">
+                                Shopping
+                            </option>
+
+                            <option value="design">
+                                Design
+                            </option>
+
                         </select>
+
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="edit-tags">Tags</label>
-                    <input class="input" type="text" id="edit-tags" name="tags" value="UX, E-commerce">
-                </div>
-                <div class="form-group">
-                    <label for="edit-image">Image URL</label>
-                    <input class="input" type="url" id="edit-image" name="image" value="https://picsum.photos/seed/shopee-ux/900/420">
-                </div>
-                <div class="form-group">
-                    <label for="edit-summary">Summary (preview text)</label>
-                    <textarea class="input" id="edit-summary" name="summary" rows="3">Phân tích trải nghiệm người dùng trên ứng dụng Shopee — từ luồng tìm kiếm đến thanh toán.</textarea>
-                </div>
-                <div class="form-group">
-                    <label for="edit-content">Main text content</label>
-                    <textarea class="input" id="edit-content" name="content" rows="10" required>Shopee dominates the Vietnamese e-commerce market with over 70% mobile traffic. This review examines how the platform balances aggressive promotional design with usable navigation for everyday shoppers.
 
-Điểm mạnh: The home screen prioritises flash sales and personalised recommendations without overwhelming first-time users.
-
-Điểm cần cải thiện: Checkout still requires too many taps on smaller screens. Voucher selection is buried two levels deep.
-
-Kết luận: Shopee delivers a polished mobile-first experience tuned for the Vietnamese market.</textarea>
                 </div>
+
+
+                <!-- AUTHOR -->
+
+                <div class="form-group">
+
+                    <label>
+                        Author
+                    </label>
+
+                    <p class="muted">
+                        The author is controlled by the server
+                        and cannot be changed from this form.
+                    </p>
+
+                </div>
+
+
+                <!-- TAGS -->
+
+                <div class="form-group">
+
+                    <label for="edit-tags">
+                        Tags
+                    </label>
+
+                    <input
+                        class="input"
+                        type="text"
+                        id="edit-tags"
+                        name="tags"
+                    >
+
+                </div>
+
+
+                <!-- IMAGE -->
+
+                <div class="form-group">
+
+                    <label for="edit-image">
+                        Image URL
+                    </label>
+
+                    <input
+                        class="input"
+                        type="url"
+                        id="edit-image"
+                        name="image"
+                    >
+
+                </div>
+
+
+                <!-- SUMMARY -->
+
+                <div class="form-group">
+
+                    <label for="edit-summary">
+                        Summary
+                    </label>
+
+                    <textarea
+                        class="input"
+                        id="edit-summary"
+                        name="summary"
+                        rows="4"
+                        required
+                        maxlength="500"
+                    ></textarea>
+
+                </div>
+
+
+                <!-- CONTENT -->
+
+                <div class="form-group">
+
+                    <label for="edit-content">
+                        Main text content
+                    </label>
+
+                    <textarea
+                        class="input"
+                        id="edit-content"
+                        name="content"
+                        rows="12"
+                        required
+                    ></textarea>
+
+                </div>
+
+
+                <!-- ACTIONS -->
+
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">Save changes</button>
-                    <a href="blog-detail.html" class="btn btn-secondary">Cancel</a>
-                    <button type="button" class="btn btn-danger">Delete post</button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Save changes
+                    </button>
+
+
+                    <a
+                        id="cancel-edit-button"
+                        href="blog-list.html"
+                        class="btn btn-secondary"
+                    >
+                        Cancel
+                    </a>
+
+
+                    <button
+                        type="button"
+                        id="delete-blog-button"
+                        class="btn btn-danger"
+                    >
+                        Delete post
+                    </button>
+
                 </div>
+
             </form>
+
         </section>
+
     </main>
 
+
     <footer>
+
         <div class="footer-links">
-            <a href="../homepage/homepage.html">Home</a>
-            <a href="blog-list.html">Blog list</a>
-            <a href="blog-create.html">Create post</a>
-            <a href="../shopping_cart/products.html">Market</a>
-            <a href="../discuss_forum/forum.html">Forum</a>
+
+            <a href="../homepage/homepage.html">
+                Home
+            </a>
+
+            <a href="blog-list.html">
+                Blog list
+            </a>
+
+            <a href="blog-create.html">
+                Create post
+            </a>
+
+            <a href="../shopping_cart/products.html">
+                Market
+            </a>
+
+            <a href="../discuss_forum/forum.html">
+                Forum
+            </a>
+
         </div>
-        <p>&copy; 2026 Rshop Marketplace</p>
+
+        <p>
+            &copy; 2026 Rshop Marketplace
+        </p>
+
     </footer>
 
-    <a href="#main-content" class="return-to-top-button show" aria-label="Return to top">&#8593;</a>
-  <script src="../components/shared-nav.js"></script>
+
+    <a
+        href="#main-content"
+        class="return-to-top-button show"
+        aria-label="Return to top"
+    >
+        &#8593;
+    </a>
+
+
+    <script src="../components/shared-nav.js"></script>
+
+    <script src="../user_account/js/user-account.js"></script>
+
+    <script src="js/blog.js"></script>
+
 </body>
+
 </html>
-
-
-
-
-
