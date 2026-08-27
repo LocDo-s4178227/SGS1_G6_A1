@@ -211,16 +211,16 @@
 
     // Initialize
     (async () => {
-      const storedUser = JSON.parse(localStorage.getItem("user") || "null");
-      const currentUserId = localStorage.getItem("userId") || storedUser?.id || storedUser?._id;
-      const authToken = localStorage.getItem("authToken");
-      if (!currentUserId || !authToken) {
+      try {
+        const session = await UserAccountAPI.getSession();
+        const sessionUser = session.user;
+        const currentUserId = sessionUser.id || sessionUser._id;
+        UserAccountAPI.setCurrentUser(sessionUser);
+        await loadUserProfile(currentUserId);
+      } catch (_error) {
         UserAccountAPI.logout();
         window.location.href = "auth.html";
-        return;
       }
-
-      await loadUserProfile(currentUserId);
     })();
 
     async function loadUserProfile(userId) {

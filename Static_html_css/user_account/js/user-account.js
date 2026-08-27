@@ -10,6 +10,7 @@
     const url = normalizeEndpoint(endpoint);
     const config = {
       ...options,
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
         ...(options.headers || {})
@@ -49,7 +50,7 @@
     }
   }
 
-  function setCurrentUser(user, token = null) {
+  function setCurrentUser(user) {
     if (user) {
       localStorage.setItem("user", JSON.stringify(user));
       const userId = user.id || user._id;
@@ -60,9 +61,6 @@
       if (role) localStorage.setItem("userType", role);
     }
 
-    if (token) {
-      localStorage.setItem("authToken", token);
-    }
   }
 
   async function login({ username, email, password }) {
@@ -70,6 +68,10 @@
       method: "POST",
       body: { username, email, password }
     });
+  }
+
+  async function getSession() {
+    return apiRequest("/auth/session");
   }
 
   async function register({ username, email, password, role, userType }) {
@@ -156,11 +158,11 @@
   }
 
   function logout() {
+    void apiRequest("/auth/logout", { method: "POST" }).catch(() => {});
     localStorage.removeItem("user");
     localStorage.removeItem("userId");
     localStorage.removeItem("userType");
     localStorage.removeItem("username");
-    localStorage.removeItem("authToken");
     localStorage.removeItem("resetToken");
   }
 
@@ -172,6 +174,7 @@
     setCurrentUser,
     showNotification,
     login,
+    getSession,
     register,
     forgotPassword,
     resetPassword,

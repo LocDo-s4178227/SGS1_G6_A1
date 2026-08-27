@@ -42,25 +42,13 @@ function getCurrentUser() {
 }
 
 
-function getAuthToken() {
-    return localStorage.getItem("authToken") || "";
-}
-
-
 // ============================================================
 // API HELPER
 // ============================================================
 
 async function blogApiRequest(endpoint, options = {}) {
-    const token = getAuthToken();
-
     const headers = {
         "Content-Type": "application/json",
-        ...(token
-            ? {
-                  Authorization: `Bearer ${token}`
-              }
-            : {}),
         ...(options.headers || {})
     };
 
@@ -70,6 +58,7 @@ async function blogApiRequest(endpoint, options = {}) {
             : `http://localhost:5000${endpoint}`,
         {
             ...options,
+            credentials: "include",
             headers
         }
     );

@@ -11,6 +11,8 @@ const app = express();
 const PORT = Number(process.env.PORT || 5000);
 const passwordResetTokens = new Map();
 const activeSessions = new Map();
+const SESSION_COOKIE_NAME = "rshop_session";
+const SESSION_MAX_AGE_MS = 8 * 60 * 60 * 1000;
 
 const UPLOADS_DIR = path.join(__dirname, "uploads");
 if (!fs.existsSync(UPLOADS_DIR)) {
@@ -39,7 +41,7 @@ const upload = multer({
   }
 });
 
-app.use(cors());
+app.use(cors({ origin: true, credentials: true }));
 app.use("/uploads", express.static(UPLOADS_DIR));
 app.use(express.json());
 
@@ -82,12 +84,39 @@ function normalizeUserTypes(value) {
     .filter(Boolean);
 }
 
+function parseCookies(req) {
+  const header = req.headers.cookie || "";
+  return Object.fromEntries(header.split(";").filter(Boolean).map((part) => {
+    const separator = part.indexOf("=");
+    const name = separator >= 0 ? part.slice(0, separator).trim() : part.trim();
+    const value = separator >= 0 ? part.slice(separator + 1).trim() : "";
+    return [name, decodeURIComponent(value)];
+  }));
+}
+
+function sessionCookieOptions() {
+  return {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: SESSION_MAX_AGE_MS,
+    path: "/"
+  };
+}
+
+function createSession(userId) {
+  const sessionId = crypto.randomBytes(32).toString("hex");
+  activeSessions.set(sessionId, { userId, expiresAt: Date.now() + SESSION_MAX_AGE_MS });
+  return sessionId;
+}
+
+function getSessionId(req) {
+  return parseCookies(req)[SESSION_COOKIE_NAME] || "";
+}
+
 function buildLoginResponse(user) {
 const safeUser = sanitizeUser(user);
-const token = `token_${user.id}_${Date.now()}`;
-// Remember which user this token belongs to, so any later request
-// carrying this token can be resolved back to a real, verified user.
-activeSessions.set(token, user.id);
+const sessionId = createSession(user.id);
 return {
 success: true,
 user: {
@@ -95,16 +124,32 @@ user: {
 _id: safeUser.id,
 role: safeUser.userType?.[0] || "poster"
 },
-token
+sessionId
 };
 }
-// Looks up the currently logged-in user from a bearer token.
-// Returns null if the token is missing, unknown, or the user no longer exists.
+function getUserBySessionId(sessionId) {
+if (!isNonEmptyString(sessionId)) return null;
+const session = activeSessions.get(sessionId.trim());
+if (!session) return null;
+if (Date.now() > session.expiresAt) {
+  activeSessions.delete(sessionId.trim());
+  return null;
+}
+return db.users[session.userId] || null;
+}
+
+// Temporary compatibility for clients that still send the old bearer token.
 function getUserByToken(token) {
 if (!isNonEmptyString(token)) return null;
-const userId = activeSessions.get(token.trim());
-if (!userId) return null;
-return db.users[userId] || null;
+return getUserBySessionId(token);
+}
+
+function getUserFromRequest(req) {
+  const cookieUser = getUserBySessionId(getSessionId(req));
+  if (cookieUser) return cookieUser;
+  const authHeader = req.headers["authorization"] || "";
+  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : authHeader.trim();
+  return getUserByToken(token);
 }
 
 function getUserIdByResetToken(token) {
@@ -132,10 +177,21 @@ app.get("/api/health", (_req, res) => {
 });
 
 app.post("/api/auth/logout", (req, res) => {
+const sessionId = getSessionId(req);
+if (sessionId) activeSessions.delete(sessionId);
 const authHeader = req.headers["authorization"] || "";
 const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : authHeader.trim();
 if (token) activeSessions.delete(token);
+res.clearCookie(SESSION_COOKIE_NAME, sessionCookieOptions());
 return res.json({ success: true });
+});
+
+app.get("/api/auth/session", (req, res) => {
+  const user = getUserFromRequest(req);
+  if (!user || !user.active) {
+    return res.status(401).json({ success: false, message: "Not authenticated" });
+  }
+  return res.json({ success: true, user: { ...sanitizeUser(user), _id: user.id, role: user.userType?.[0] || "poster" } });
 });
 
 app.post("/api/auth/login", (req, res) => {
@@ -158,7 +214,10 @@ app.post("/api/auth/login", (req, res) => {
     return res.status(403).json({ success: false, message: "Account is deactivated" });
   }
 
-  return res.json(buildLoginResponse(user));
+  const response = buildLoginResponse(user);
+  res.cookie(SESSION_COOKIE_NAME, response.sessionId, sessionCookieOptions());
+  delete response.sessionId;
+  return res.json(response);
 });
 
 app.post("/api/auth/register", (req, res) => {
@@ -233,7 +292,10 @@ app.post("/api/auth/register", (req, res) => {
   db.users[id] = newUser;
   saveDb(db);
 
-  return res.status(201).json(buildLoginResponse(newUser));
+  const response = buildLoginResponse(newUser);
+  res.cookie(SESSION_COOKIE_NAME, response.sessionId, sessionCookieOptions());
+  delete response.sessionId;
+  return res.status(201).json(response);
 });
 
 app.post("/api/auth/forgot-password", (req, res) => {
@@ -287,7 +349,7 @@ app.post("/api/auth/reset-password", (req, res) => {
   return res.json({ success: true });
 });
 
-app.get("/api/auth/user/:id", (req, res) => {
+app.get("/api/auth/user/:id", requireLogin, (req, res) => {
   const user = db.users[req.params.id];
   if (!user) {
     return res.status(404).json({ success: false, message: "User not found" });
@@ -295,7 +357,7 @@ app.get("/api/auth/user/:id", (req, res) => {
   return res.json(sanitizeUser(user));
 });
 
-app.put("/api/auth/user/:id", (req, res) => {
+app.put("/api/auth/user/:id", requireLogin, (req, res) => {
   const user = db.users[req.params.id];
   if (!user) {
     return res.status(404).json({ success: false, message: "User not found" });
@@ -349,7 +411,7 @@ app.put("/api/auth/user/:id", (req, res) => {
   return res.json({ success: true, user: sanitizeUser(user) });
 });
 
-app.post("/api/auth/change-password", (req, res) => {
+app.post("/api/auth/change-password", requireLogin, (req, res) => {
   const { userId, currentPassword, newPassword } = req.body || {};
   const user = db.users[userId];
 
@@ -377,7 +439,7 @@ app.post("/api/auth/change-password", (req, res) => {
   return res.json({ success: true });
 });
 
-app.put("/api/auth/user/:id/deactivate", (req, res) => {
+app.put("/api/auth/user/:id/deactivate", requireLogin, (req, res) => {
   const user = db.users[req.params.id];
   if (!user) {
     return res.status(404).json({ success: false, message: "User not found" });
@@ -388,7 +450,7 @@ app.put("/api/auth/user/:id/deactivate", (req, res) => {
   return res.json({ success: true });
 });
 
-app.delete("/api/auth/user/:id", (req, res) => {
+app.delete("/api/auth/user/:id", requireLogin, (req, res) => {
   const user = db.users[req.params.id];
   if (!user) {
     return res.status(404).json({ success: false, message: "User not found" });
@@ -648,15 +710,8 @@ app.get("/api/threads/:id", (req, res) => {
 // ownership checks below can compare it against thread.author / reply.author.
 // Real login middleware for the Discussion Forum, wired to the shared
 // User Account module's login/register sessions (see activeSessions above).
-// The client sends "Authorization: Bearer <token>" (see apiRequest() in
-// Discussion_forum.js). The server looks the token up itself and resolves
-// req.user from its own database - it never trusts a username the client
-// claims to be, so a request can't be spoofed into editing/deleting someone
-// else's post just by sending a different header value.
 function requireLogin(req, res, next) {
-const authHeader = req.headers["authorization"] || "";
-const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : authHeader.trim();
-const user = getUserByToken(token);
+const user = getUserFromRequest(req);
 if (!user) {
 return res.status(401).json({ success: false, message: "You must be logged in to do this." });
 }

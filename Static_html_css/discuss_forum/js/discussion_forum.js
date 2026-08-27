@@ -26,9 +26,6 @@ return JSON.parse(localStorage.getItem('user') || 'null');
 return null;
 }
 }
-function getAuthToken() {
-return localStorage.getItem('authToken') || '';
-}
 // ==========================================
 // API BASE URL
 // The backend (server.js) runs on its own port, separate from wherever
@@ -44,16 +41,11 @@ return new URLSearchParams(window.location.search).get(name);
 }
 async function apiRequest(path, options = {}) {
 const url = path.startsWith('http') ? path : `${API_BASE}${path}`;
-const token = getAuthToken();
 const response = await fetch(url, {
 ...options,
+credentials: 'include',
 headers: {
 'Content-Type': 'application/json',
-// Sends the REAL login token issued by /api/auth/login (or /register).
-// The server looks this token up itself to find out who is making the
-// request - it does not trust any username the client claims to be,
-// so a request can't be spoofed into editing/deleting someone else's post.
-...(token ? { 'Authorization': `Bearer ${token}` } : {}),
 ...(options.headers || {})
 }
 });

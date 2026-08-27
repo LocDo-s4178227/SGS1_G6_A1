@@ -298,7 +298,6 @@
                 if (data.success) {
                     const userId = data.user.id || data.user._id;
                     const userRole = Array.isArray(data.user.userType) ? data.user.userType[0] : (data.user.role || 'poster');
-                    localStorage.setItem('authToken', data.token || '');
                     localStorage.setItem('userId', userId);
                     localStorage.setItem('username', data.user.username || data.user.email || '');
                     localStorage.setItem('userType', userRole);

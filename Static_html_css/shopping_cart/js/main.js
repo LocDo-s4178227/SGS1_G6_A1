@@ -35,6 +35,7 @@ async function apiCall(endpoint, options = {}) {
   const url = `${API_CONFIG.BASE_URL}${endpoint}`;
   const response = await fetch(url, {
     headers: API_CONFIG.HEADERS,
+    credentials: "include",
     ...options,
     signal: AbortSignal.timeout(API_CONFIG.TIMEOUT)
   });

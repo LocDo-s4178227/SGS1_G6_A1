@@ -20,8 +20,10 @@ npm start
 ## Implemented Endpoints
 
 - `GET /api/health`
-- `POST /api/auth/login`
-- `POST /api/auth/register`
+- `POST /api/auth/login` (sets an HttpOnly session cookie)
+- `POST /api/auth/register` (sets an HttpOnly session cookie)
+- `GET /api/auth/session`
+- `POST /api/auth/logout` (revokes and clears the session cookie)
 - `GET /api/auth/user/:id`
 - `PUT /api/auth/user/:id`
 - `POST /api/auth/change-password`
@@ -34,7 +36,7 @@ npm start
 - `POST /api/orders/checkout/:sessionId`
 - `GET /api/marketplace`
 
-### Discussion Forum (requires `Authorization: Bearer <token>`)
+### Discussion Forum (requires the authenticated session cookie)
 - `GET /api/threads`
 - `GET /api/threads/:id`
 - `POST /api/threads`

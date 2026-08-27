@@ -122,9 +122,9 @@ async function agreePriceAndAddToCart(itemTitle, makerName, price, threadId) {
 
   const statusResponse = await fetch(`http://localhost:5000/api/threads/${threadId}`, {
       method: 'PUT',
+      credentials: 'include',
       headers: {
-        'Content-Type': 'application/json',
-        ...(localStorage.getItem('authToken') ? { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` } : {})
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({ status: 'Closed' })
     });
