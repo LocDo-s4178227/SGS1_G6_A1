@@ -206,6 +206,7 @@ erDiagram
 
 ## Data Source
 
-- Runtime persistence file: `backend/src/data/db.json`
+- Runtime persistence: MongoDB database configured by `MONGODB_URI`, with
+    `backend/src/data/db.json` used only when MongoDB is not configured.
 - Persistence helpers: `backend/src/data/db.js`
 - Route usage: `backend/src/server.js`

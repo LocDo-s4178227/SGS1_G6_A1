@@ -1,6 +1,7 @@
 const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
+const { MongoClient } = require("mongodb");
 
 const DEFAULT_DB = {
   users: {
@@ -30,6 +31,12 @@ const DEFAULT_DB = {
 };
 
 const DATA_FILE = path.join(__dirname, "db.json");
+const COLLECTIONS = ["users", "carts", "orders", "threads", "replies"];
+const mongoUri = process.env.MONGODB_URI;
+const mongoDbName = process.env.MONGODB_DB_NAME || "rshop";
+let mongoClient;
+let mongoDatabase;
+let pendingSave = Promise.resolve();
 
 function loadDb() {
   if (!fs.existsSync(DATA_FILE)) {
@@ -54,10 +61,87 @@ function loadDb() {
 }
 
 function saveDb(db) {
+  if (mongoDatabase) {
+    persistDb();
+    return;
+  }
   fs.writeFileSync(DATA_FILE, JSON.stringify(db, null, 2), "utf8");
 }
 
 const db = loadDb();
+
+function getCollectionDocuments(collectionName) {
+  if (collectionName === "users" || collectionName === "carts") {
+    return Object.values(db[collectionName]);
+  }
+  return db[collectionName];
+}
+
+function applyCollectionDocuments(collectionName, documents) {
+  if (collectionName === "users" || collectionName === "carts") {
+    db[collectionName] = Object.fromEntries(documents.map((document) => {
+      const { _id, ...value } = document;
+      return [value.id || String(_id), value];
+    }));
+    return;
+  }
+
+  db[collectionName] = documents.map(({ _id, ...value }) => value);
+}
+
+async function initializeDb() {
+  if (!mongoUri) {
+    console.warn("MONGODB_URI is not set; using local JSON persistence");
+    return;
+  }
+
+  mongoClient = new MongoClient(mongoUri);
+  await mongoClient.connect();
+  mongoDatabase = mongoClient.db(mongoDbName);
+
+  const remoteDocuments = {};
+  let hasRemoteData = false;
+  for (const collectionName of COLLECTIONS) {
+    remoteDocuments[collectionName] = await mongoDatabase
+      .collection(collectionName)
+      .find({})
+      .toArray();
+    hasRemoteData ||= remoteDocuments[collectionName].length > 0;
+  }
+
+  if (hasRemoteData) {
+    for (const collectionName of COLLECTIONS) {
+      applyCollectionDocuments(collectionName, remoteDocuments[collectionName]);
+    }
+  } else {
+    await persistDb();
+  }
+
+  console.log(`Connected to MongoDB database '${mongoDbName}'`);
+}
+
+function persistDb() {
+  if (!mongoDatabase) return Promise.resolve();
+
+  const write = async () => {
+    for (const collectionName of COLLECTIONS) {
+      const collection = mongoDatabase.collection(collectionName);
+      const documents = getCollectionDocuments(collectionName).map((document) => ({
+        ...document,
+        _id: document.id || document.sessionId || undefined
+      }));
+      await collection.deleteMany({});
+      if (documents.length > 0) {
+        await collection.insertMany(documents);
+      }
+    }
+  };
+
+  pendingSave = pendingSave.then(write).catch((error) => {
+    console.error("MongoDB persistence failed:", error.message);
+  });
+  return pendingSave;
+}
 
 function generateId(prefix) {
   return `${prefix}_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
@@ -74,6 +158,7 @@ function generateOrderNumber() {
 
 module.exports = {
   db,
+  initializeDb,
   generateId,
   generateOrderNumber,
   saveDb
