@@ -5,7 +5,7 @@ const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 const multer = require("multer");
-const { db, generateId, generateOrderNumber, saveDb } = require("./data/db");
+const { db, generateId, generateOrderNumber, initializeDb, saveDb } = require("./data/db");
 
 const app = express();
 const PORT = Number(process.env.PORT || 5000);
@@ -1138,6 +1138,13 @@ app.use((_req, res) => {
   res.status(404).json({ success: false, message: "Route not found" });
 });
 
-app.listen(PORT, () => {
-  console.log(`Backend API running on http://localhost:${PORT}`);
-});
+initializeDb()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Backend API running on http://localhost:${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error("Database initialization failed:", error.message);
+    process.exitCode = 1;
+  });

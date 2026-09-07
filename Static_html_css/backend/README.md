@@ -17,6 +17,11 @@ npm install
 npm start
 ```
 
+The backend loads `backend/.env` automatically. Set `MONGODB_URI` to the
+Atlas connection string and optionally change `MONGODB_DB_NAME` (default:
+`rshop`). The first startup seeds an empty Atlas database from the existing
+local JSON data; later startups use MongoDB as the source of truth.
+
 ## Implemented Endpoints
 
 - `GET /api/health`
@@ -52,5 +57,6 @@ npm start
 
 ## Notes
 
-- Data is stored in `src/data/db.json` for lightweight persistence.
+- Data is stored in MongoDB when `MONGODB_URI` is configured. Without it, the
+	backend falls back to `src/data/db.json` for local development.
 - Frontend shopping pages call these APIs through `shopping_cart/js/main.js`.
