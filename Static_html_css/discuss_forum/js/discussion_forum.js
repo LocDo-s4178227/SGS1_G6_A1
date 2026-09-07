@@ -491,12 +491,19 @@ if (!isTitleValid || !isContentValid || !isPriceValid) return;
 if (submitBtn) submitBtn.disabled = true;
 try {
 const selectedImage = getSelectedImage(imageInput);
+
+// Image is required for every reply according to the Discussion Forum requirements.
+if (!selectedImage) {
+showFormError('Please upload an image for your reply.');
+return;
+}
+
 const priceValue = priceInput && priceInput.value.trim() ? Number(priceInput.value) : 0;
 const formData = new FormData();
 formData.append('title', titleInput.value.trim());
 formData.append('content', contentInput.value.trim());
 formData.append('price', String(priceValue));
-if (selectedImage) formData.append('image', selectedImage);
+formData.append('image', selectedImage);
 
 await apiRequest(`/api/replies/${replyId}`, {
     method: 'PUT',

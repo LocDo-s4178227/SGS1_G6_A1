@@ -850,12 +850,14 @@ app.post("/api/threads", upload.single("image"), (req, res) => {
     return res.status(400).json({ success: false, message: "Content must be at least 10 characters" });
   }
 
-  let imageUrl = "";
-  if (req.file) {
-    imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
-  } else if (req.body.image) {
-    imageUrl = req.body.image;
+  if (!req.file) {
+    return res.status(400).json({
+      success: false,
+      message: "An image is required for every post"
+    });
   }
+
+  const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
 
   const id = generateId("thread");
   const newThread = {
@@ -978,7 +980,9 @@ app.delete("/api/threads/:id", (req, res) => {
 
 // 6. POST /api/threads/:id/replies - Post a reply / quote offer under a thread
 app.post("/api/threads/:id/replies", upload.single("image"), (req, res) => {
-  const thread = (db.threads || []).find((t) => t.id === req.params.id);
+  const thread = (db.threads || []).find(
+    (t) => t.id === req.params.id && t.deleted !== true
+  );
   if (!thread) {
     return res.status(404).json({ success: false, message: "Thread not found" });
   }
@@ -999,12 +1003,14 @@ app.post("/api/threads/:id/replies", upload.single("image"), (req, res) => {
     return res.status(400).json({ success: false, message: "Price must be a valid non-negative number" });
   }
 
-  let imageUrl = "";
-  if (req.file) {
-    imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
-  } else if (req.body.image) {
-    imageUrl = req.body.image;
+  if (!req.file) {
+    return res.status(400).json({
+      success: false,
+      message: "An image is required for every reply"
+    });
   }
+
+  const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
 
   const newReply = {
   id: generateId("reply"),
