@@ -172,8 +172,89 @@ function getCart(sessionId) {
   return db.carts[sessionId];
 }
 
+function validateBlogFields(body, partial = false) {
+  const requiredFields = ["title", "dateAdded", "category", "summary", "content"];
+  if (!partial) {
+    for (const field of requiredFields) {
+      if (!isNonEmptyString(body[field])) return `The ${field} field is required`;
+    }
+  }
+  if (body.title !== undefined && (!isNonEmptyString(body.title) || body.title.trim().length < 5)) {
+    return "Title must be at least 5 characters";
+  }
+  if (body.summary !== undefined && !isNonEmptyString(body.summary)) return "Summary is required";
+  if (body.content !== undefined && !isNonEmptyString(body.content)) return "Content is required";
+  if (body.tags !== undefined && !Array.isArray(body.tags)) return "Tags must be an array";
+  return null;
+}
+
 app.get("/api/health", (_req, res) => {
   res.json({ success: true, status: "ok" });
+});
+
+app.get("/api/blogs", (_req, res) => {
+  const blogs = (db.blogs || [])
+    .filter((blog) => blog.deleted !== true)
+    .sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
+  return res.json({ success: true, count: blogs.length, blogs });
+});
+
+app.get("/api/blogs/:id", (req, res) => {
+  const blog = (db.blogs || []).find((item) => item.id === req.params.id && item.deleted !== true);
+  if (!blog) return res.status(404).json({ success: false, message: "Blog post not found" });
+  return res.json({ success: true, blog });
+});
+
+app.post("/api/blogs", requireLogin, (req, res) => {
+  const body = req.body || {};
+  const validationError = validateBlogFields(body);
+  if (validationError) return res.status(400).json({ success: false, message: validationError });
+
+  const blog = {
+    id: generateId("blog"),
+    authorName: req.user.username,
+    title: body.title.trim(),
+    dateAdded: body.dateAdded,
+    category: body.category,
+    tags: body.tags || [],
+    image: body.image || "",
+    summary: body.summary.trim(),
+    content: body.content.trim(),
+    deleted: false
+  };
+  db.blogs.push(blog);
+  saveDb(db);
+  return res.status(201).json({ success: true, blog });
+});
+
+app.put("/api/blogs/:id", requireLogin, (req, res) => {
+  const blog = (db.blogs || []).find((item) => item.id === req.params.id && item.deleted !== true);
+  if (!blog) return res.status(404).json({ success: false, message: "Blog post not found" });
+  if (blog.authorName !== req.user.username) {
+    return res.status(403).json({ success: false, message: "You can only edit your own blog posts" });
+  }
+  const validationError = validateBlogFields(req.body || {}, true);
+  if (validationError) return res.status(400).json({ success: false, message: validationError });
+  const allowedFields = ["title", "dateAdded", "category", "tags", "image", "summary", "content"];
+  for (const field of allowedFields) {
+    if (req.body[field] !== undefined) blog[field] = field === "title" || field === "summary" || field === "content"
+      ? req.body[field].trim()
+      : req.body[field];
+  }
+  saveDb(db);
+  return res.json({ success: true, blog });
+});
+
+app.delete("/api/blogs/:id", requireLogin, (req, res) => {
+  const blog = (db.blogs || []).find((item) => item.id === req.params.id && item.deleted !== true);
+  if (!blog) return res.status(404).json({ success: false, message: "Blog post not found" });
+  if (blog.authorName !== req.user.username) {
+    return res.status(403).json({ success: false, message: "You can only delete your own blog posts" });
+  }
+  blog.deleted = true;
+  blog.deleted_at = new Date().toISOString();
+  saveDb(db);
+  return res.json({ success: true, message: "Blog post deleted successfully" });
 });
 
 app.post("/api/auth/logout", (req, res) => {

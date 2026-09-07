@@ -26,12 +26,38 @@ const DEFAULT_DB = {
   },
   carts: {},
   orders: [],
+  blogs: [
+    {
+      id: "blog_001",
+      authorName: "demouser",
+      title: "Designing Better Custom-Maker Requests",
+      dateAdded: "2026-08-18",
+      category: "UX",
+      tags: ["UX", "Accessibility"],
+      image: "../images/ergonomic_wooden_desk.png",
+      summary: "Small details in a request can make collaboration much easier for makers.",
+      content: "A clear brief gives makers the measurements, materials, constraints, and context they need to propose useful solutions.",
+      deleted: false
+    },
+    {
+      id: "blog_002",
+      authorName: "demouser",
+      title: "A Practical Guide to Better Product Photos",
+      dateAdded: "2026-08-12",
+      category: "Performance",
+      tags: ["Performance", "E-commerce"],
+      image: "../images/mechanical_keyboard_case.png",
+      summary: "Use focused, optimized images to help shoppers understand a handmade product quickly.",
+      content: "Show the product clearly, keep the file size reasonable, and include descriptive alternative text so every visitor can understand the listing.",
+      deleted: false
+    }
+  ],
   threads: [],
   replies: []
 };
 
 const DATA_FILE = path.join(__dirname, "db.json");
-const COLLECTIONS = ["users", "carts", "orders", "threads", "replies"];
+const COLLECTIONS = ["users", "carts", "orders", "blogs", "threads", "replies"];
 const mongoUri = process.env.MONGODB_URI;
 const mongoDbName = process.env.MONGODB_DB_NAME || "rshop";
 let mongoClient;
@@ -52,6 +78,7 @@ function loadDb() {
       users: { ...structuredClone(DEFAULT_DB).users, ...(parsed.users || {}) },
       carts: parsed.carts || {},
       orders: parsed.orders || [],
+      blogs: parsed.blogs || structuredClone(DEFAULT_DB).blogs,
       threads: parsed.threads || [],
       replies: parsed.replies || []
     };
@@ -112,6 +139,10 @@ async function initializeDb() {
   if (hasRemoteData) {
     for (const collectionName of COLLECTIONS) {
       applyCollectionDocuments(collectionName, remoteDocuments[collectionName]);
+    }
+    if (!db.blogs.length) {
+      db.blogs = structuredClone(DEFAULT_DB).blogs;
+      await persistDb();
     }
   } else {
     await persistDb();
