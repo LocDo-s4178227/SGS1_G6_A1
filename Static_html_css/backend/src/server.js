@@ -641,64 +641,164 @@ app.get("/api/marketplace", (req, res) => {
 
 // 1. GET /api/threads - Fetch all threads (Supports Search by title/content, Filter by status, & Sorting)
 app.get("/api/threads", (req, res) => {
-  let results = [...(db.threads || [])];
   const { title, content, status, sort } = req.query;
 
-  // Search by Title
+  // Only return active / publicly visible threads.
+  let results = (db.threads || []).filter((thread) => thread.deleted !== true);
+
+  /*
+   * Build a lookup of visible replies for:
+   * - searching reply content
+   * - calculating latest activity
+   * - calculating oldest/latest post date
+   */
+  const visibleReplies = (db.replies || []).filter(
+    (reply) => reply.deleted !== true
+  );
+
+  // Search by thread title.
   if (isNonEmptyString(title)) {
-    results = results.filter((t) =>
-      t.title.toLowerCase().includes(title.trim().toLowerCase())
+    const keyword = title.trim().toLowerCase();
+
+    results = results.filter((thread) =>
+      String(thread.title || "").toLowerCase().includes(keyword)
     );
   }
 
-  // Search by Content
+  // Search by text content in either:
+  // 1. the thread itself
+  // 2. any visible reply belonging to that thread
   if (isNonEmptyString(content)) {
-    results = results.filter((t) =>
-      t.content.toLowerCase().includes(content.trim().toLowerCase())
-    );
+    const keyword = content.trim().toLowerCase();
+
+    results = results.filter((thread) => {
+      const threadMatches = String(thread.content || "")
+        .toLowerCase()
+        .includes(keyword);
+
+      if (threadMatches) return true;
+
+      return visibleReplies.some(
+        (reply) =>
+          reply.threadId === thread.id &&
+          (
+            String(reply.title || "").toLowerCase().includes(keyword) ||
+            String(reply.content || "").toLowerCase().includes(keyword)
+          )
+      );
+    });
   }
 
-  // Filter by Status (Open, Negotiating, Resolved, Closed, etc.)
+  // Filter by thread status.
   if (isNonEmptyString(status)) {
+    const normalizedStatus = status.trim().toLowerCase();
+
     results = results.filter(
-      (t) => t.status.toLowerCase() === status.trim().toLowerCase()
+      (thread) =>
+        String(thread.status || "Open").trim().toLowerCase() ===
+        normalizedStatus
     );
   }
 
-  // Sorting logic
+  /*
+   * Add latest / oldest activity timestamps without changing
+   * the stored thread document permanently.
+   *
+   * Requirement:
+   * sort by the date of the most recent post
+   * and date of the oldest post.
+   */
+  results = results.map((thread) => {
+    const threadDate = new Date(thread.posted_at);
+
+    const replyDates = visibleReplies
+      .filter((reply) => reply.threadId === thread.id)
+      .map((reply) => new Date(reply.posted_at))
+      .filter((date) => !Number.isNaN(date.getTime()));
+
+    const allDates = [threadDate, ...replyDates].filter(
+      (date) => !Number.isNaN(date.getTime())
+    );
+
+    const oldestPostAt = allDates.length
+      ? new Date(Math.min(...allDates.map((date) => date.getTime()))).toISOString()
+      : thread.posted_at;
+
+    const latestPostAt = allDates.length
+      ? new Date(Math.max(...allDates.map((date) => date.getTime()))).toISOString()
+      : thread.posted_at;
+
+    const visibleReplyCount = visibleReplies.filter(
+      (reply) => reply.threadId === thread.id
+    ).length;
+
+    return {
+      ...thread,
+      replyCount: visibleReplyCount,
+      oldestPostAt,
+      latestPostAt
+    };
+  });
+
+  // Sorting.
   if (sort === "oldest") {
-    results.sort((a, b) => new Date(a.posted_at) - new Date(b.posted_at));
+    results.sort(
+      (a, b) =>
+        new Date(a.oldestPostAt) - new Date(b.oldestPostAt)
+    );
   } else if (sort === "title_asc") {
-    results.sort((a, b) => a.title.localeCompare(b.title));
+    results.sort((a, b) =>
+      String(a.title || "").localeCompare(String(b.title || ""))
+    );
   } else if (sort === "title_desc") {
-    results.sort((a, b) => b.title.localeCompare(a.title));
+    results.sort((a, b) =>
+      String(b.title || "").localeCompare(String(a.title || ""))
+    );
   } else {
-    // Default: Newest first
-    results.sort((a, b) => new Date(b.posted_at) - new Date(a.posted_at));
+    // Default: newest activity first.
+    results.sort(
+      (a, b) =>
+        new Date(b.latestPostAt) - new Date(a.latestPostAt)
+    );
   }
 
-  res.json({ success: true, count: results.length, threads: results });
+  return res.json({
+    success: true,
+    count: results.length,
+    threads: results
+  });
 });
 
 // 2. GET /api/threads/:id - Fetch single thread details along with its replies
 app.get("/api/threads/:id", (req, res) => {
-  const thread = (db.threads || []).find((t) => t.id === req.params.id);
+  const thread = (db.threads || []).find(
+    (t) => t.id === req.params.id && t.deleted !== true
+  );
+
   if (!thread) {
-    return res.status(404).json({ success: false, message: "Thread not found" });
+    return res.status(404).json({
+      success: false,
+      message: "Thread not found"
+    });
   }
 
-  const threadReplies = (db.replies || []).filter(
-    (r) => r.threadId === req.params.id
-  );
-  
-  // Sort replies chronologically (oldest to newest for smooth reading)
-  threadReplies.sort((a, b) => new Date(a.posted_at) - new Date(b.posted_at));
+  const threadReplies = (db.replies || [])
+    .filter(
+      (reply) =>
+        reply.threadId === req.params.id &&
+        reply.deleted !== true
+    )
+    .sort(
+      (a, b) =>
+        new Date(a.posted_at) - new Date(b.posted_at)
+    );
 
-  res.json({
+  return res.json({
     success: true,
     thread: {
       ...thread,
-      replies: threadReplies
+      replies: threadReplies,
+      replyCount: threadReplies.length
     }
   });
 });
@@ -759,15 +859,20 @@ app.post("/api/threads", upload.single("image"), (req, res) => {
 
   const id = generateId("thread");
   const newThread = {
-    id,
-    author,
-    title: title.trim(),
-    content: content.trim(),
-    posted_at: new Date().toISOString(),
-    image: imageUrl || "",
-    status: status || "Open",
-    replyCount: 0
-  };
+  id,
+  author,
+  title: title.trim(),
+  content: content.trim(),
+  posted_at: new Date().toISOString(),
+  image: imageUrl || "",
+  status: status || "Open",
+  replyCount: 0,
+
+  // Soft-delete / audit fields.
+  deleted: false,
+  deleted_at: null,
+  deleted_by: null
+};
 
   if (!db.threads) db.threads = [];
   db.threads.push(newThread);
@@ -778,7 +883,9 @@ app.post("/api/threads", upload.single("image"), (req, res) => {
 
 // 4. PUT /api/threads/:id - Update an existing thread
 app.put("/api/threads/:id", upload.single("image"), (req, res) => {
-  const thread = (db.threads || []).find((t) => t.id === req.params.id);
+  const thread = (db.threads || []).find(
+  (t) => t.id === req.params.id && t.deleted !== true
+);
   if (!thread) {
     return res.status(404).json({ success: false, message: "Thread not found" });
   }
@@ -817,23 +924,56 @@ app.put("/api/threads/:id", upload.single("image"), (req, res) => {
 
 // 5. DELETE /api/threads/:id - Delete a thread and cascade delete all its associated replies
 app.delete("/api/threads/:id", (req, res) => {
-  const thread = (db.threads || []).find((t) => t.id === req.params.id);
+  const thread = (db.threads || []).find(
+    (t) => t.id === req.params.id && t.deleted !== true
+  );
+
   if (!thread) {
-    return res.status(404).json({ success: false, message: "Thread not found" });
+    return res.status(404).json({
+      success: false,
+      message: "Thread not found"
+    });
   }
 
-  // Ownership check: only the original author may delete their own thread.
+  // Only the original author may delete their own thread.
   if (!isOwner(req, thread)) {
-    return res.status(403).json({ success: false, message: "You can only delete your own posts" });
+    return res.status(403).json({
+      success: false,
+      message: "You can only delete your own posts"
+    });
   }
 
-  db.threads = (db.threads || []).filter((t) => t.id !== req.params.id);
+  /*
+   * SOFT DELETE
+   * Keep the original document in the database for auditing.
+   * The public GET APIs filter deleted=true.
+   */
+  thread.deleted = true;
+  thread.deleted_at = new Date().toISOString();
+  thread.deleted_by = req.user.username;
 
-  // Cascade delete related replies
-  db.replies = (db.replies || []).filter((r) => r.threadId !== req.params.id);
+  /*
+   * Soft-delete associated replies as well.
+   * They remain in the database for audit purposes.
+   */
+  (db.replies || [])
+    .filter((reply) => reply.threadId === req.params.id)
+    .forEach((reply) => {
+      if (reply.deleted !== true) {
+        reply.deleted = true;
+        reply.deleted_at = new Date().toISOString();
+        reply.deleted_by = req.user.username;
+      }
+    });
+
+  thread.replyCount = 0;
 
   saveDb(db);
-  return res.json({ success: true, message: "Thread and all associated replies deleted successfully" });
+
+  return res.json({
+    success: true,
+    message: "Thread deleted successfully"
+  });
 });
 
 // 6. POST /api/threads/:id/replies - Post a reply / quote offer under a thread
@@ -867,15 +1007,20 @@ app.post("/api/threads/:id/replies", upload.single("image"), (req, res) => {
   }
 
   const newReply = {
-    id: generateId("reply"),
-    threadId: req.params.id,
-    author: author.trim(),
-    title: title.trim(),
-    content: content.trim(),
-    price: parsedPrice,
-    posted_at: new Date().toISOString(),
-    image: imageUrl || ""
-  };
+  id: generateId("reply"),
+  threadId: req.params.id,
+  author: author.trim(),
+  title: title.trim(),
+  content: content.trim(),
+  price: parsedPrice,
+  posted_at: new Date().toISOString(),
+  image: imageUrl || "",
+
+  // Soft-delete / audit fields.
+  deleted: false,
+  deleted_at: null,
+  deleted_by: null
+};
 
   if (!db.replies) db.replies = [];
   db.replies.push(newReply);
@@ -891,7 +1036,9 @@ app.post("/api/threads/:id/replies", upload.single("image"), (req, res) => {
 
 // 7. PUT /api/replies/:replyId - Update a reply / quote offer
 app.put("/api/replies/:replyId", upload.single("image"), (req, res) => {
-  const reply = (db.replies || []).find((r) => r.id === req.params.replyId);
+  const reply = (db.replies || []).find(
+  (r) => r.id === req.params.replyId && r.deleted !== true
+);
   if (!reply) {
     return res.status(404).json({ success: false, message: "Reply not found" });
   }
@@ -937,26 +1084,54 @@ app.put("/api/replies/:replyId", upload.single("image"), (req, res) => {
 
 // 8. DELETE /api/replies/:replyId - Delete a single reply
 app.delete("/api/replies/:replyId", (req, res) => {
-  const reply = (db.replies || []).find((r) => r.id === req.params.replyId);
+  const reply = (db.replies || []).find(
+    (r) => r.id === req.params.replyId && r.deleted !== true
+  );
+
   if (!reply) {
-    return res.status(404).json({ success: false, message: "Reply not found" });
+    return res.status(404).json({
+      success: false,
+      message: "Reply not found"
+    });
   }
 
-  // Ownership check: only the original author may delete their own reply.
+  // Only the original author may delete their own reply.
   if (!isOwner(req, reply)) {
-    return res.status(403).json({ success: false, message: "You can only delete your own replies" });
+    return res.status(403).json({
+      success: false,
+      message: "You can only delete your own replies"
+    });
   }
 
-  // Decrement thread reply count
-  const thread = (db.threads || []).find((t) => t.id === reply.threadId);
-  if (thread && thread.replyCount > 0) {
-    thread.replyCount -= 1;
-  }
+  /*
+   * SOFT DELETE
+   * Keep the reply in the database for auditing,
+   * but exclude it from all public forum responses.
+   */
+  reply.deleted = true;
+  reply.deleted_at = new Date().toISOString();
+  reply.deleted_by = req.user.username;
 
-  db.replies = db.replies.filter((r) => r.id !== req.params.replyId);
+  const thread = (db.threads || []).find(
+    (t) => t.id === reply.threadId && t.deleted !== true
+  );
+
+  if (thread) {
+    const visibleReplyCount = (db.replies || []).filter(
+      (r) =>
+        r.threadId === reply.threadId &&
+        r.deleted !== true
+    ).length;
+
+    thread.replyCount = visibleReplyCount;
+  }
 
   saveDb(db);
-  return res.json({ success: true, message: "Reply deleted successfully" });
+
+  return res.json({
+    success: true,
+    message: "Reply deleted successfully"
+  });
 });
 
 app.use((_req, res) => {

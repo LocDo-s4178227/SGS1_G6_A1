@@ -160,6 +160,18 @@
             "status": "Accepted Offer"
           },
           "unitPrice": 420
+        },
+        {
+          "id": "cartitem_1788792628267_800",
+          "productId": "thread_1787040112505_365",
+          "quantity": 1,
+          "textDetails": {
+            "title": "pokemonchu25",
+            "threadId": "thread_1787040112505_365",
+            "maker": "demouser",
+            "status": "Accepted Offer"
+          },
+          "unitPrice": 100
         }
       ]
     },

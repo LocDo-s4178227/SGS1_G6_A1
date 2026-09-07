@@ -41,13 +41,14 @@ return new URLSearchParams(window.location.search).get(name);
 }
 async function apiRequest(path, options = {}) {
 const url = path.startsWith('http') ? path : `${API_BASE}${path}`;
+const headers = { ...(options.headers || {}) };
+if (!(options.body instanceof FormData) && !headers['Content-Type']) {
+headers['Content-Type'] = 'application/json';
+}
 const response = await fetch(url, {
 ...options,
 credentials: 'include',
-headers: {
-'Content-Type': 'application/json',
-...(options.headers || {})
-}
+headers
 });
 let data = null;
 try {
@@ -90,43 +91,10 @@ minute: '2-digit'
 });
 }
 // ==========================================
-// IMAGE UPLOAD HELPER
-// Converts the selected image file into a Base64 Data URL
-// so it can be sent inside the existing JSON API.
+// IMAGE UPLOAD
+// Files are sent as multipart/form-data. The server stores the file in
+// backend/src/uploads and saves only its generated URL in the database.
 // ==========================================
-function fileToDataUrl(file) {
-    return new Promise((resolve, reject) => {
-        if (!file) {
-            resolve('');
-            return;
-        }
-
-        if (!file.type.startsWith('image/')) {
-            reject(new Error('Please select a valid image file.'));
-            return;
-        }
-
-        const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
-
-        if (file.size > MAX_IMAGE_SIZE) {
-            reject(new Error('Image must be smaller than 5 MB.'));
-            return;
-        }
-
-        const reader = new FileReader();
-
-        reader.onload = () => {
-            resolve(reader.result);
-        };
-
-        reader.onerror = () => {
-            reject(new Error('Could not read the image file.'));
-        };
-
-        reader.readAsDataURL(file);
-    });
-}
-
 
 // Gets the selected file from a file input
 function getSelectedImage(fileInput) {
@@ -337,15 +305,14 @@ try {
         return;
     }
 
-    const imageData = await fileToDataUrl(selectedImage);
+    const formData = new FormData();
+    formData.append('title', titleInput.value.trim());
+    formData.append('content', contentInput.value.trim());
+    formData.append('image', selectedImage);
 
     const data = await apiRequest('/api/threads', {
         method: 'POST',
-        body: JSON.stringify({
-            title: titleInput.value.trim(),
-            content: contentInput.value.trim(),
-            image: imageData
-        })
+        body: formData
     });
 
     localStorage.removeItem(DRAFT_KEY);
@@ -428,27 +395,15 @@ const isContentValid = validateContentField(contentInput);
 if (!isTitleValid || !isContentValid) return;
 if (submitBtn) submitBtn.disabled = true;
 try {
-let imageData = currentImage;
-
 const selectedImage = getSelectedImage(imageInput);
-
-if (selectedImage) {
-    imageData = await fileToDataUrl(selectedImage);
-}
-
-// Image is required for every post
-if (!imageData) {
-    showFormError('Please upload an image for this post.');
-    return;
-}
+const formData = new FormData();
+formData.append('title', titleInput.value.trim());
+formData.append('content', contentInput.value.trim());
+if (selectedImage) formData.append('image', selectedImage);
 
 await apiRequest(`/api/threads/${threadId}`, {
     method: 'PUT',
-    body: JSON.stringify({
-        title: titleInput.value.trim(),
-        content: contentInput.value.trim(),
-        image: imageData
-    })
+    body: formData
 });
 clearDraftFromStorage(DRAFT_KEY);
 alert('Changes saved successfully!');
@@ -537,17 +492,15 @@ if (submitBtn) submitBtn.disabled = true;
 try {
 const selectedImage = getSelectedImage(imageInput);
 const priceValue = priceInput && priceInput.value.trim() ? Number(priceInput.value) : 0;
-let imageData = currentReplyImage;
-if (selectedImage) imageData = await fileToDataUrl(selectedImage);
+const formData = new FormData();
+formData.append('title', titleInput.value.trim());
+formData.append('content', contentInput.value.trim());
+formData.append('price', String(priceValue));
+if (selectedImage) formData.append('image', selectedImage);
 
 await apiRequest(`/api/replies/${replyId}`, {
     method: 'PUT',
-    body: JSON.stringify({
-        title: titleInput.value.trim(),
-        content: contentInput.value.trim(),
-        price: priceValue,
-        image: imageData
-    })
+    body: formData
 });
 clearDraftFromStorage(DRAFT_KEY);
 alert('Reply updated successfully!');
@@ -609,17 +562,15 @@ if (submitBtn) submitBtn.disabled = true;
 try {
 const selectedImage = getSelectedImage(imageInput);
 const priceValue = priceInput && priceInput.value.trim() ? Number(priceInput.value) : 0;
-let imageData = '';
-if (selectedImage) imageData = await fileToDataUrl(selectedImage);
+const formData = new FormData();
+formData.append('title', titleInput.value.trim());
+formData.append('content', contentInput.value.trim());
+formData.append('price', String(priceValue));
+if (selectedImage) formData.append('image', selectedImage);
 
 await apiRequest(`/api/threads/${threadId}/replies`, {
     method: 'POST',
-    body: JSON.stringify({
-        title: titleInput.value.trim(),
-        content: contentInput.value.trim(),
-    price: priceValue,
-        image: imageData
-    })
+    body: formData
 });
 clearDraftFromStorage(DRAFT_KEY);
 alert('Reply posted successfully!');
@@ -709,7 +660,7 @@ return `
 ${imageBlock}
 <div>
 <a href="thread-detail.html?threadId=${encodeURIComponent(thread.id)}" class="card-title">${escapeHtml(thread.title)}</a>
-<div class="meta-info mt-1">Posted by: <strong>${escapeHtml(thread.author)}</strong> | ${formatPostedDate(thread.posted_at)}</div>
+<div class="meta-info mt-1">Posted by: <strong>${escapeHtml(thread.author)}</strong> | Latest activity: ${formatPostedDate(thread.latestPostAt || thread.posted_at)}</div>
 </div>
 </div>
 <p>${escapeHtml(truncateText(thread.content))}</p>
@@ -762,10 +713,10 @@ const matchesContent = !searchContent || (thread.content || '').toLowerCase().in
 return matchesTitle && matchesContent;
 });
 filtered = filtered.slice().sort((a, b) => {
-if (sortBy === 'oldest') return new Date(a.posted_at) - new Date(b.posted_at);
+if (sortBy === 'oldest') return new Date(a.oldestPostAt || a.posted_at) - new Date(b.oldestPostAt || b.posted_at);
 if (sortBy === 'title_asc') return (a.title || '').localeCompare(b.title || '');
 if (sortBy === 'title_desc') return (b.title || '').localeCompare(a.title || '');
-return new Date(b.posted_at) - new Date(a.posted_at); // newest first (default)
+return new Date(b.latestPostAt || b.posted_at) - new Date(a.latestPostAt || a.posted_at); // newest activity first
 });
 renderThreadList(filtered);
 }
