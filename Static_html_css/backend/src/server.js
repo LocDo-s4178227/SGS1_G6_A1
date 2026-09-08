@@ -42,6 +42,7 @@ const upload = multer({
 });
 
 app.use(cors({ origin: true, credentials: true }));
+app.use(express.static(path.join(__dirname, "..", "..")));
 app.use("/uploads", express.static(UPLOADS_DIR));
 app.use(express.json());
 
@@ -102,6 +103,16 @@ function sessionCookieOptions() {
     maxAge: SESSION_MAX_AGE_MS,
     path: "/"
   };
+}
+
+function serializeSessionCookie(value, options = {}) {
+  const parts = [`${SESSION_COOKIE_NAME}=${encodeURIComponent(value)}`];
+  if (options.maxAge !== undefined) parts.push(`Max-Age=${Math.floor(options.maxAge / 1000)}`);
+  if (options.path) parts.push(`Path=${options.path}`);
+  if (options.httpOnly) parts.push("HttpOnly");
+  if (options.sameSite) parts.push(`SameSite=${options.sameSite[0].toUpperCase()}${options.sameSite.slice(1)}`);
+  if (options.secure) parts.push("Secure");
+  return parts.join("; ");
 }
 
 function createSession(userId) {
@@ -263,7 +274,7 @@ if (sessionId) activeSessions.delete(sessionId);
 const authHeader = req.headers["authorization"] || "";
 const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : authHeader.trim();
 if (token) activeSessions.delete(token);
-res.clearCookie(SESSION_COOKIE_NAME, sessionCookieOptions());
+res.setHeader("Set-Cookie", serializeSessionCookie("", { ...sessionCookieOptions(), maxAge: 0 }));
 return res.json({ success: true });
 });
 
@@ -296,7 +307,7 @@ app.post("/api/auth/login", (req, res) => {
   }
 
   const response = buildLoginResponse(user);
-  res.cookie(SESSION_COOKIE_NAME, response.sessionId, sessionCookieOptions());
+  res.setHeader("Set-Cookie", serializeSessionCookie(response.sessionId, sessionCookieOptions()));
   delete response.sessionId;
   return res.json(response);
 });
@@ -374,7 +385,7 @@ app.post("/api/auth/register", (req, res) => {
   saveDb(db);
 
   const response = buildLoginResponse(newUser);
-  res.cookie(SESSION_COOKIE_NAME, response.sessionId, sessionCookieOptions());
+  res.setHeader("Set-Cookie", serializeSessionCookie(response.sessionId, sessionCookieOptions()));
   delete response.sessionId;
   return res.status(201).json(response);
 });

@@ -11,6 +11,39 @@
 
 ### Backend
 
+## System Architecture
+
+```mermaid
+flowchart LR
+	User[Customer or professional] --> Browser[Web browser]
+
+	subgraph Frontend[Static frontend: Static_html_css]
+		Browser --> Nav[Shared navigation]
+		Browser --> Account[User account]
+		Browser --> Marketplace[Marketplace and shopping cart]
+		Browser --> Forum[Discussion forum and wishlist]
+		Browser --> Content[Blog and reviews]
+	end
+
+	Nav --> API[Node.js and Express API\n/api]
+	Account --> API
+	Marketplace --> API
+	Forum --> API
+	Content --> API
+
+	API --> Sessions[In-memory sessions\nHttpOnly cookie]
+	API --> Uploads[Image uploads\nbackend/src/uploads]
+	API --> Storage{Persistence}
+	Storage --> MongoDB[(MongoDB Atlas)]
+	Storage --> JSON[(Local db.json)]
+
+	Forum -. threads and replies .-> Marketplace
+	Account -. user identity and role .-> Marketplace
+	Marketplace -. cart and order data .-> Storage
+```
+
+The browser loads the static frontend modules and sends authenticated requests to the Express API. The API uses MongoDB Atlas when configured and falls back to `backend/src/data/db.json` for local development. Cart data is associated with a browser session, while orders preserve the cart items and checkout details.
+
 The backend is located in `Static_html_css/backend` and requires Node.js and
 npm. Install its dependencies and start the API from the repository root:
 

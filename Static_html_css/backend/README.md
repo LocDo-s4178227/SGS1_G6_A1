@@ -17,6 +17,10 @@ npm install
 npm start
 ```
 
+Open the frontend through `http://localhost:5000` (for example,
+`http://localhost:5000/user_account/auth.html`) so browser session cookies
+work correctly. Avoid opening the HTML files directly with `file://`.
+
 The backend loads `backend/.env` automatically. Set `MONGODB_URI` to the
 Atlas connection string and optionally change `MONGODB_DB_NAME` (default:
 `rshop`). The first startup seeds an empty Atlas database from the existing

@@ -304,7 +304,9 @@
                     localStorage.setItem('user', JSON.stringify(data.user));
                     showAlert('loginAlert', 'Login successful! Redirecting...', 'success');
                     setTimeout(() => {
-                        window.location.href = 'profile.html';
+                        window.location.href = window.location.protocol === 'file:'
+                            ? 'http://localhost:5000/user_account/profile.html'
+                            : 'profile.html';
                     }, 1000);
                 } else {
                     showAlert('loginAlert', data.message || 'Login failed', 'error');
