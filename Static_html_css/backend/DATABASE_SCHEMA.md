@@ -17,6 +17,7 @@ erDiagram
         string location
         string description
         string profilePicture
+        array userType
         boolean active
         object preferences
     }
@@ -144,10 +145,22 @@ erDiagram
 ## Relationship Notes
 
 - Primary login identity is `USERS.id` and `USERS.email`.
+- `USERS.userType` is an array containing values such as `poster` or
+    `professional`; the API also exposes the first value as a compatibility
+    `role` field in login responses.
 - `CARTS` are currently session-based (`sessionId`) rather than directly user-owned.
 - During checkout, cart items are copied into `ORDERS.items`, and the cart is cleared.
 - `ORDERS.sessionId` links an order back to the session cart that produced it.
 - Profile preferences are embedded under `USERS.preferences`.
+- Login sessions are stored in backend process memory in `activeSessions` and
+    are represented to the browser by the `rshop_session` HttpOnly cookie. They
+    are not persisted in this schema, so all sessions end when the process
+    restarts.
+- Password-reset tokens are stored in backend process memory in
+    `passwordResetTokens` and are not persisted in the database.
+- The current prototype stores passwords in `USERS.password` as plain text.
+    Production authentication should replace this with a one-way
+    `passwordHash`.
 - `THREADS.author` and `REPLIES.author` currently store the author's username, so
     the user relationships are logical links rather than enforced foreign keys.
 - `REPLIES.threadId` identifies the parent discussion thread. Deleting a thread
@@ -162,7 +175,7 @@ erDiagram
 
 - **Users:** Stores account information including the user ID, first name, last
     name, username, email address, password, contact information, profile
-    description, profile picture, account status, and preferences.
+    description, profile picture, user type, account status, and preferences.
 - **User Preferences:** Stores notification settings for each user, including
     email notifications, message notifications, and new-request notifications.
     These settings are embedded within the user record under `preferences`.
@@ -196,13 +209,16 @@ erDiagram
     image URL, summary, and full article content. The author can be associated
     with a user through `authorId`, and the blog record supports ownership checks
     for editing or deleting posts.
-- **Reviews and Ratings:** Stores product feedback submitted through the Review
-    module. Each review includes a review ID, reviewer, product reference,
-    product name, title, category, numeric rating, summary, detailed description,
-    image, and date added. The reviewer can be associated with a user through
-    `reviewerId`, while `productId` is a logical reference to the reviewed
-    marketplace item. Review ownership is used when users edit or delete their
-    own reviews.
+- **Reviews and Ratings:** The current backend does not define a `reviews`
+    collection or review API routes. Review data is handled by the frontend
+    module/local storage, so the `REVIEWS` entity above is a planned logical
+    model rather than a persisted backend collection. If reviews must persist
+    across devices, add a `reviews` collection and include it in `db.js`
+    `COLLECTIONS`.
+- **Wishlist:** The current backend does not define a `wishlists` collection or
+    wishlist API routes. Wishlist data is currently handled by the frontend
+    module/local storage. If wishlist data must persist across devices, add a
+    user-owned `wishlists` collection and include it in `db.js` `COLLECTIONS`.
 
 ## Data Source
 

@@ -28,6 +28,7 @@
               <th>Item</th>
               <th>Source Thread</th>
               <th>Agreed Price</th>
+              <th>Quantity</th>
               <th>Status</th>
               <th>Action</th>
             </tr>
@@ -78,7 +79,7 @@
         const items = cart.items || [];
 
         if (!items.length) {
-          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#666;">Your cart is empty.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#666;">Your cart is empty.</td></tr>';
           updateOrderSummary([]);
           return;
         }
@@ -90,9 +91,13 @@
           const totalPrice = Number(item.unitPrice || 0) * Number(item.quantity || 0);
           return `
             <tr>
-              <td><strong>${escapeHtml(title)}</strong>${item.quantity > 1 ? ` <span>(${item.quantity})</span>` : ''}</td>
+              <td><strong>${escapeHtml(title)}</strong></td>
               <td><a href="../discuss_forum/thread-detail.html?threadId=${encodeURIComponent(threadId)}">${escapeHtml(threadId)}</a></td>
               <td>$${totalPrice.toFixed(2)}</td>
+              <td>
+                <label class="sr-only" for="quantity-${escapeHtml(item.id)}">Quantity for ${escapeHtml(title)}</label>
+                <input id="quantity-${escapeHtml(item.id)}" class="quantity-input" type="number" min="1" step="1" value="${Math.max(1, Number(item.quantity) || 1)}" onchange="changeCartQuantity('${escapeHtml(item.id)}', this)">
+              </td>
               <td>${escapeHtml(details.status || 'Accepted Offer')}</td>
               <td><button class="btn btn-link btn-small" onclick="removeItemFromCart('${item.id}')">Remove</button></td>
             </tr>
@@ -102,8 +107,29 @@
         updateOrderSummary(items);
       } catch (error) {
         console.error('Error loading cart items:', error);
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#666;">Could not load your cart: ${escapeHtml(error.message)}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#666;">Could not load your cart: ${escapeHtml(error.message)}</td></tr>`;
         updateOrderSummary([]);
+      }
+    }
+
+    async function changeCartQuantity(itemId, input) {
+      const quantity = Number(input.value);
+      if (!Number.isInteger(quantity) || quantity < 1) {
+        input.value = Math.max(1, Number(input.defaultValue) || 1);
+        alert('Quantity must be a whole number of at least 1.');
+        return;
+      }
+
+      try {
+        await apiCall(`/cart/${SESSION_ID}/items/${itemId}`, {
+          method: 'PUT',
+          body: JSON.stringify({ quantity })
+        });
+        await updateCartBadge();
+        await loadCartItems();
+      } catch (error) {
+        input.value = Math.max(1, Number(input.defaultValue) || 1);
+        alert(`Could not update quantity: ${error.message}`);
       }
     }
 
