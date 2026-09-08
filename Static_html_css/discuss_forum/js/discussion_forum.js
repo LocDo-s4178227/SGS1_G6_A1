@@ -260,6 +260,16 @@ const titleInput = document.getElementById('edit-title');
 const contentInput = document.getElementById('edit-content');
 const submitBtn = form.querySelector('button[type="submit"]');
 const imageInput = document.getElementById('edit-image');
+const imagePreview = form.querySelector('.current-image-preview');
+if (imageInput && imagePreview) {
+imageInput.addEventListener('change', () => {
+const file = imageInput.files && imageInput.files[0];
+if (!file) return;
+const reader = new FileReader();
+reader.onload = (e) => { imagePreview.src = e.target.result; };
+reader.readAsDataURL(file);
+});
+}
 const DRAFT_KEY = 'forum_new_thread_draft';
 // --- Restore draft from Web Storage ---
 const saved = localStorage.getItem(DRAFT_KEY);
@@ -342,6 +352,16 @@ const titleInput = document.getElementById('edit-title');
 const contentInput = document.getElementById('edit-content');
 const submitBtn = form.querySelector('button[type="submit"]');
 const imageInput = document.getElementById('edit-image');
+const imagePreview = form.querySelector('.current-image-preview');
+if (imageInput && imagePreview) {
+imageInput.addEventListener('change', () => {
+const file = imageInput.files && imageInput.files[0];
+if (!file) return;
+const reader = new FileReader();
+reader.onload = (e) => { imagePreview.src = e.target.result; };
+reader.readAsDataURL(file);
+});
+}
 const threadId = getQueryParam('threadId') || 'desk-001';
 // Web Storage draft key is scoped to this specific thread, so editing
 // two different threads never mixes up their unsaved drafts.
@@ -356,6 +376,7 @@ const data = await apiRequest(`/api/threads/${threadId}`);
 if (titleInput) titleInput.value = data.thread.title;
 if (contentInput) contentInput.value = data.thread.content;
 currentImage = data.thread.image || '';
+if (imagePreview && currentImage) imagePreview.src = currentImage;
 // If the user had unsaved edits in progress (e.g. the page was
 // refreshed by accident), restore those over the server values.
 restoreDraftFromStorage(DRAFT_KEY, draftFields);
@@ -427,7 +448,7 @@ const titleInput = document.getElementById('edit-reply-title');
 const contentInput = document.getElementById('edit-reply-content');
 const priceInput = document.getElementById('edit-reply-price');
 const submitBtn = form.querySelector('button[type="submit"]');
-const imageInput = document.getElementById('edit-reply-image');   
+const imageInput = document.getElementById('edit-reply-image');
 const replyId = getQueryParam('replyId') || 'reply-001';
 const threadId = getQueryParam('threadId') || 'desk-001';
 // Web Storage draft key is scoped to this specific reply.
