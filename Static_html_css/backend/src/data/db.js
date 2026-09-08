@@ -174,6 +174,68 @@ function persistDb() {
   return pendingSave;
 }
 
+/*
+ * Serializes a single Mongo write behind the same `pendingSave` queue used by
+ * persistDb(), so per-document writes never interleave with a full snapshot
+ * write and don't race each other under concurrent requests.
+ */
+function serializeWrite(task) {
+  pendingSave = pendingSave.then(task).catch((error) => {
+    console.error("MongoDB persistence failed:", error.message);
+    throw error;
+  });
+  return pendingSave;
+}
+
+function persistLocalSnapshot() {
+  fs.writeFileSync(DATA_FILE, JSON.stringify(db, null, 2), "utf8");
+}
+
+/*
+ * Insert exactly ONE new document into a collection using MongoDB's
+ * insertOne(), instead of rewriting the whole collection.
+ * Falls back to a local JSON snapshot write when MONGODB_URI isn't set
+ * (local dev without Atlas configured).
+ */
+async function insertOneDocument(collectionName, document) {
+  if (!mongoDatabase) {
+    persistLocalSnapshot();
+    return;
+  }
+
+  return serializeWrite(async () => {
+    const collection = mongoDatabase.collection(collectionName);
+    await collection.insertOne({
+      ...document,
+      _id: document.id || document.sessionId
+    });
+  });
+}
+
+/*
+ * Update exactly ONE existing document using MongoDB's updateOne()/$set,
+ * instead of rewriting the whole collection. Used for both "edit" actions
+ * and soft-deletes (setting deleted/deleted_at/deleted_by via $set).
+ * `upsert: true` is a safety net in case the document was created before
+ * a Mongo connection existed (e.g. local-JSON fallback mode).
+ */
+async function updateOneDocument(collectionName, id, updateFields) {
+  if (!mongoDatabase) {
+    persistLocalSnapshot();
+    return;
+  }
+
+  return serializeWrite(async () => {
+    const collection = mongoDatabase.collection(collectionName);
+    const { _id, ...fieldsToSet } = updateFields;
+    await collection.updateOne(
+      { _id: id },
+      { $set: fieldsToSet },
+      { upsert: true }
+    );
+  });
+}
+
 function generateId(prefix) {
   return `${prefix}_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
 }
@@ -192,5 +254,7 @@ module.exports = {
   initializeDb,
   generateId,
   generateOrderNumber,
-  saveDb
+  saveDb,
+  insertOneDocument,
+  updateOneDocument
 };

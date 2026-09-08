@@ -5,7 +5,7 @@ const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 const multer = require("multer");
-const { db, generateId, generateOrderNumber, initializeDb, saveDb } = require("./data/db");
+const { db, generateId, generateOrderNumber, initializeDb, saveDb, insertOneDocument, updateOneDocument } = require("./data/db");
 
 const app = express();
 const PORT = Number(process.env.PORT || 5000);
@@ -916,7 +916,7 @@ function isOwner(req, resource) {
 }
 
 // 3. POST /api/threads - Create a new thread
-app.post("/api/threads", upload.single("image"), (req, res) => {
+app.post("/api/threads", upload.single("image"), async (req, res) => {
   const { title, content, status } = req.body || {};
 
   // Author is always the currently authenticated user (from requireLogin),
@@ -959,13 +959,18 @@ app.post("/api/threads", upload.single("image"), (req, res) => {
 
   if (!db.threads) db.threads = [];
   db.threads.push(newThread);
-  saveDb(db);
+
+  try {
+    await insertOneDocument("threads", newThread);
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Failed to save thread to database" });
+  }
 
   return res.status(201).json({ success: true, thread: newThread });
 });
 
 // 4. PUT /api/threads/:id - Update an existing thread
-app.put("/api/threads/:id", upload.single("image"), (req, res) => {
+app.put("/api/threads/:id", upload.single("image"), async (req, res) => {
   const thread = (db.threads || []).find(
   (t) => t.id === req.params.id && t.deleted !== true
 );
@@ -1001,12 +1006,17 @@ app.put("/api/threads/:id", upload.single("image"), (req, res) => {
   }
   if (typeof status !== "undefined") thread.status = status;
 
-  saveDb(db);
+  try {
+    await updateOneDocument("threads", thread.id, thread);
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Failed to update thread in database" });
+  }
+
   return res.json({ success: true, thread });
 });
 
 // 5. DELETE /api/threads/:id - Delete a thread and cascade delete all its associated replies
-app.delete("/api/threads/:id", (req, res) => {
+app.delete("/api/threads/:id", async (req, res) => {
   const thread = (db.threads || []).find(
     (t) => t.id === req.params.id && t.deleted !== true
   );
@@ -1039,19 +1049,27 @@ app.delete("/api/threads/:id", (req, res) => {
    * Soft-delete associated replies as well.
    * They remain in the database for audit purposes.
    */
-  (db.replies || [])
-    .filter((reply) => reply.threadId === req.params.id)
-    .forEach((reply) => {
-      if (reply.deleted !== true) {
-        reply.deleted = true;
-        reply.deleted_at = new Date().toISOString();
-        reply.deleted_by = req.user.username;
-      }
-    });
+  const repliesToSoftDelete = (db.replies || []).filter(
+    (reply) => reply.threadId === req.params.id && reply.deleted !== true
+  );
+  repliesToSoftDelete.forEach((reply) => {
+    reply.deleted = true;
+    reply.deleted_at = new Date().toISOString();
+    reply.deleted_by = req.user.username;
+  });
 
   thread.replyCount = 0;
 
-  saveDb(db);
+  try {
+    // One updateOne() per affected document (the thread + each cascaded reply)
+    // instead of rewriting the entire threads/replies collections.
+    await updateOneDocument("threads", thread.id, thread);
+    await Promise.all(
+      repliesToSoftDelete.map((reply) => updateOneDocument("replies", reply.id, reply))
+    );
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Failed to delete thread in database" });
+  }
 
   return res.json({
     success: true,
@@ -1060,7 +1078,7 @@ app.delete("/api/threads/:id", (req, res) => {
 });
 
 // 6. POST /api/threads/:id/replies - Post a reply / quote offer under a thread
-app.post("/api/threads/:id/replies", upload.single("image"), (req, res) => {
+app.post("/api/threads/:id/replies", upload.single("image"), async (req, res) => {
   const thread = (db.threads || []).find(
     (t) => t.id === req.params.id && t.deleted !== true
   );
@@ -1117,12 +1135,20 @@ app.post("/api/threads/:id/replies", upload.single("image"), (req, res) => {
   if (parsedPrice > 0 && (thread.status || "Open").toLowerCase() === "open") {
   thread.status = "Negotiating";
 }
-  saveDb(db);
+
+  try {
+    await insertOneDocument("replies", newReply);
+    // Persist the thread separately since replyCount/status changed on it too.
+    await updateOneDocument("threads", thread.id, thread);
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Failed to save reply to database" });
+  }
+
   return res.status(201).json({ success: true, reply: newReply });
 });
 
 // 7. PUT /api/replies/:replyId - Update a reply / quote offer
-app.put("/api/replies/:replyId", upload.single("image"), (req, res) => {
+app.put("/api/replies/:replyId", upload.single("image"), async (req, res) => {
   const reply = (db.replies || []).find(
   (r) => r.id === req.params.replyId && r.deleted !== true
 );
@@ -1165,12 +1191,17 @@ app.put("/api/replies/:replyId", upload.single("image"), (req, res) => {
     reply.image = req.body.image || "";
   }
 
-  saveDb(db);
+  try {
+    await updateOneDocument("replies", reply.id, reply);
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Failed to update reply in database" });
+  }
+
   return res.json({ success: true, reply });
 });
 
 // 8. DELETE /api/replies/:replyId - Delete a single reply
-app.delete("/api/replies/:replyId", (req, res) => {
+app.delete("/api/replies/:replyId", async (req, res) => {
   const reply = (db.replies || []).find(
     (r) => r.id === req.params.replyId && r.deleted !== true
   );
@@ -1213,7 +1244,15 @@ app.delete("/api/replies/:replyId", (req, res) => {
     thread.replyCount = visibleReplyCount;
   }
 
-  saveDb(db);
+  try {
+    // Soft-delete is just an updateOne with $set: { deleted: true, ... }.
+    await updateOneDocument("replies", reply.id, reply);
+    if (thread) {
+      await updateOneDocument("threads", thread.id, thread);
+    }
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Failed to delete reply in database" });
+  }
 
   return res.json({
     success: true,

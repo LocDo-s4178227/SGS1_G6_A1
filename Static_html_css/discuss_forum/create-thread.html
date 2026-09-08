@@ -32,12 +32,12 @@
 <span id="edit-content-error" style="color: red; display: none; font-size: 0.85em; margin-top: 5px;"></span>
 </div>
 <div class="form-group">
-<label for="edit-image">Reference Image</label>
+<label for="edit-image">Reference Image *</label>
 <img class="current-image-preview" alt="Please add in an image for your thread.">
 </div>
 <div class="form-group">
-<input type="file" id="edit-image" name="image" accept="image/*">
-<small class="form-text text-muted">Maximum 5 MB. Images are uploaded to the server and the saved URL is stored with the post.</small>
+<input type="file" id="edit-image" name="image" accept="image/*" required>
+<small class="form-text text-muted">Required. Maximum 5 MB. Images are uploaded to the server and the saved URL is stored with the post.</small>
 </div>
 <span id="form-error" style="color: red; display: none; font-size: 0.9em; margin-bottom: 10px;"></span>
 <div class="flex-between">
