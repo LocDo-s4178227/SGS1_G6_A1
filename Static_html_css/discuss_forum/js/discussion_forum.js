@@ -427,6 +427,7 @@ const titleInput = document.getElementById('edit-reply-title');
 const contentInput = document.getElementById('edit-reply-content');
 const priceInput = document.getElementById('edit-reply-price');
 const submitBtn = form.querySelector('button[type="submit"]');
+const imageInput = document.getElementById('edit-reply-image');   
 const replyId = getQueryParam('replyId') || 'reply-001';
 const threadId = getQueryParam('threadId') || 'desk-001';
 // Web Storage draft key is scoped to this specific reply.
