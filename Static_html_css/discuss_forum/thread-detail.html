@@ -121,7 +121,7 @@ async function agreePriceAndAddToCart(itemTitle, makerName, price, threadId) {
       })
     });
 
-  const statusResponse = await fetch(`http://localhost:5000/api/threads/${threadId}`, {
+  const statusResponse = await fetch(`/api/threads/${threadId}`, {
       method: 'PUT',
       credentials: 'include',
       headers: {

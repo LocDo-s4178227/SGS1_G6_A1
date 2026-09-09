@@ -15,7 +15,7 @@
 // CONFIGURATION
 // ============================================================
 
-const BLOG_API = "http://localhost:5000/api/blogs";
+const BLOG_API = "/api/blogs";
 
 
 // ============================================================
@@ -55,7 +55,7 @@ async function blogApiRequest(endpoint, options = {}) {
     const response = await fetch(
         endpoint.startsWith("http")
             ? endpoint
-            : `http://localhost:5000${endpoint}`,
+            : endpoint,
         {
             ...options,
             credentials: "include",

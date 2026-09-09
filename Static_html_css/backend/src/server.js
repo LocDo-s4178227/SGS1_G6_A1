@@ -5,6 +5,7 @@ const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 const multer = require("multer");
+const { v2: cloudinary } = require("cloudinary");
 const { db, generateId, generateOrderNumber, initializeDb, saveDb, insertOneDocument, updateOneDocument } = require("./data/db");
 
 const app = express();
@@ -15,11 +16,25 @@ const SESSION_COOKIE_NAME = "rshop_session";
 const SESSION_MAX_AGE_MS = 8 * 60 * 60 * 1000;
 
 const UPLOADS_DIR = path.join(__dirname, "uploads");
-if (!fs.existsSync(UPLOADS_DIR)) {
+const cloudinaryConfigured = Boolean(
+  process.env.CLOUDINARY_CLOUD_NAME &&
+  process.env.CLOUDINARY_API_KEY &&
+  process.env.CLOUDINARY_API_SECRET
+);
+
+if (!cloudinaryConfigured && !fs.existsSync(UPLOADS_DIR)) {
   fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 }
 
-const storage = multer.diskStorage({
+if (cloudinaryConfigured) {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+  });
+}
+
+const diskStorage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, UPLOADS_DIR),
   filename: (_req, file, cb) => {
     const safeName = file.originalname
@@ -31,7 +46,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({
-  storage,
+  storage: cloudinaryConfigured ? multer.memoryStorage() : diskStorage,
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     if (!file.mimetype.startsWith("image/")) {
@@ -41,10 +56,32 @@ const upload = multer({
   }
 });
 
+function uploadImage(file) {
+  if (!cloudinaryConfigured) return Promise.resolve("");
+
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: "rshop" },
+      (error, result) => (error ? reject(error) : resolve(result.secure_url))
+    );
+    stream.end(file.buffer);
+  });
+}
+
+async function getUploadedImageUrl(req, file) {
+  if (!file) return "";
+  if (cloudinaryConfigured) return uploadImage(file);
+  return `${req.protocol}://${req.get("host")}/uploads/${file.filename}`;
+}
+
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.static(path.join(__dirname, "..", "..")));
 app.use("/uploads", express.static(UPLOADS_DIR));
 app.use(express.json());
+
+app.get("/", (_req, res) => {
+  res.sendFile(path.join(__dirname, "..", "..", "homepage", "homepage.html"));
+});
 
 function sanitizeUser(user) {
   const { password, ...safeUser } = user;
@@ -949,7 +986,7 @@ app.post("/api/threads", upload.single("image"), async (req, res) => {
     });
   }
 
-  const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+  const imageUrl = await getUploadedImageUrl(req, req.file);
 
   const id = generateId("thread");
   const newThread = {
@@ -1011,7 +1048,7 @@ app.put("/api/threads/:id", upload.single("image"), async (req, res) => {
   }
 
   if (req.file) {
-    thread.image = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+    thread.image = await getUploadedImageUrl(req, req.file);
   } else if (typeof req.body.image !== "undefined") {
     thread.image = req.body.image || "";
   }
@@ -1120,7 +1157,7 @@ app.post("/api/threads/:id/replies", upload.single("image"), async (req, res) =>
     });
   }
 
-  const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+  const imageUrl = await getUploadedImageUrl(req, req.file);
 
   const newReply = {
   id: generateId("reply"),
@@ -1197,7 +1234,7 @@ app.put("/api/replies/:replyId", upload.single("image"), async (req, res) => {
   }
 
   if (req.file) {
-    reply.image = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+    reply.image = await getUploadedImageUrl(req, req.file);
   } else if (typeof req.body.image !== "undefined") {
     reply.image = req.body.image || "";
   }

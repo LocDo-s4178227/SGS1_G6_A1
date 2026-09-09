@@ -32,7 +32,7 @@ return null;
 // this static frontend is served from (Live Server, file://, etc).
 // Change this if your backend runs on a different host/port.
 // ==========================================
-const API_BASE = 'http://localhost:5000';
+const API_BASE = '';
 // ==========================================
 // SMALL HELPERS
 // ==========================================
