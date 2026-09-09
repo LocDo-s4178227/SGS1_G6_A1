@@ -135,7 +135,7 @@ async function agreePriceAndAddToCart(itemTitle, makerName, price, threadId) {
     }
 
     await updateCartBadge();
-    alert(`"${itemTitle}" has been added to your cart at $${price.toFixed(2)}\n\nRedirecting to cart...`);
+    alert(`"${itemTitle}" has been added to your cart at $${price.toFixed(2)}`);
     setTimeout(() => {
       window.location.href = '../shopping_cart/cart.html';
     }, 500);

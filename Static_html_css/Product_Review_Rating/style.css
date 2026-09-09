@@ -87,128 +87,7 @@ img {
     max-width: 100%;
 }
 
-/* =====================================================
-   HEADER
-===================================================== */
-
-.site-header {
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-
-    border-bottom:
-        1px solid rgba(255, 255, 255, 0.08);
-
-    background:
-        rgba(38, 52, 52, 0.97);
-
-    backdrop-filter: blur(16px);
-
-    box-shadow:
-        0 8px 28px rgba(17, 25, 25, 0.14);
-}
-
-.nav-shell {
-    width: min(92%, var(--max-width));
-    min-height: 76px;
-    margin: 0 auto;
-
-    display: flex;
-    align-items: center;
-    gap: 28px;
-}
-
-.brand {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-
-    color: white;
-
-    text-decoration: none;
-    font-size: 1.28rem;
-    font-weight: 800;
-}
-
-.brand-mark {
-    width: 36px;
-    height: 36px;
-
-    display: grid;
-    place-items: center;
-
-    border-radius: 10px;
-
-    background: var(--accent);
-    color: var(--primary);
-
-    font-size: 1.1rem;
-    font-weight: 900;
-}
-
-.main-nav {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-
-    margin-left: auto;
-}
-
-.main-nav a {
-    padding: 9px 14px;
-
-    border-radius: 9px;
-
-    color: #e8eeee;
-
-    text-decoration: none;
-    font-size: 0.94rem;
-    font-weight: 650;
-
-    transition:
-        background 0.2s ease,
-        color 0.2s ease;
-}
-
-.main-nav a:hover,
-.main-nav a.active {
-    color: var(--primary);
-    background: var(--accent);
-}
-
-.user-pill {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    padding-left: 20px;
-
-    border-left:
-        1px solid rgba(255, 255, 255, 0.14);
-
-    color: white;
-}
-
-.user-pill small {
-    display: block;
-
-    color: #aebbbb;
-
-    font-size: 0.72rem;
-}
-
-.user-pill strong {
-    display: block;
-
-    max-width: 140px;
-
-    overflow: hidden;
-
-    font-size: 0.88rem;
-
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
+/* Shared header styles are loaded from ../css/top-nav.css. */
 
 .avatar {
     width: 38px;
@@ -1273,6 +1152,27 @@ main {
     font-size: 0.84rem;
 }
 
+.footer-links {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    margin-top: 10px;
+}
+
+.footer-links a {
+    color: #dce8f2;
+    font-size: 0.88rem;
+    font-weight: 650;
+    text-decoration: none;
+}
+
+.footer-links a:hover,
+.footer-links a:focus-visible {
+    color: var(--accent);
+    text-decoration: underline;
+}
+
 /* =====================================================
    RESPONSIVE
 ===================================================== */
@@ -1299,30 +1199,6 @@ main {
 
 
 @media (max-width: 850px) {
-
-    .nav-shell {
-        min-height: auto;
-        padding: 14px 0;
-
-        flex-wrap: wrap;
-    }
-
-    .main-nav {
-        order: 3;
-
-        width: 100%;
-
-        overflow-x: auto;
-    }
-
-    .user-pill {
-        margin-left: auto;
-
-        padding-left: 0;
-
-        border-left: 0;
-    }
-
     .hero {
         grid-template-columns: 1fr;
     }
@@ -1409,21 +1285,6 @@ main {
 
 
 @media (max-width: 480px) {
-
-    .user-pill small {
-        display: none;
-    }
-
-    .user-pill strong {
-        max-width: 100px;
-
-        font-size: 0.78rem;
-    }
-
-    .main-nav a {
-        flex: 0 0 auto;
-    }
-
     .hero-actions,
     .form-buttons,
     .modal-actions {

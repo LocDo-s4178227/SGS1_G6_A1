@@ -1,4 +1,4 @@
-/* =====================================================
+/* 
    RSHOP - REVIEW & RATING PAGE
    Front-end prototype with:
    - live validation
@@ -8,22 +8,22 @@
    - localStorage persistence
    - review draft persistence
    - current-user ownership behaviour
-===================================================== */
+ */
 
 
-/* =====================================================
+/* 
    STORAGE KEYS
-===================================================== */
+ */
 
 const REVIEW_STORAGE_KEY = "rshop.reviews.v3";
 const DRAFT_STORAGE_KEY = "rshop.reviewDraft.v3";
 const FILTER_STORAGE_KEY = "rshop.reviewFilters.v3";
 
 
-/* =====================================================
+/* 
    CURRENT USER
    Replace this object later with your shared login module.
-===================================================== */
+ */
 
 const currentUser = {
     id: 1,
@@ -31,9 +31,9 @@ const currentUser = {
 };
 
 
-/* =====================================================
+/* 
    DEFAULT IMAGE
-===================================================== */
+ */
 
 const DEFAULT_IMAGE =
     "data:image/svg+xml;charset=UTF-8," +
@@ -76,9 +76,9 @@ const DEFAULT_IMAGE =
     `);
 
 
-/* =====================================================
+/* 
    SAMPLE REVIEWS
-===================================================== */
+ */
 
 const sampleReviews = [
     {
@@ -151,9 +151,9 @@ const sampleReviews = [
 ];
 
 
-/* =====================================================
+/* 
    STATE
-===================================================== */
+ */
 
 let reviews = loadReviews();
 
@@ -162,9 +162,9 @@ let selectedRating = 0;
 let selectedReviewId = null;
 
 
-/* =====================================================
+/* 
    DOM
-===================================================== */
+ */
 
 const elements = {
     reviewContainer:
@@ -303,13 +303,7 @@ const elements = {
         document.getElementById("modalActions"),
 
     toast:
-        document.getElementById("toast"),
-
-    currentUserName:
-        document.getElementById("currentUserName"),
-
-    userAvatar:
-        document.getElementById("userAvatar")
+        document.getElementById("toast")
 };
 
 
@@ -337,9 +331,9 @@ const errors = {
 };
 
 
-/* =====================================================
+/* 
    STORAGE
-===================================================== */
+ */
 
 function loadReviews() {
 
@@ -548,9 +542,9 @@ function restoreFilterState() {
 }
 
 
-/* =====================================================
+/* 
    HELPERS
-===================================================== */
+ */
 
 function createStars(rating) {
 
@@ -647,9 +641,9 @@ function setFormMessage(
 }
 
 
-/* =====================================================
+/* 
    REVIEW STATISTICS
-===================================================== */
+ */
 
 function renderStatistics() {
 
@@ -732,9 +726,9 @@ function renderStatistics() {
 }
 
 
-/* =====================================================
+/* 
    SEARCH / FILTER / SORT
-===================================================== */
+ */
 
 function getVisibleReviews() {
 
@@ -846,9 +840,9 @@ function getVisibleReviews() {
 }
 
 
-/* =====================================================
+/* 
    RENDER REVIEW CARDS
-===================================================== */
+ */
 
 function renderReviews() {
 
@@ -2290,17 +2284,6 @@ liveValidationMap
 ===================================================== */
 
 function initializePage() {
-
-    elements.currentUserName.textContent =
-        currentUser.name;
-
-
-    elements.userAvatar.textContent =
-        getInitials(
-            currentUser.name
-        );
-
-
     restoreFilterState();
 
     restoreDraft();

@@ -187,6 +187,7 @@ function filterAndSortBlogs(blogs, filters) {
             const searchableText = [
                 blog.title,
                 blog.authorName,
+                blog.authorID,
                 blog.summary,
                 blog.content,
                 ...(blog.tags || [])
@@ -1693,3 +1694,20 @@ document.addEventListener(
         initBlogDetailPage();
     }
 );
+
+// ============================================================
+// READ TIME ESTIMATION
+// ============================================================
+function calculateReadTime(content) {
+    const words = String(content || "")
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+
+    const wordsPerMinute = 200;
+
+    return Math.max(
+        1,
+        Math.ceil(words.length / wordsPerMinute)
+    );
+}
