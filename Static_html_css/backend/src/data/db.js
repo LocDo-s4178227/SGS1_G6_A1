@@ -29,6 +29,7 @@ const DEFAULT_DB = {
   blogs: [
     {
       id: "blog_001",
+      authorId: "user_001",
       authorName: "demouser",
       title: "Designing Better Custom-Maker Requests",
       dateAdded: "2026-08-18",
@@ -41,6 +42,7 @@ const DEFAULT_DB = {
     },
     {
       id: "blog_002",
+      authorId: "user_001",
       authorName: "demouser",
       title: "A Practical Guide to Better Product Photos",
       dateAdded: "2026-08-12",
@@ -50,6 +52,17 @@ const DEFAULT_DB = {
       summary: "Use focused, optimized images to help shoppers understand a handmade product quickly.",
       content: "Show the product clearly, keep the file size reasonable, and include descriptive alternative text so every visitor can understand the listing.",
       deleted: false
+    }
+  ],
+  blogComments: [
+     {
+        id: "comment_001",
+        blogId: "blog_001",
+        authorId: "user_001",
+        authorName: "demouser",
+        content: "This is a useful article.",
+        dateAdded: "2026-09-09T08:00:00.000Z",
+        deleted: false
     }
   ],
   threads: [],
