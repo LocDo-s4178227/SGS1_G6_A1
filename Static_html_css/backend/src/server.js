@@ -5,6 +5,7 @@ const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 const multer = require("multer");
+const { v2: cloudinary } = require("cloudinary");
 const { db, generateId, generateOrderNumber, initializeDb, saveDb, insertOneDocument, updateOneDocument } = require("./data/db");
 
 const app = express();
@@ -15,11 +16,25 @@ const SESSION_COOKIE_NAME = "rshop_session";
 const SESSION_MAX_AGE_MS = 8 * 60 * 60 * 1000;
 
 const UPLOADS_DIR = path.join(__dirname, "uploads");
-if (!fs.existsSync(UPLOADS_DIR)) {
+const cloudinaryConfigured = Boolean(
+  process.env.CLOUDINARY_CLOUD_NAME &&
+  process.env.CLOUDINARY_API_KEY &&
+  process.env.CLOUDINARY_API_SECRET
+);
+
+if (!cloudinaryConfigured && !fs.existsSync(UPLOADS_DIR)) {
   fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 }
 
-const storage = multer.diskStorage({
+if (cloudinaryConfigured) {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+  });
+}
+
+const diskStorage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, UPLOADS_DIR),
   filename: (_req, file, cb) => {
     const safeName = file.originalname
@@ -31,7 +46,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({
-  storage,
+  storage: cloudinaryConfigured ? multer.memoryStorage() : diskStorage,
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     if (!file.mimetype.startsWith("image/")) {
@@ -41,10 +56,32 @@ const upload = multer({
   }
 });
 
+function uploadImage(file) {
+  if (!cloudinaryConfigured) return Promise.resolve("");
+
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: "rshop" },
+      (error, result) => (error ? reject(error) : resolve(result.secure_url))
+    );
+    stream.end(file.buffer);
+  });
+}
+
+async function getUploadedImageUrl(req, file) {
+  if (!file) return "";
+  if (cloudinaryConfigured) return uploadImage(file);
+  return `${req.protocol}://${req.get("host")}/uploads/${file.filename}`;
+}
+
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.static(path.join(__dirname, "..", "..")));
 app.use("/uploads", express.static(UPLOADS_DIR));
 app.use(express.json());
+
+app.get("/", (_req, res) => {
+  res.sendFile(path.join(__dirname, "..", "..", "homepage", "homepage.html"));
+});
 
 function sanitizeUser(user) {
   const { password, ...safeUser } = user;
@@ -223,6 +260,10 @@ app.post("/api/blogs", requireLogin, (req, res) => {
 
   const blog = {
     id: generateId("blog"),
+    // `authorId` is the real foreign key into USERS.id, matching the
+    // DATABASE_SCHEMA.md diagram. `authorName` is kept as a denormalised
+    // display name so the frontend doesn't need an extra user lookup.
+    authorId: req.user.userId,
     authorName: req.user.username,
     title: body.title.trim(),
     dateAdded: body.dateAdded,
@@ -241,7 +282,10 @@ app.post("/api/blogs", requireLogin, (req, res) => {
 app.put("/api/blogs/:id", requireLogin, (req, res) => {
   const blog = (db.blogs || []).find((item) => item.id === req.params.id && item.deleted !== true);
   if (!blog) return res.status(404).json({ success: false, message: "Blog post not found" });
-  if (blog.authorName !== req.user.username) {
+  const isBlogOwner = blog.authorId
+    ? String(blog.authorId) === String(req.user.userId)
+    : blog.authorName === req.user.username; // legacy fallback for pre-migration records
+  if (!isBlogOwner) {
     return res.status(403).json({ success: false, message: "You can only edit your own blog posts" });
   }
   const validationError = validateBlogFields(req.body || {}, true);
@@ -259,7 +303,10 @@ app.put("/api/blogs/:id", requireLogin, (req, res) => {
 app.delete("/api/blogs/:id", requireLogin, (req, res) => {
   const blog = (db.blogs || []).find((item) => item.id === req.params.id && item.deleted !== true);
   if (!blog) return res.status(404).json({ success: false, message: "Blog post not found" });
-  if (blog.authorName !== req.user.username) {
+  const isBlogOwner = blog.authorId
+    ? String(blog.authorId) === String(req.user.userId)
+    : blog.authorName === req.user.username; // legacy fallback for pre-migration records
+  if (!isBlogOwner) {
     return res.status(403).json({ success: false, message: "You can only delete your own blog posts" });
   }
   blog.deleted = true;
@@ -919,9 +966,23 @@ next();
 app.use(["/api/threads", "/api/replies"], requireLogin);
 
 // Helper: checks whether the currently logged-in user (req.user) owns the
-// given resource (a thread or a reply, both of which have an "author" field).
+// given resource (a thread or a reply).
+//
+// Ownership is now decided by the real foreign key `authorId` (which stores
+// USERS.id), not by comparing display names. This makes THREADS/REPLIES a
+// proper FK relationship to USERS instead of a "logical link" by username.
+//
+// The username fallback is kept only for backward compatibility with any
+// records created before this change (which only had `author`, no
+// `authorId`) so existing data doesn't suddenly become unowned.
 function isOwner(req, resource) {
     if (!resource || !req.user) return false;
+
+    if (resource.authorId) {
+        return String(resource.authorId) === String(req.user.userId);
+    }
+
+    // Legacy fallback for pre-migration records.
     return String(resource.author || "").trim().toLowerCase() ===
         String(req.user.username || "").trim().toLowerCase();
 }
@@ -933,6 +994,11 @@ app.post("/api/threads", upload.single("image"), async (req, res) => {
   // Author is always the currently authenticated user (from requireLogin),
   // never a value the client sends in the body - otherwise anyone could
   // post a thread pretending to be someone else.
+  //
+  // `authorId` is the real foreign key into USERS.id and is what ownership
+  // checks (isOwner) rely on. `author` is kept as a denormalised display
+  // name so the frontend doesn't have to look up the username separately.
+  const authorId = req.user && req.user.userId;
   const author = req.user && req.user.username;
 
   if (!isNonEmptyString(title) || title.trim().length < 5) {
@@ -949,11 +1015,12 @@ app.post("/api/threads", upload.single("image"), async (req, res) => {
     });
   }
 
-  const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+  const imageUrl = await getUploadedImageUrl(req, req.file);
 
   const id = generateId("thread");
   const newThread = {
   id,
+  authorId,
   author,
   title: title.trim(),
   content: content.trim(),
@@ -1011,7 +1078,7 @@ app.put("/api/threads/:id", upload.single("image"), async (req, res) => {
   }
 
   if (req.file) {
-    thread.image = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+    thread.image = await getUploadedImageUrl(req, req.file);
   } else if (typeof req.body.image !== "undefined") {
     thread.image = req.body.image || "";
   }
@@ -1100,6 +1167,11 @@ app.post("/api/threads/:id/replies", upload.single("image"), async (req, res) =>
   const { title, content, price } = req.body || {};
   // Author is always the currently authenticated user (from requireLogin),
   // never a value the client sends in the body.
+  //
+  // `authorId` is the real foreign key into USERS.id and is what ownership
+  // checks (isOwner) rely on. `author` is kept as a denormalised display
+  // name so the frontend doesn't have to look up the username separately.
+  const authorId = req.user.userId;
   const author = req.user.username;
   if (!isNonEmptyString(title)) {
     return res.status(400).json({ success: false, message: "Reply title is required" });
@@ -1120,11 +1192,12 @@ app.post("/api/threads/:id/replies", upload.single("image"), async (req, res) =>
     });
   }
 
-  const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+  const imageUrl = await getUploadedImageUrl(req, req.file);
 
   const newReply = {
   id: generateId("reply"),
   threadId: req.params.id,
+  authorId,
   author: author.trim(),
   title: title.trim(),
   content: content.trim(),
@@ -1197,7 +1270,7 @@ app.put("/api/replies/:replyId", upload.single("image"), async (req, res) => {
   }
 
   if (req.file) {
-    reply.image = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+    reply.image = await getUploadedImageUrl(req, req.file);
   } else if (typeof req.body.image !== "undefined") {
     reply.image = req.body.image || "";
   }
