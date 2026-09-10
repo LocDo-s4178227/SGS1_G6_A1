@@ -1,0 +1,16 @@
+# Node dependencies
+node_modules/
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Runtime-generated uploads
+Static_html_css/backend/src/uploads/*
+!Static_html_css/backend/src/uploads/.gitkeep
+
+# Common local and build artifacts
+*.log
+dist/
+build/

@@ -4,22 +4,30 @@ This backend powers the shopping_cart module and listens on `http://localhost:50
 
 ## Setup
 
-1. Open terminal in `backend`.
-2. Install dependencies:
+Run these steps on the server machine or hosting platform:
+
+1. Install Node.js 18 or later and copy/clone the project source code.
+2. Open a terminal in `Static_html_css/backend`.
+3. Install the exact package versions recorded in `package-lock.json`:
 
 ```bash
-npm install
+npm ci
 ```
 
-3. Start server:
+4. Create a `.env` file from `.env.example` and set the MongoDB connection
+	values. Set the optional Cloudinary values if uploaded images should be
+	stored remotely. Keep `.env` private and do not commit it.
+5. Start the application:
 
 ```bash
 npm start
 ```
 
-Open the frontend through `http://localhost:5000` (for example,
-`http://localhost:5000/user_account/auth.html`) so browser session cookies
-work correctly. Avoid opening the HTML files directly with `file://`.
+The server listens on the `PORT` environment variable, or port `5000` when it
+is not set. Configure the hosting platform or reverse proxy to forward the
+domain to this port. Open the frontend through the same domain (for example,
+`https://your-domain.example/user_account/auth.html`) so browser session
+cookies work correctly. Do not open the HTML files directly with `file://`.
 
 The backend loads `backend/.env` automatically. Set `MONGODB_URI` to the
 Atlas connection string and optionally change `MONGODB_DB_NAME` (default:

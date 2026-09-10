@@ -13,7 +13,7 @@ localStorage.setItem("sessionId", SESSION_ID);
 
 // API Configuration
 const API_CONFIG = {
-  BASE_URL: "http://localhost:5000/api",
+  BASE_URL: "/api",
   TIMEOUT: 1200,
   HEADERS: {
     "Content-Type": "application/json"
