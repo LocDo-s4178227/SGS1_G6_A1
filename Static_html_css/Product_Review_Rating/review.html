@@ -11,11 +11,9 @@
     <script src="review.js" defer></script>
 </head>
 
-<body>
+<body class="with-rshop-nav">
 
-<!-- 
-     SHARED TOP NAVIGATION
-
+<!-- Shared navigation used by every RShop page. -->
 <div id="rshop-shared-nav"></div>
 
 
@@ -193,6 +191,15 @@
                     <li>Keep feedback respectful and relevant.</li>
                 </ul>
             </div>
+        </div>
+
+
+        <div class="review-auth-notice" id="reviewAuthNotice" hidden>
+            <strong>Sign in to write a review</strong>
+            <p>Your review will be connected to your RShop account.</p>
+            <a class="btn btn-primary" href="../user_account/auth.html?returnTo=../Product_Review_Rating/review.html%23write-review">
+                Sign In
+            </a>
         </div>
 
 
