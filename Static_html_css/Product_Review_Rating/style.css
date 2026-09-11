@@ -113,6 +113,26 @@ img {
     font-weight: 800;
 }
 
+.review-auth-notice {
+    padding: 30px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+}
+
+.review-auth-notice strong {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 1.25rem;
+}
+
+.review-auth-notice p {
+    margin-bottom: 18px;
+    color: var(--muted);
+}
+
 /* =====================================================
    MAIN
 ===================================================== */
@@ -770,8 +790,10 @@ main {
 }
 
 .form-intro {
-    position: sticky;
-    top: 110px;
+    /* Keep the introduction in normal document flow. A sticky intro can
+       overlap the form when browser zoom switches the page to one column. */
+    position: static;
+    min-width: 0;
 }
 
 .form-intro > p {
@@ -803,11 +825,18 @@ main {
 }
 
 .review-form {
+    min-width: 0;
+
     display: grid;
     grid-template-columns:
         repeat(2, minmax(0, 1fr));
 
     gap: 17px;
+}
+
+.review-form .field,
+.review-form .rating-field {
+    min-width: 0;
 }
 
 .field.full,
