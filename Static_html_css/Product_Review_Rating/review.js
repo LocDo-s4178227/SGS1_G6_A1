@@ -20,15 +20,49 @@ const DRAFT_STORAGE_KEY = "rshop.reviewDraft.v3";
 const FILTER_STORAGE_KEY = "rshop.reviewFilters.v3";
 
 
-/* 
+/*
    CURRENT USER
-   Replace this object later with your shared login module.
+   Uses the same login state as the User Account module.
  */
 
-const currentUser = {
-    id: 1,
-    name: "Alex Nguyen"
-};
+function readCurrentUser() {
+    try {
+        const user = JSON.parse(localStorage.getItem("user") || "null");
+
+        if (!user) {
+            return null;
+        }
+
+        const id = user.id || user._id || localStorage.getItem("userId");
+
+        if (!id) {
+            return null;
+        }
+
+        return {
+            id,
+            name: user.username || user.name || user.email || localStorage.getItem("username") || "RShop User"
+        };
+    } catch (error) {
+        console.warn("Could not read the signed-in user.", error);
+        return null;
+    }
+}
+
+const currentUser = readCurrentUser();
+
+function isSameUser(firstId, secondId) {
+    return firstId != null && secondId != null && String(firstId) === String(secondId);
+}
+
+function requireSignedIn() {
+    if (currentUser) {
+        return true;
+    }
+
+    window.location.href = "../user_account/auth.html?returnTo=../Product_Review_Rating/review.html%23write-review";
+    return false;
+}
 
 
 /* 
@@ -205,6 +239,9 @@ const elements = {
 
     reviewForm:
         document.getElementById("reviewForm"),
+
+    reviewAuthNotice:
+        document.getElementById("reviewAuthNotice"),
 
     reviewId:
         document.getElementById("reviewId"),
@@ -877,8 +914,8 @@ function renderReviews() {
 function createReviewCard(review) {
 
     const isOwner =
-        review.reviewerId ===
-        currentUser.id;
+        currentUser &&
+        isSameUser(review.reviewerId, currentUser.id);
 
 
     const image =
@@ -1076,8 +1113,8 @@ function openReviewModal(review) {
 
 
     const isOwner =
-        review.reviewerId ===
-        currentUser.id;
+        currentUser &&
+        isSameUser(review.reviewerId, currentUser.id);
 
 
     elements.modalActions.innerHTML =
@@ -1631,6 +1668,10 @@ function saveReview(event) {
 
     event.preventDefault();
 
+    if (!requireSignedIn()) {
+        return;
+    }
+
 
     if (!validateForm()) {
 
@@ -1680,8 +1721,7 @@ function saveReview(event) {
 
 
                     if (
-                        review.reviewerId !==
-                        currentUser.id
+                        !isSameUser(review.reviewerId, currentUser.id)
                     ) {
                         return review;
                     }
@@ -1761,6 +1801,10 @@ function saveReview(event) {
 
 function editReview(reviewId) {
 
+    if (!requireSignedIn()) {
+        return;
+    }
+
     const review =
         reviews.find(
             (item) =>
@@ -1770,8 +1814,7 @@ function editReview(reviewId) {
 
     if (
         !review ||
-        review.reviewerId !==
-            currentUser.id
+        !isSameUser(review.reviewerId, currentUser.id)
     ) {
         return;
     }
@@ -1851,6 +1894,10 @@ function editReview(reviewId) {
 
 function deleteReview(reviewId) {
 
+    if (!requireSignedIn()) {
+        return;
+    }
+
     const review =
         reviews.find(
             (item) =>
@@ -1860,8 +1907,7 @@ function deleteReview(reviewId) {
 
     if (
         !review ||
-        review.reviewerId !==
-            currentUser.id
+        !isSameUser(review.reviewerId, currentUser.id)
     ) {
         return;
     }
@@ -2099,6 +2145,10 @@ elements.heroWriteButton
         "click",
         function () {
 
+            if (!requireSignedIn()) {
+                return;
+            }
+
             document
                 .getElementById(
                     "write-review"
@@ -2284,6 +2334,9 @@ liveValidationMap
 ===================================================== */
 
 function initializePage() {
+    elements.reviewForm.hidden = !currentUser;
+    elements.reviewAuthNotice.hidden = Boolean(currentUser);
+
     restoreFilterState();
 
     restoreDraft();
